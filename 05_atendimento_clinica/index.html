@@ -1,0 +1,4288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Gestão Operacional de Atendimento & Agendas | Centro Médico Integrado</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        clinic: {
+                            dark: '#080d16',
+                            card: '#0f172a',
+                            border: '#1e293b',
+                            teal: '#0d9488',
+                            cyan: '#06b6d4',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e',
+                            indigo: '#6366f1'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #070c14;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+        .glass-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.65) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.25s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(13, 148, 136, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.4);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(13, 148, 136, 0.6);
+        }
+    
+        /* ADAPTATIVO MOBILE TAILWIND */
+        @media (max-width: 900px) {
+            body {
+                overflow-x: hidden !important;
+            }
+            header.glass-panel {
+                padding: 12px 14px !important;
+            }
+            main {
+                padding: 12px 8px !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+            .grid-cols-6, .grid-cols-5, .grid-cols-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 8px !important;
+            }
+            .grid-cols-3, .grid-cols-2 {
+                grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+                gap: 12px !important;
+            }
+            .header-actions-mobile {
+                width: 100% !important;
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+            .header-actions-mobile button {
+                flex: 1 1 calc(50% - 4px) !important;
+                justify-content: center !important;
+            }
+            .overflow-x-auto {
+                -webkit-overflow-scrolling: touch !important;
+            }
+            table {
+                min-width: 620px !important;
+            }
+            .text-xl {
+                font-size: 1.1rem !important;
+                line-height: 1.35 !important;
+            }
+            .text-2xl {
+                font-size: 1.35rem !important;
+            }
+            .text-3xl {
+                font-size: 1.6rem !important;
+            }
+            .h-\[320px\], .h-\[300px\], .h-\[350px\] {
+                height: 260px !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .grid-cols-6, .grid-cols-5, .grid-cols-4 {
+                grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+            }
+            .header-actions-mobile button {
+                flex: 1 1 100% !important;
+            }
+        }
+</style>
+
+<script>
+  window.FALLBACK_FILTROS = {
+  "convenios": [
+    "Amil Assist\u00eancia M\u00e9dica",
+    "Bradesco Sa\u00fade",
+    "Care Plus / Omint",
+    "NotreDame Interm\u00e9dica",
+    "Particular",
+    "Porto Seguro Sa\u00fade",
+    "SulAm\u00e9rica Sa\u00fade",
+    "Unimed Nacional"
+  ],
+  "dias_semana": [
+    "Segunda-feira",
+    "Ter\u00e7a-feira",
+    "Quarta-feira",
+    "Quinta-feira",
+    "Sexta-feira",
+    "S\u00e1bado"
+  ],
+  "especialidades": [
+    "Cardiologia",
+    "Cl\u00ednica Geral",
+    "Dermatologia",
+    "Endocrinologia",
+    "Gastroenterologia",
+    "Ginecologia & Obstetr\u00edcia",
+    "Neurologia",
+    "Oftalmologia",
+    "Ortopedia",
+    "Otorrinolaringologia",
+    "Pediatria",
+    "Pneumologia",
+    "Psiquiatria",
+    "Reumatologia",
+    "Urologia"
+  ],
+  "medicos": [
+    "Dr. Alexandre Paiva",
+    "Dr. Andr\u00e9 Guimar\u00e3es",
+    "Dr. Carlos Eduardo Mendes",
+    "Dr. Fernando Prado",
+    "Dr. Gustavo Henrique Neves",
+    "Dr. Marcelo Fagundes",
+    "Dr. Roberto Takahashi",
+    "Dr. Rodrigo Alencar",
+    "Dra. Beatriz Silveira",
+    "Dra. Camila Duarte",
+    "Dra. Juliana Barreto",
+    "Dra. Luciana Peixoto",
+    "Dra. Mariana Vasconcelos",
+    "Dra. Renata Figueiredo",
+    "Dra. Vanessa Moura"
+  ],
+  "meses": [
+    {
+      "mes": 1,
+      "mes_nome": "Janeiro"
+    },
+    {
+      "mes": 2,
+      "mes_nome": "Fevereiro"
+    },
+    {
+      "mes": 3,
+      "mes_nome": "Mar\u00e7o"
+    },
+    {
+      "mes": 4,
+      "mes_nome": "Abril"
+    },
+    {
+      "mes": 5,
+      "mes_nome": "Maio"
+    },
+    {
+      "mes": 6,
+      "mes_nome": "Junho"
+    },
+    {
+      "mes": 7,
+      "mes_nome": "Julho"
+    },
+    {
+      "mes": 8,
+      "mes_nome": "Agosto"
+    },
+    {
+      "mes": 9,
+      "mes_nome": "Setembro"
+    },
+    {
+      "mes": 10,
+      "mes_nome": "Outubro"
+    },
+    {
+      "mes": 11,
+      "mes_nome": "Novembro"
+    },
+    {
+      "mes": 12,
+      "mes_nome": "Dezembro"
+    }
+  ],
+  "tipos": [
+    "Conv\u00eanio",
+    "Particular"
+  ],
+  "unidades": [
+    "Unidade Centro M\u00e9dico Paulista",
+    "Unidade Jardins - Premium",
+    "Unidade Morumbi - Diagn\u00f3sticos"
+  ]
+}
+;
+  window.FALLBACK_DADOS = {
+  "dias_movimento": [
+    {
+      "dia_num": 1,
+      "dia_semana": "Segunda-feira",
+      "faturamento": 150983.8,
+      "taxa_ocupacao": 98.3,
+      "tempo_espera": 21.4,
+      "tempo_total": 58.1,
+      "total_agendados": 639,
+      "total_atendidos": 556
+    },
+    {
+      "dia_num": 2,
+      "dia_semana": "Ter\u00e7a-feira",
+      "faturamento": 152435.5,
+      "taxa_ocupacao": 90.7,
+      "tempo_espera": 18.8,
+      "tempo_total": 55.6,
+      "total_agendados": 610,
+      "total_atendidos": 535
+    },
+    {
+      "dia_num": 3,
+      "dia_semana": "Quarta-feira",
+      "faturamento": 159749.49,
+      "taxa_ocupacao": 93.9,
+      "tempo_espera": 19.3,
+      "tempo_total": 56.2,
+      "total_agendados": 652,
+      "total_atendidos": 585
+    },
+    {
+      "dia_num": 4,
+      "dia_semana": "Quinta-feira",
+      "faturamento": 154500.59,
+      "taxa_ocupacao": 87.1,
+      "tempo_espera": 18.1,
+      "tempo_total": 55.1,
+      "total_agendados": 639,
+      "total_atendidos": 564
+    },
+    {
+      "dia_num": 5,
+      "dia_semana": "Sexta-feira",
+      "faturamento": 146469.88,
+      "taxa_ocupacao": 79.2,
+      "tempo_espera": 16.5,
+      "tempo_total": 53.1,
+      "total_agendados": 606,
+      "total_atendidos": 547
+    },
+    {
+      "dia_num": 6,
+      "dia_semana": "S\u00e1bado",
+      "faturamento": 157114.06,
+      "taxa_ocupacao": 56.8,
+      "tempo_espera": 10.9,
+      "tempo_total": 47.0,
+      "total_agendados": 654,
+      "total_atendidos": 560
+    }
+  ],
+  "especialidades_mes_a_mes": {
+    "Cardiologia": {
+      "Abr/26": 23,
+      "Ago/26": 22,
+      "Fev/26": 22,
+      "Jan/26": 15,
+      "Jul/26": 22,
+      "Jun/26": 23,
+      "Mai/26": 22,
+      "Mar/26": 31,
+      "Out/26": 23,
+      "Set/26": 35
+    },
+    "Cl\u00ednica Geral": {
+      "Abr/26": 28,
+      "Ago/26": 16,
+      "Fev/26": 23,
+      "Jan/26": 16,
+      "Jul/26": 15,
+      "Jun/26": 24,
+      "Mai/26": 19,
+      "Mar/26": 24,
+      "Out/26": 25,
+      "Set/26": 23
+    },
+    "Dermatologia": {
+      "Abr/26": 18,
+      "Ago/26": 27,
+      "Fev/26": 28,
+      "Jan/26": 28,
+      "Jul/26": 24,
+      "Jun/26": 24,
+      "Mai/26": 15,
+      "Mar/26": 24,
+      "Out/26": 30,
+      "Set/26": 20
+    },
+    "Endocrinologia": {
+      "Abr/26": 22,
+      "Ago/26": 14,
+      "Fev/26": 20,
+      "Jan/26": 26,
+      "Jul/26": 31,
+      "Jun/26": 20,
+      "Mai/26": 22,
+      "Mar/26": 26,
+      "Out/26": 23,
+      "Set/26": 30
+    },
+    "Gastroenterologia": {
+      "Abr/26": 21,
+      "Ago/26": 20,
+      "Fev/26": 22,
+      "Jan/26": 10,
+      "Jul/26": 21,
+      "Jun/26": 15,
+      "Mai/26": 21,
+      "Mar/26": 23,
+      "Out/26": 25,
+      "Set/26": 19
+    },
+    "Ginecologia & Obstetr\u00edcia": {
+      "Abr/26": 18,
+      "Ago/26": 19,
+      "Fev/26": 11,
+      "Jan/26": 20,
+      "Jul/26": 26,
+      "Jun/26": 16,
+      "Mai/26": 26,
+      "Mar/26": 25,
+      "Out/26": 23,
+      "Set/26": 23
+    },
+    "Neurologia": {
+      "Abr/26": 22,
+      "Ago/26": 22,
+      "Fev/26": 16,
+      "Jan/26": 14,
+      "Jul/26": 24,
+      "Jun/26": 24,
+      "Mai/26": 16,
+      "Mar/26": 18,
+      "Out/26": 21,
+      "Set/26": 17
+    },
+    "Oftalmologia": {
+      "Abr/26": 16,
+      "Ago/26": 19,
+      "Fev/26": 20,
+      "Jan/26": 23,
+      "Jul/26": 16,
+      "Jun/26": 26,
+      "Mai/26": 19,
+      "Mar/26": 26,
+      "Out/26": 32,
+      "Set/26": 14
+    },
+    "Ortopedia": {
+      "Abr/26": 16,
+      "Ago/26": 28,
+      "Fev/26": 23,
+      "Jan/26": 28,
+      "Jul/26": 20,
+      "Jun/26": 20,
+      "Mai/26": 23,
+      "Mar/26": 25,
+      "Out/26": 21,
+      "Set/26": 26
+    },
+    "Otorrinolaringologia": {
+      "Abr/26": 33,
+      "Ago/26": 32,
+      "Fev/26": 19,
+      "Jan/26": 13,
+      "Jul/26": 33,
+      "Jun/26": 24,
+      "Mai/26": 27,
+      "Mar/26": 32,
+      "Out/26": 22,
+      "Set/26": 22
+    },
+    "Pediatria": {
+      "Abr/26": 25,
+      "Ago/26": 27,
+      "Fev/26": 27,
+      "Jan/26": 20,
+      "Jul/26": 29,
+      "Jun/26": 18,
+      "Mai/26": 19,
+      "Mar/26": 31,
+      "Out/26": 21,
+      "Set/26": 28
+    },
+    "Pneumologia": {
+      "Abr/26": 21,
+      "Ago/26": 17,
+      "Fev/26": 18,
+      "Jan/26": 16,
+      "Jul/26": 12,
+      "Jun/26": 24,
+      "Mai/26": 23,
+      "Mar/26": 22,
+      "Out/26": 27,
+      "Set/26": 23
+    },
+    "Psiquiatria": {
+      "Abr/26": 21,
+      "Ago/26": 21,
+      "Fev/26": 19,
+      "Jan/26": 25,
+      "Jul/26": 26,
+      "Jun/26": 22,
+      "Mai/26": 29,
+      "Mar/26": 24,
+      "Out/26": 19,
+      "Set/26": 21
+    },
+    "Reumatologia": {
+      "Abr/26": 18,
+      "Ago/26": 29,
+      "Fev/26": 23,
+      "Jan/26": 21,
+      "Jul/26": 22,
+      "Jun/26": 14,
+      "Mai/26": 25,
+      "Mar/26": 15,
+      "Out/26": 27,
+      "Set/26": 23
+    },
+    "Urologia": {
+      "Abr/26": 29,
+      "Ago/26": 27,
+      "Fev/26": 18,
+      "Jan/26": 23,
+      "Jul/26": 27,
+      "Jun/26": 22,
+      "Mai/26": 11,
+      "Mar/26": 26,
+      "Out/26": 26,
+      "Set/26": 27
+    }
+  },
+  "especialidades_por_dia": {
+    "Quarta-feira": [
+      {
+        "especialidade": "Urologia",
+        "qtd": 52
+      },
+      {
+        "especialidade": "Gastroenterologia",
+        "qtd": 47
+      },
+      {
+        "especialidade": "Pediatria",
+        "qtd": 47
+      },
+      {
+        "especialidade": "Cardiologia",
+        "qtd": 45
+      },
+      {
+        "especialidade": "Otorrinolaringologia",
+        "qtd": 43
+      },
+      {
+        "especialidade": "Psiquiatria",
+        "qtd": 42
+      },
+      {
+        "especialidade": "Ortopedia",
+        "qtd": 40
+      },
+      {
+        "especialidade": "Neurologia",
+        "qtd": 39
+      },
+      {
+        "especialidade": "Endocrinologia",
+        "qtd": 38
+      },
+      {
+        "especialidade": "Dermatologia",
+        "qtd": 37
+      },
+      {
+        "especialidade": "Reumatologia",
+        "qtd": 37
+      },
+      {
+        "especialidade": "Cl\u00ednica Geral",
+        "qtd": 32
+      },
+      {
+        "especialidade": "Pneumologia",
+        "qtd": 31
+      },
+      {
+        "especialidade": "Ginecologia & Obstetr\u00edcia",
+        "qtd": 28
+      },
+      {
+        "especialidade": "Oftalmologia",
+        "qtd": 27
+      }
+    ],
+    "Quinta-feira": [
+      {
+        "especialidade": "Otorrinolaringologia",
+        "qtd": 51
+      },
+      {
+        "especialidade": "Pediatria",
+        "qtd": 47
+      },
+      {
+        "especialidade": "Ginecologia & Obstetr\u00edcia",
+        "qtd": 42
+      },
+      {
+        "especialidade": "Neurologia",
+        "qtd": 42
+      },
+      {
+        "especialidade": "Cl\u00ednica Geral",
+        "qtd": 41
+      },
+      {
+        "especialidade": "Dermatologia",
+        "qtd": 41
+      },
+      {
+        "especialidade": "Endocrinologia",
+        "qtd": 41
+      },
+      {
+        "especialidade": "Oftalmologia",
+        "qtd": 41
+      },
+      {
+        "especialidade": "Ortopedia",
+        "qtd": 34
+      },
+      {
+        "especialidade": "Psiquiatria",
+        "qtd": 33
+      },
+      {
+        "especialidade": "Reumatologia",
+        "qtd": 33
+      },
+      {
+        "especialidade": "Pneumologia",
+        "qtd": 31
+      },
+      {
+        "especialidade": "Urologia",
+        "qtd": 31
+      },
+      {
+        "especialidade": "Gastroenterologia",
+        "qtd": 30
+      },
+      {
+        "especialidade": "Cardiologia",
+        "qtd": 26
+      }
+    ],
+    "Segunda-feira": [
+      {
+        "especialidade": "Dermatologia",
+        "qtd": 53
+      },
+      {
+        "especialidade": "Cardiologia",
+        "qtd": 44
+      },
+      {
+        "especialidade": "Reumatologia",
+        "qtd": 43
+      },
+      {
+        "especialidade": "Psiquiatria",
+        "qtd": 40
+      },
+      {
+        "especialidade": "Oftalmologia",
+        "qtd": 39
+      },
+      {
+        "especialidade": "Pediatria",
+        "qtd": 38
+      },
+      {
+        "especialidade": "Urologia",
+        "qtd": 38
+      },
+      {
+        "especialidade": "Cl\u00ednica Geral",
+        "qtd": 37
+      },
+      {
+        "especialidade": "Otorrinolaringologia",
+        "qtd": 37
+      },
+      {
+        "especialidade": "Ginecologia & Obstetr\u00edcia",
+        "qtd": 34
+      },
+      {
+        "especialidade": "Neurologia",
+        "qtd": 34
+      },
+      {
+        "especialidade": "Pneumologia",
+        "qtd": 33
+      },
+      {
+        "especialidade": "Ortopedia",
+        "qtd": 32
+      },
+      {
+        "especialidade": "Endocrinologia",
+        "qtd": 31
+      },
+      {
+        "especialidade": "Gastroenterologia",
+        "qtd": 23
+      }
+    ],
+    "Sexta-feira": [
+      {
+        "especialidade": "Cardiologia",
+        "qtd": 46
+      },
+      {
+        "especialidade": "Ortopedia",
+        "qtd": 45
+      },
+      {
+        "especialidade": "Ginecologia & Obstetr\u00edcia",
+        "qtd": 44
+      },
+      {
+        "especialidade": "Psiquiatria",
+        "qtd": 43
+      },
+      {
+        "especialidade": "Urologia",
+        "qtd": 41
+      },
+      {
+        "especialidade": "Endocrinologia",
+        "qtd": 40
+      },
+      {
+        "especialidade": "Otorrinolaringologia",
+        "qtd": 39
+      },
+      {
+        "especialidade": "Cl\u00ednica Geral",
+        "qtd": 35
+      },
+      {
+        "especialidade": "Oftalmologia",
+        "qtd": 34
+      },
+      {
+        "especialidade": "Gastroenterologia",
+        "qtd": 32
+      },
+      {
+        "especialidade": "Pediatria",
+        "qtd": 32
+      },
+      {
+        "especialidade": "Dermatologia",
+        "qtd": 31
+      },
+      {
+        "especialidade": "Reumatologia",
+        "qtd": 31
+      },
+      {
+        "especialidade": "Neurologia",
+        "qtd": 27
+      },
+      {
+        "especialidade": "Pneumologia",
+        "qtd": 27
+      }
+    ],
+    "S\u00e1bado": [
+      {
+        "especialidade": "Endocrinologia",
+        "qtd": 51
+      },
+      {
+        "especialidade": "Otorrinolaringologia",
+        "qtd": 44
+      },
+      {
+        "especialidade": "Dermatologia",
+        "qtd": 42
+      },
+      {
+        "especialidade": "Ortopedia",
+        "qtd": 42
+      },
+      {
+        "especialidade": "Reumatologia",
+        "qtd": 41
+      },
+      {
+        "especialidade": "Cardiologia",
+        "qtd": 40
+      },
+      {
+        "especialidade": "Gastroenterologia",
+        "qtd": 40
+      },
+      {
+        "especialidade": "Pneumologia",
+        "qtd": 40
+      },
+      {
+        "especialidade": "Oftalmologia",
+        "qtd": 37
+      },
+      {
+        "especialidade": "Urologia",
+        "qtd": 37
+      },
+      {
+        "especialidade": "Pediatria",
+        "qtd": 35
+      },
+      {
+        "especialidade": "Cl\u00ednica Geral",
+        "qtd": 31
+      },
+      {
+        "especialidade": "Neurologia",
+        "qtd": 28
+      },
+      {
+        "especialidade": "Psiquiatria",
+        "qtd": 27
+      },
+      {
+        "especialidade": "Ginecologia & Obstetr\u00edcia",
+        "qtd": 25
+      }
+    ],
+    "Ter\u00e7a-feira": [
+      {
+        "especialidade": "Pediatria",
+        "qtd": 46
+      },
+      {
+        "especialidade": "Otorrinolaringologia",
+        "qtd": 43
+      },
+      {
+        "especialidade": "Psiquiatria",
+        "qtd": 42
+      },
+      {
+        "especialidade": "Pneumologia",
+        "qtd": 41
+      },
+      {
+        "especialidade": "Cardiologia",
+        "qtd": 37
+      },
+      {
+        "especialidade": "Cl\u00ednica Geral",
+        "qtd": 37
+      },
+      {
+        "especialidade": "Ortopedia",
+        "qtd": 37
+      },
+      {
+        "especialidade": "Urologia",
+        "qtd": 37
+      },
+      {
+        "especialidade": "Dermatologia",
+        "qtd": 34
+      },
+      {
+        "especialidade": "Ginecologia & Obstetr\u00edcia",
+        "qtd": 34
+      },
+      {
+        "especialidade": "Endocrinologia",
+        "qtd": 33
+      },
+      {
+        "especialidade": "Oftalmologia",
+        "qtd": 33
+      },
+      {
+        "especialidade": "Reumatologia",
+        "qtd": 32
+      },
+      {
+        "especialidade": "Gastroenterologia",
+        "qtd": 25
+      },
+      {
+        "especialidade": "Neurologia",
+        "qtd": 24
+      }
+    ]
+  },
+  "evolucao_mensal": [
+    {
+      "agendados": 340,
+      "ano": 2026,
+      "atendidos": 298,
+      "espera_media": 17.5,
+      "faturamento": 82179.04,
+      "label": "Jan/26",
+      "mes": 1,
+      "mes_nome": "Janeiro",
+      "ocupacao_media": 83.9
+    },
+    {
+      "agendados": 349,
+      "ano": 2026,
+      "atendidos": 309,
+      "espera_media": 17.3,
+      "faturamento": 82822.86,
+      "label": "Fev/26",
+      "mes": 2,
+      "mes_nome": "Fevereiro",
+      "ocupacao_media": 84.1
+    },
+    {
+      "agendados": 418,
+      "ano": 2026,
+      "atendidos": 372,
+      "espera_media": 17.8,
+      "faturamento": 99622.18,
+      "label": "Mar/26",
+      "mes": 3,
+      "mes_nome": "Mar\u00e7o",
+      "ocupacao_media": 85.2
+    },
+    {
+      "agendados": 379,
+      "ano": 2026,
+      "atendidos": 331,
+      "espera_media": 17.6,
+      "faturamento": 95761.41,
+      "label": "Abr/26",
+      "mes": 4,
+      "mes_nome": "Abril",
+      "ocupacao_media": 84.6
+    },
+    {
+      "agendados": 354,
+      "ano": 2026,
+      "atendidos": 317,
+      "espera_media": 16.7,
+      "faturamento": 88112.38,
+      "label": "Mai/26",
+      "mes": 5,
+      "mes_nome": "Maio",
+      "ocupacao_media": 82.0
+    },
+    {
+      "agendados": 362,
+      "ano": 2026,
+      "atendidos": 316,
+      "espera_media": 17.7,
+      "faturamento": 86099.28,
+      "label": "Jun/26",
+      "mes": 6,
+      "mes_nome": "Junho",
+      "ocupacao_media": 85.0
+    },
+    {
+      "agendados": 400,
+      "ano": 2026,
+      "atendidos": 348,
+      "espera_media": 17.2,
+      "faturamento": 97834.19,
+      "label": "Jul/26",
+      "mes": 7,
+      "mes_nome": "Julho",
+      "ocupacao_media": 83.7
+    },
+    {
+      "agendados": 389,
+      "ano": 2026,
+      "atendidos": 340,
+      "espera_media": 17.6,
+      "faturamento": 90628.04,
+      "label": "Ago/26",
+      "mes": 8,
+      "mes_nome": "Agosto",
+      "ocupacao_media": 84.4
+    },
+    {
+      "agendados": 392,
+      "ano": 2026,
+      "atendidos": 351,
+      "espera_media": 18.2,
+      "faturamento": 96443.83,
+      "label": "Set/26",
+      "mes": 9,
+      "mes_nome": "Setembro",
+      "ocupacao_media": 85.7
+    },
+    {
+      "agendados": 417,
+      "ano": 2026,
+      "atendidos": 365,
+      "espera_media": 17.1,
+      "faturamento": 101750.11,
+      "label": "Out/26",
+      "mes": 10,
+      "mes_nome": "Outubro",
+      "ocupacao_media": 83.6
+    }
+  ],
+  "evolucao_tipo_mes": [
+    {
+      "ano": 2026,
+      "fat_convenio": 40989.0,
+      "fat_particular": 41190.04,
+      "label": "Jan/26",
+      "mes": 1,
+      "mes_nome": "Janeiro",
+      "pct_particular": 28.5,
+      "qtd_convenio": 213,
+      "qtd_particular": 85
+    },
+    {
+      "ano": 2026,
+      "fat_convenio": 44420.22,
+      "fat_particular": 38402.64,
+      "label": "Fev/26",
+      "mes": 2,
+      "mes_nome": "Fevereiro",
+      "pct_particular": 26.9,
+      "qtd_convenio": 226,
+      "qtd_particular": 83
+    },
+    {
+      "ano": 2026,
+      "fat_convenio": 54279.34,
+      "fat_particular": 45342.84,
+      "label": "Mar/26",
+      "mes": 3,
+      "mes_nome": "Mar\u00e7o",
+      "pct_particular": 26.1,
+      "qtd_convenio": 275,
+      "qtd_particular": 97
+    },
+    {
+      "ano": 2026,
+      "fat_convenio": 44171.36,
+      "fat_particular": 51590.05,
+      "label": "Abr/26",
+      "mes": 4,
+      "mes_nome": "Abril",
+      "pct_particular": 32.6,
+      "qtd_convenio": 223,
+      "qtd_particular": 108
+    },
+    {
+      "ano": 2026,
+      "fat_convenio": 42661.75,
+      "fat_particular": 45450.63,
+      "label": "Mai/26",
+      "mes": 5,
+      "mes_nome": "Maio",
+      "pct_particular": 30.6,
+      "qtd_convenio": 220,
+      "qtd_particular": 97
+    },
+    {
+      "ano": 2026,
+      "fat_convenio": 44172.51,
+      "fat_particular": 41926.77,
+      "label": "Jun/26",
+      "mes": 6,
+      "mes_nome": "Junho",
+      "pct_particular": 28.2,
+      "qtd_convenio": 227,
+      "qtd_particular": 89
+    },
+    {
+      "ano": 2026,
+      "fat_convenio": 47820.95,
+      "fat_particular": 50013.24,
+      "label": "Jul/26",
+      "mes": 7,
+      "mes_nome": "Julho",
+      "pct_particular": 29.9,
+      "qtd_convenio": 244,
+      "qtd_particular": 104
+    },
+    {
+      "ano": 2026,
+      "fat_convenio": 48863.59,
+      "fat_particular": 41764.45,
+      "label": "Ago/26",
+      "mes": 8,
+      "mes_nome": "Agosto",
+      "pct_particular": 25.9,
+      "qtd_convenio": 252,
+      "qtd_particular": 88
+    },
+    {
+      "ano": 2026,
+      "fat_convenio": 48888.07,
+      "fat_particular": 47555.76,
+      "label": "Set/26",
+      "mes": 9,
+      "mes_nome": "Setembro",
+      "pct_particular": 29.1,
+      "qtd_convenio": 249,
+      "qtd_particular": 102
+    },
+    {
+      "ano": 2026,
+      "fat_convenio": 50222.17,
+      "fat_particular": 51527.94,
+      "label": "Out/26",
+      "mes": 10,
+      "mes_nome": "Outubro",
+      "pct_particular": 30.1,
+      "qtd_convenio": 255,
+      "qtd_particular": 110
+    }
+  ],
+  "kpis": {
+    "faturamento_total": 921253.32,
+    "mix_particular_pct": 28.8,
+    "nps_medio": 8.5,
+    "taxa_noshow_pct": 7.8,
+    "taxa_ocupacao_media": 84.2,
+    "tempo_consulta_medio": 24.7,
+    "tempo_espera_medio": 17.5,
+    "tempo_total_medio": 54.2,
+    "ticket_medio": 275.25,
+    "total_agendados": 3800,
+    "total_atendidos": 3347
+  },
+  "labels_meses": [
+    "Jan/26",
+    "Fev/26",
+    "Mar/26",
+    "Abr/26",
+    "Mai/26",
+    "Jun/26",
+    "Jul/26",
+    "Ago/26",
+    "Set/26",
+    "Out/26"
+  ],
+  "mix_atendimento": [
+    {
+      "faturamento": 466488.96,
+      "tempo_consulta": 24.6,
+      "tempo_espera": 17.7,
+      "ticket_medio": 195.67,
+      "tipo": "Conv\u00eanio",
+      "total_atendidos": 2384
+    },
+    {
+      "faturamento": 454764.36,
+      "tempo_consulta": 25.0,
+      "tempo_espera": 17.0,
+      "ticket_medio": 472.24,
+      "tipo": "Particular",
+      "total_atendidos": 963
+    }
+  ],
+  "ocupacao_especialidades": [
+    {
+      "especialidade": "Otorrinolaringologia",
+      "faturamento": 66397.25,
+      "taxa_ocupacao": 83.9,
+      "tempo_consulta": 19.6,
+      "tempo_espera": 17.7,
+      "total_agendados": 286,
+      "total_atendidos": 257
+    },
+    {
+      "especialidade": "Pediatria",
+      "faturamento": 63875.31,
+      "taxa_ocupacao": 85.1,
+      "tempo_consulta": 27.8,
+      "tempo_espera": 18.0,
+      "total_agendados": 267,
+      "total_atendidos": 245
+    },
+    {
+      "especialidade": "Cardiologia",
+      "faturamento": 68852.52,
+      "taxa_ocupacao": 84.0,
+      "tempo_consulta": 24.7,
+      "tempo_espera": 17.7,
+      "total_agendados": 266,
+      "total_atendidos": 238
+    },
+    {
+      "especialidade": "Dermatologia",
+      "faturamento": 67951.47,
+      "taxa_ocupacao": 84.1,
+      "tempo_consulta": 19.7,
+      "tempo_espera": 17.2,
+      "total_agendados": 268,
+      "total_atendidos": 238
+    },
+    {
+      "especialidade": "Urologia",
+      "faturamento": 60826.62,
+      "taxa_ocupacao": 84.8,
+      "tempo_consulta": 19.4,
+      "tempo_espera": 17.2,
+      "total_agendados": 270,
+      "total_atendidos": 236
+    },
+    {
+      "especialidade": "Endocrinologia",
+      "faturamento": 61609.62,
+      "taxa_ocupacao": 82.6,
+      "tempo_consulta": 24.8,
+      "tempo_espera": 17.1,
+      "total_agendados": 257,
+      "total_atendidos": 234
+    },
+    {
+      "especialidade": "Ortopedia",
+      "faturamento": 62092.05,
+      "taxa_ocupacao": 84.0,
+      "tempo_consulta": 17.3,
+      "tempo_espera": 17.3,
+      "total_agendados": 273,
+      "total_atendidos": 230
+    },
+    {
+      "especialidade": "Psiquiatria",
+      "faturamento": 70590.62,
+      "taxa_ocupacao": 85.2,
+      "tempo_consulta": 39.1,
+      "tempo_espera": 18.7,
+      "total_agendados": 260,
+      "total_atendidos": 227
+    },
+    {
+      "especialidade": "Reumatologia",
+      "faturamento": 65961.23,
+      "taxa_ocupacao": 83.5,
+      "tempo_consulta": 29.6,
+      "tempo_espera": 16.8,
+      "total_agendados": 243,
+      "total_atendidos": 217
+    },
+    {
+      "especialidade": "Cl\u00ednica Geral",
+      "faturamento": 50155.84,
+      "taxa_ocupacao": 85.6,
+      "tempo_consulta": 17.3,
+      "tempo_espera": 17.9,
+      "total_agendados": 244,
+      "total_atendidos": 213
+    },
+    {
+      "especialidade": "Oftalmologia",
+      "faturamento": 55067.85,
+      "taxa_ocupacao": 83.6,
+      "tempo_consulta": 21.2,
+      "tempo_espera": 17.1,
+      "total_agendados": 246,
+      "total_atendidos": 211
+    },
+    {
+      "especialidade": "Ginecologia & Obstetr\u00edcia",
+      "faturamento": 60072.53,
+      "taxa_ocupacao": 85.2,
+      "tempo_consulta": 30.1,
+      "tempo_espera": 18.4,
+      "total_agendados": 232,
+      "total_atendidos": 207
+    },
+    {
+      "especialidade": "Pneumologia",
+      "faturamento": 56574.85,
+      "taxa_ocupacao": 83.4,
+      "tempo_consulta": 24.4,
+      "tempo_espera": 16.6,
+      "total_agendados": 234,
+      "total_atendidos": 203
+    },
+    {
+      "especialidade": "Gastroenterologia",
+      "faturamento": 51791.77,
+      "taxa_ocupacao": 84.5,
+      "tempo_consulta": 23.7,
+      "tempo_espera": 16.9,
+      "total_agendados": 230,
+      "total_atendidos": 197
+    },
+    {
+      "especialidade": "Neurologia",
+      "faturamento": 59433.79,
+      "taxa_ocupacao": 84.2,
+      "tempo_consulta": 34.4,
+      "tempo_espera": 17.5,
+      "total_agendados": 224,
+      "total_atendidos": 194
+    }
+  ],
+  "produtividade_medicos": [
+    {
+      "especialidade": "Otorrinolaringologia",
+      "faturamento": 66397.25,
+      "medico": "Dr. Gustavo Henrique Neves",
+      "nps": 8.5,
+      "taxa_ocupacao": 83.9,
+      "tempo_consulta": 19.6,
+      "tempo_espera": 17.7,
+      "tempo_total": 49.3,
+      "total_agendados": 286,
+      "total_atendidos": 257
+    },
+    {
+      "especialidade": "Pediatria",
+      "faturamento": 63875.31,
+      "medico": "Dra. Camila Duarte",
+      "nps": 8.5,
+      "taxa_ocupacao": 85.1,
+      "tempo_consulta": 27.8,
+      "tempo_espera": 18.0,
+      "tempo_total": 57.9,
+      "total_agendados": 267,
+      "total_atendidos": 245
+    },
+    {
+      "especialidade": "Cardiologia",
+      "faturamento": 68852.52,
+      "medico": "Dr. Carlos Eduardo Mendes",
+      "nps": 8.4,
+      "taxa_ocupacao": 84.0,
+      "tempo_consulta": 24.7,
+      "tempo_espera": 17.7,
+      "tempo_total": 54.5,
+      "total_agendados": 266,
+      "total_atendidos": 238
+    },
+    {
+      "especialidade": "Dermatologia",
+      "faturamento": 67951.47,
+      "medico": "Dra. Beatriz Silveira",
+      "nps": 8.5,
+      "taxa_ocupacao": 84.1,
+      "tempo_consulta": 19.7,
+      "tempo_espera": 17.2,
+      "tempo_total": 48.8,
+      "total_agendados": 268,
+      "total_atendidos": 238
+    },
+    {
+      "especialidade": "Urologia",
+      "faturamento": 60826.62,
+      "medico": "Dr. Marcelo Fagundes",
+      "nps": 8.5,
+      "taxa_ocupacao": 84.8,
+      "tempo_consulta": 19.4,
+      "tempo_espera": 17.2,
+      "tempo_total": 48.9,
+      "total_agendados": 270,
+      "total_atendidos": 236
+    },
+    {
+      "especialidade": "Endocrinologia",
+      "faturamento": 61609.62,
+      "medico": "Dra. Luciana Peixoto",
+      "nps": 8.5,
+      "taxa_ocupacao": 82.6,
+      "tempo_consulta": 24.8,
+      "tempo_espera": 17.1,
+      "tempo_total": 53.7,
+      "total_agendados": 257,
+      "total_atendidos": 234
+    },
+    {
+      "especialidade": "Ortopedia",
+      "faturamento": 62092.05,
+      "medico": "Dr. Fernando Prado",
+      "nps": 8.6,
+      "taxa_ocupacao": 84.0,
+      "tempo_consulta": 17.3,
+      "tempo_espera": 17.3,
+      "tempo_total": 46.7,
+      "total_agendados": 273,
+      "total_atendidos": 230
+    },
+    {
+      "especialidade": "Psiquiatria",
+      "faturamento": 70590.62,
+      "medico": "Dr. Alexandre Paiva",
+      "nps": 8.3,
+      "taxa_ocupacao": 85.2,
+      "tempo_consulta": 39.1,
+      "tempo_espera": 18.7,
+      "tempo_total": 69.4,
+      "total_agendados": 260,
+      "total_atendidos": 227
+    },
+    {
+      "especialidade": "Reumatologia",
+      "faturamento": 65961.23,
+      "medico": "Dra. Vanessa Moura",
+      "nps": 8.5,
+      "taxa_ocupacao": 83.5,
+      "tempo_consulta": 29.6,
+      "tempo_espera": 16.8,
+      "tempo_total": 58.4,
+      "total_agendados": 243,
+      "total_atendidos": 217
+    },
+    {
+      "especialidade": "Cl\u00ednica Geral",
+      "faturamento": 50155.84,
+      "medico": "Dra. Juliana Barreto",
+      "nps": 8.4,
+      "taxa_ocupacao": 85.6,
+      "tempo_consulta": 17.3,
+      "tempo_espera": 17.9,
+      "tempo_total": 47.0,
+      "total_agendados": 244,
+      "total_atendidos": 213
+    },
+    {
+      "especialidade": "Oftalmologia",
+      "faturamento": 55067.85,
+      "medico": "Dr. Roberto Takahashi",
+      "nps": 8.6,
+      "taxa_ocupacao": 83.6,
+      "tempo_consulta": 21.2,
+      "tempo_espera": 17.1,
+      "tempo_total": 50.1,
+      "total_agendados": 246,
+      "total_atendidos": 211
+    },
+    {
+      "especialidade": "Ginecologia & Obstetr\u00edcia",
+      "faturamento": 60072.53,
+      "medico": "Dra. Mariana Vasconcelos",
+      "nps": 8.3,
+      "taxa_ocupacao": 85.2,
+      "tempo_consulta": 30.1,
+      "tempo_espera": 18.4,
+      "tempo_total": 60.7,
+      "total_agendados": 232,
+      "total_atendidos": 207
+    },
+    {
+      "especialidade": "Pneumologia",
+      "faturamento": 56574.85,
+      "medico": "Dr. Andr\u00e9 Guimar\u00e3es",
+      "nps": 8.5,
+      "taxa_ocupacao": 83.4,
+      "tempo_consulta": 24.4,
+      "tempo_espera": 16.6,
+      "tempo_total": 53.0,
+      "total_agendados": 234,
+      "total_atendidos": 203
+    },
+    {
+      "especialidade": "Gastroenterologia",
+      "faturamento": 51791.77,
+      "medico": "Dra. Renata Figueiredo",
+      "nps": 8.6,
+      "taxa_ocupacao": 84.5,
+      "tempo_consulta": 23.7,
+      "tempo_espera": 16.9,
+      "tempo_total": 52.7,
+      "total_agendados": 230,
+      "total_atendidos": 197
+    },
+    {
+      "especialidade": "Neurologia",
+      "faturamento": 59433.79,
+      "medico": "Dr. Rodrigo Alencar",
+      "nps": 8.5,
+      "taxa_ocupacao": 84.2,
+      "tempo_consulta": 34.4,
+      "tempo_espera": 17.5,
+      "tempo_total": 63.8,
+      "total_agendados": 224,
+      "total_atendidos": 194
+    }
+  ],
+  "ranking_convenios": [
+    {
+      "convenio": "Particular",
+      "faturamento": 454764.36,
+      "tempo_espera": 17.0,
+      "ticket_medio": 472.24,
+      "total_atendidos": 963
+    },
+    {
+      "convenio": "Bradesco Sa\u00fade",
+      "faturamento": 109285.02,
+      "tempo_espera": 17.8,
+      "ticket_medio": 210.16,
+      "total_atendidos": 520
+    },
+    {
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "faturamento": 102851.26,
+      "tempo_espera": 17.7,
+      "ticket_medio": 205.29,
+      "total_atendidos": 501
+    },
+    {
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "faturamento": 83338.67,
+      "tempo_espera": 17.4,
+      "ticket_medio": 184.38,
+      "total_atendidos": 452
+    },
+    {
+      "convenio": "Unimed Nacional",
+      "faturamento": 65101.32,
+      "tempo_espera": 18.0,
+      "ticket_medio": 175.0,
+      "total_atendidos": 372
+    },
+    {
+      "convenio": "NotreDame Interm\u00e9dica",
+      "faturamento": 39967.04,
+      "tempo_espera": 17.2,
+      "ticket_medio": 150.82,
+      "total_atendidos": 265
+    },
+    {
+      "convenio": "Porto Seguro Sa\u00fade",
+      "faturamento": 39367.7,
+      "tempo_espera": 17.4,
+      "ticket_medio": 219.93,
+      "total_atendidos": 179
+    },
+    {
+      "convenio": "Care Plus / Omint",
+      "faturamento": 26577.95,
+      "tempo_espera": 18.4,
+      "ticket_medio": 279.77,
+      "total_atendidos": 95
+    }
+  ],
+  "ranking_info": {
+    "ano_mom": 2026,
+    "ano_ref": 2026,
+    "ano_yoy": 2025,
+    "mes_mom": 9,
+    "mes_ref": 10,
+    "mes_yoy": 10
+  },
+  "ranking_operadoras": [
+    {
+      "badge_rank": "=",
+      "convenio": "Particular",
+      "faturamento": 51527.94,
+      "pos_anterior": 1,
+      "pos_yoy": 1,
+      "posicao": 1,
+      "qtd_anterior": 102,
+      "qtd_atual": 110,
+      "qtd_yoy": 85,
+      "status_rank": "manteve",
+      "ticket_medio": 468.44,
+      "var_mom_pct": 7.8,
+      "var_mom_qtd": 8,
+      "var_yoy_pct": 29.4,
+      "var_yoy_qtd": 25
+    },
+    {
+      "badge_rank": "+1",
+      "convenio": "Bradesco Sa\u00fade",
+      "faturamento": 12407.66,
+      "pos_anterior": 3,
+      "pos_yoy": 4,
+      "posicao": 2,
+      "qtd_anterior": 54,
+      "qtd_atual": 59,
+      "qtd_yoy": 33,
+      "status_rank": "subiu",
+      "ticket_medio": 210.3,
+      "var_mom_pct": 9.3,
+      "var_mom_qtd": 5,
+      "var_yoy_pct": 78.8,
+      "var_yoy_qtd": 26
+    },
+    {
+      "badge_rank": "+2",
+      "convenio": "Unimed Nacional",
+      "faturamento": 8289.98,
+      "pos_anterior": 5,
+      "pos_yoy": 6,
+      "posicao": 3,
+      "qtd_anterior": 44,
+      "qtd_atual": 47,
+      "qtd_yoy": 24,
+      "status_rank": "subiu",
+      "ticket_medio": 176.38,
+      "var_mom_pct": 6.8,
+      "var_mom_qtd": 3,
+      "var_yoy_pct": 95.8,
+      "var_yoy_qtd": 23
+    },
+    {
+      "badge_rank": "=",
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "faturamento": 8826.97,
+      "pos_anterior": 4,
+      "pos_yoy": 2,
+      "posicao": 4,
+      "qtd_anterior": 48,
+      "qtd_atual": 43,
+      "qtd_yoy": 47,
+      "status_rank": "manteve",
+      "ticket_medio": 205.28,
+      "var_mom_pct": -10.4,
+      "var_mom_qtd": -5,
+      "var_yoy_pct": -8.5,
+      "var_yoy_qtd": -4
+    },
+    {
+      "badge_rank": "-3",
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "faturamento": 6829.44,
+      "pos_anterior": 2,
+      "pos_yoy": 3,
+      "posicao": 5,
+      "qtd_anterior": 61,
+      "qtd_atual": 37,
+      "qtd_yoy": 41,
+      "status_rank": "caiu",
+      "ticket_medio": 184.58,
+      "var_mom_pct": -39.3,
+      "var_mom_qtd": -24,
+      "var_yoy_pct": -9.8,
+      "var_yoy_qtd": -4
+    },
+    {
+      "badge_rank": "=",
+      "convenio": "Porto Seguro Sa\u00fade",
+      "faturamento": 6394.86,
+      "pos_anterior": 6,
+      "pos_yoy": 7,
+      "posicao": 6,
+      "qtd_anterior": 25,
+      "qtd_atual": 29,
+      "qtd_yoy": 23,
+      "status_rank": "manteve",
+      "ticket_medio": 220.51,
+      "var_mom_pct": 16.0,
+      "var_mom_qtd": 4,
+      "var_yoy_pct": 26.1,
+      "var_yoy_qtd": 6
+    },
+    {
+      "badge_rank": "=",
+      "convenio": "NotreDame Interm\u00e9dica",
+      "faturamento": 4200.39,
+      "pos_anterior": 7,
+      "pos_yoy": 5,
+      "posicao": 7,
+      "qtd_anterior": 10,
+      "qtd_atual": 28,
+      "qtd_yoy": 26,
+      "status_rank": "manteve",
+      "ticket_medio": 150.01,
+      "var_mom_pct": 180.0,
+      "var_mom_qtd": 18,
+      "var_yoy_pct": 7.7,
+      "var_yoy_qtd": 2
+    },
+    {
+      "badge_rank": "=",
+      "convenio": "Care Plus / Omint",
+      "faturamento": 3272.87,
+      "pos_anterior": 8,
+      "pos_yoy": 8,
+      "posicao": 8,
+      "qtd_anterior": 7,
+      "qtd_atual": 12,
+      "qtd_yoy": 7,
+      "status_rank": "manteve",
+      "ticket_medio": 272.74,
+      "var_mom_pct": 71.4,
+      "var_mom_qtd": 5,
+      "var_yoy_pct": 71.4,
+      "var_yoy_qtd": 5
+    }
+  ],
+  "ultimos_atendimentos": [
+    {
+      "consulta": 22,
+      "convenio": "Bradesco Sa\u00fade",
+      "data": "2026-09-11",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Reumatologia",
+      "espera": 20,
+      "hora": "15:30",
+      "id": 17400,
+      "medico": "Dra. Vanessa Moura",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 57,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 226.55
+    },
+    {
+      "consulta": 26,
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data": "2026-09-03",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Pneumologia",
+      "espera": 18,
+      "hora": "15:15",
+      "id": 17399,
+      "medico": "Dr. Andr\u00e9 Guimar\u00e3es",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 55,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 199.41
+    },
+    {
+      "consulta": 26,
+      "convenio": "Porto Seguro Sa\u00fade",
+      "data": "2026-06-25",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Cardiologia",
+      "espera": 23,
+      "hora": "09:30",
+      "id": 17398,
+      "medico": "Dr. Carlos Eduardo Mendes",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 64,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 234.86
+    },
+    {
+      "consulta": 25,
+      "convenio": "Particular",
+      "data": "2026-07-11",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Pneumologia",
+      "espera": 11,
+      "hora": "08:15",
+      "id": 17397,
+      "medico": "Dr. Andr\u00e9 Guimar\u00e3es",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 48,
+      "tipo": "Particular",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 493.96
+    },
+    {
+      "consulta": 20,
+      "convenio": "Bradesco Sa\u00fade",
+      "data": "2026-09-15",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "Otorrinolaringologia",
+      "espera": 20,
+      "hora": "16:00",
+      "id": 17396,
+      "medico": "Dr. Gustavo Henrique Neves",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 53,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Tarde",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 194.01
+    },
+    {
+      "consulta": 14,
+      "convenio": "Particular",
+      "data": "2026-10-08",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Urologia",
+      "espera": 11,
+      "hora": "10:00",
+      "id": 17395,
+      "medico": "Dr. Marcelo Fagundes",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 37,
+      "tipo": "Particular",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 457.22
+    },
+    {
+      "consulta": 0,
+      "convenio": "Porto Seguro Sa\u00fade",
+      "data": "2026-09-16",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Gastroenterologia",
+      "espera": 0,
+      "hora": "17:45",
+      "id": 17394,
+      "medico": "Dra. Renata Figueiredo",
+      "nps": null,
+      "status": "Cancelado pelo Paciente",
+      "tempo_total": 0,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Tarde",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 206.21
+    },
+    {
+      "consulta": 32,
+      "convenio": "Bradesco Sa\u00fade",
+      "data": "2026-06-03",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Neurologia",
+      "espera": 21,
+      "hora": "19:15",
+      "id": 17393,
+      "medico": "Dr. Rodrigo Alencar",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 63,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Noite",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 199.96
+    },
+    {
+      "consulta": 24,
+      "convenio": "Particular",
+      "data": "2026-01-24",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Dermatologia",
+      "espera": 9,
+      "hora": "09:30",
+      "id": 17392,
+      "medico": "Dra. Beatriz Silveira",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 43,
+      "tipo": "Particular",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 462.37
+    },
+    {
+      "consulta": 29,
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data": "2026-05-12",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "Pneumologia",
+      "espera": 19,
+      "hora": "08:45",
+      "id": 17391,
+      "medico": "Dr. Andr\u00e9 Guimar\u00e3es",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 58,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 142.76
+    },
+    {
+      "consulta": 26,
+      "convenio": "Particular",
+      "data": "2026-04-23",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Pediatria",
+      "espera": 17,
+      "hora": "15:30",
+      "id": 17390,
+      "medico": "Dra. Camila Duarte",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 55,
+      "tipo": "Particular",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 433.52
+    },
+    {
+      "consulta": 28,
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data": "2026-05-18",
+      "dia_semana": "Segunda-feira",
+      "especialidade": "Reumatologia",
+      "espera": 15,
+      "hora": "17:15",
+      "id": 17389,
+      "medico": "Dra. Vanessa Moura",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 57,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 219.28
+    },
+    {
+      "consulta": 23,
+      "convenio": "Particular",
+      "data": "2026-08-21",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Otorrinolaringologia",
+      "espera": 27,
+      "hora": "10:45",
+      "id": 17388,
+      "medico": "Dr. Gustavo Henrique Neves",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 62,
+      "tipo": "Particular",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 398.19
+    },
+    {
+      "consulta": 39,
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data": "2026-02-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Psiquiatria",
+      "espera": 17,
+      "hora": "14:30",
+      "id": 17387,
+      "medico": "Dr. Alexandre Paiva",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 65,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 146.75
+    },
+    {
+      "consulta": 27,
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data": "2026-07-31",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Pneumologia",
+      "espera": 14,
+      "hora": "17:15",
+      "id": 17386,
+      "medico": "Dr. Andr\u00e9 Guimar\u00e3es",
+      "nps": 10,
+      "status": "Atendido",
+      "tempo_total": 53,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 220.93
+    },
+    {
+      "consulta": 25,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data": "2026-01-07",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Urologia",
+      "espera": 12,
+      "hora": "10:45",
+      "id": 17385,
+      "medico": "Dr. Marcelo Fagundes",
+      "nps": 10,
+      "status": "Atendido",
+      "tempo_total": 48,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 174.78
+    },
+    {
+      "consulta": 0,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data": "2026-01-24",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Oftalmologia",
+      "espera": 0,
+      "hora": "08:30",
+      "id": 17384,
+      "medico": "Dr. Roberto Takahashi",
+      "nps": null,
+      "status": "No-Show (Falta)",
+      "tempo_total": 0,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 196.74
+    },
+    {
+      "consulta": 22,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data": "2026-07-28",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "Otorrinolaringologia",
+      "espera": 25,
+      "hora": "08:15",
+      "id": 17383,
+      "medico": "Dr. Gustavo Henrique Neves",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 55,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 177.38
+    },
+    {
+      "consulta": 20,
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data": "2026-05-18",
+      "dia_semana": "Segunda-feira",
+      "especialidade": "Pediatria",
+      "espera": 34,
+      "hora": "17:45",
+      "id": 17382,
+      "medico": "Dra. Camila Duarte",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 70,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 152.23
+    },
+    {
+      "consulta": 18,
+      "convenio": "Particular",
+      "data": "2026-08-20",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Otorrinolaringologia",
+      "espera": 20,
+      "hora": "08:30",
+      "id": 17381,
+      "medico": "Dr. Gustavo Henrique Neves",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 53,
+      "tipo": "Particular",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 414.08
+    },
+    {
+      "consulta": 21,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data": "2026-09-03",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Ortopedia",
+      "espera": 22,
+      "hora": "11:15",
+      "id": 17380,
+      "medico": "Dr. Fernando Prado",
+      "nps": 7,
+      "status": "Atendido",
+      "tempo_total": 59,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 183.24
+    },
+    {
+      "consulta": 20,
+      "convenio": "Particular",
+      "data": "2026-03-04",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Ortopedia",
+      "espera": 14,
+      "hora": "18:45",
+      "id": 17379,
+      "medico": "Dr. Fernando Prado",
+      "nps": 10,
+      "status": "Atendido",
+      "tempo_total": 46,
+      "tipo": "Particular",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Noite",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 399.89
+    },
+    {
+      "consulta": 21,
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data": "2026-03-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Endocrinologia",
+      "espera": 18,
+      "hora": "10:15",
+      "id": 17378,
+      "medico": "Dra. Luciana Peixoto",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 46,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 198.54
+    },
+    {
+      "consulta": 30,
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data": "2026-06-15",
+      "dia_semana": "Segunda-feira",
+      "especialidade": "Pneumologia",
+      "espera": 21,
+      "hora": "16:00",
+      "id": 17377,
+      "medico": "Dr. Andr\u00e9 Guimar\u00e3es",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 63,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 191.92
+    },
+    {
+      "consulta": 18,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data": "2026-09-14",
+      "dia_semana": "Segunda-feira",
+      "especialidade": "Ortopedia",
+      "espera": 23,
+      "hora": "16:30",
+      "id": 17376,
+      "medico": "Dr. Fernando Prado",
+      "nps": 7,
+      "status": "Atendido",
+      "tempo_total": 51,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 182.52
+    },
+    {
+      "consulta": 17,
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data": "2026-03-13",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Cl\u00ednica Geral",
+      "espera": 5,
+      "hora": "16:00",
+      "id": 17375,
+      "medico": "Dra. Juliana Barreto",
+      "nps": 10,
+      "status": "Atendido",
+      "tempo_total": 38,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 208.3
+    },
+    {
+      "consulta": 32,
+      "convenio": "Particular",
+      "data": "2026-07-02",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Neurologia",
+      "espera": 27,
+      "hora": "15:45",
+      "id": 17374,
+      "medico": "Dr. Rodrigo Alencar",
+      "nps": 7,
+      "status": "Atendido",
+      "tempo_total": 73,
+      "tipo": "Particular",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 572.99
+    },
+    {
+      "consulta": 20,
+      "convenio": "Particular",
+      "data": "2026-03-09",
+      "dia_semana": "Segunda-feira",
+      "especialidade": "Cl\u00ednica Geral",
+      "espera": 18,
+      "hora": "14:30",
+      "id": 17373,
+      "medico": "Dra. Juliana Barreto",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 50,
+      "tipo": "Particular",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 353.41
+    },
+    {
+      "consulta": 19,
+      "convenio": "Particular",
+      "data": "2026-10-02",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Pneumologia",
+      "espera": 16,
+      "hora": "17:15",
+      "id": 17372,
+      "medico": "Dr. Andr\u00e9 Guimar\u00e3es",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 46,
+      "tipo": "Particular",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 466.97
+    },
+    {
+      "consulta": 32,
+      "convenio": "Particular",
+      "data": "2026-04-23",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Neurologia",
+      "espera": 20,
+      "hora": "15:15",
+      "id": 17371,
+      "medico": "Dr. Rodrigo Alencar",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 64,
+      "tipo": "Particular",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 566.24
+    },
+    {
+      "consulta": 30,
+      "convenio": "Bradesco Sa\u00fade",
+      "data": "2026-03-10",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "Pediatria",
+      "espera": 22,
+      "hora": "15:15",
+      "id": 17370,
+      "medico": "Dra. Camila Duarte",
+      "nps": 7,
+      "status": "Atendido",
+      "tempo_total": 65,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 212.8
+    },
+    {
+      "consulta": 31,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data": "2026-03-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Endocrinologia",
+      "espera": 20,
+      "hora": "17:00",
+      "id": 17369,
+      "medico": "Dra. Luciana Peixoto",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 61,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Tarde",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 172.84
+    },
+    {
+      "consulta": 33,
+      "convenio": "Unimed Nacional",
+      "data": "2026-02-19",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Neurologia",
+      "espera": 13,
+      "hora": "18:45",
+      "id": 17368,
+      "medico": "Dr. Rodrigo Alencar",
+      "nps": 10,
+      "status": "Atendido",
+      "tempo_total": 59,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Noite",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 170.13
+    },
+    {
+      "consulta": 0,
+      "convenio": "Particular",
+      "data": "2026-01-29",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Ortopedia",
+      "espera": 0,
+      "hora": "10:00",
+      "id": 17367,
+      "medico": "Dr. Fernando Prado",
+      "nps": null,
+      "status": "No-Show (Falta)",
+      "tempo_total": 0,
+      "tipo": "Particular",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 430.91
+    },
+    {
+      "consulta": 39,
+      "convenio": "Bradesco Sa\u00fade",
+      "data": "2026-05-05",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "Psiquiatria",
+      "espera": 15,
+      "hora": "18:00",
+      "id": 17366,
+      "medico": "Dr. Alexandre Paiva",
+      "nps": 10,
+      "status": "Atendido",
+      "tempo_total": 65,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Noite",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 225.23
+    },
+    {
+      "consulta": 0,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data": "2026-04-23",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Oftalmologia",
+      "espera": 0,
+      "hora": "15:00",
+      "id": 17365,
+      "medico": "Dr. Roberto Takahashi",
+      "nps": null,
+      "status": "No-Show (Falta)",
+      "tempo_total": 0,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 174.36
+    },
+    {
+      "consulta": 28,
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data": "2026-01-26",
+      "dia_semana": "Segunda-feira",
+      "especialidade": "Cardiologia",
+      "espera": 17,
+      "hora": "14:00",
+      "id": 17364,
+      "medico": "Dr. Carlos Eduardo Mendes",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 54,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 194.6
+    },
+    {
+      "consulta": 16,
+      "convenio": "Particular",
+      "data": "2026-05-08",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Urologia",
+      "espera": 27,
+      "hora": "10:45",
+      "id": 17363,
+      "medico": "Dr. Marcelo Fagundes",
+      "nps": 7,
+      "status": "Atendido",
+      "tempo_total": 54,
+      "tipo": "Particular",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 437.68
+    },
+    {
+      "consulta": 0,
+      "convenio": "Bradesco Sa\u00fade",
+      "data": "2026-07-29",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Pneumologia",
+      "espera": 0,
+      "hora": "17:45",
+      "id": 17362,
+      "medico": "Dr. Andr\u00e9 Guimar\u00e3es",
+      "nps": null,
+      "status": "No-Show (Falta)",
+      "tempo_total": 0,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 207.78
+    },
+    {
+      "consulta": 17,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data": "2026-09-30",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Dermatologia",
+      "espera": 19,
+      "hora": "16:45",
+      "id": 17361,
+      "medico": "Dra. Beatriz Silveira",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 44,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 175.21
+    },
+    {
+      "consulta": 31,
+      "convenio": "Bradesco Sa\u00fade",
+      "data": "2026-03-19",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Pediatria",
+      "espera": 14,
+      "hora": "14:15",
+      "id": 17360,
+      "medico": "Dra. Camila Duarte",
+      "nps": 10,
+      "status": "Atendido",
+      "tempo_total": 60,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Encaixe de Urg\u00eancia",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 220.35
+    },
+    {
+      "consulta": 29,
+      "convenio": "Bradesco Sa\u00fade",
+      "data": "2026-08-05",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Cardiologia",
+      "espera": 11,
+      "hora": "15:15",
+      "id": 17359,
+      "medico": "Dr. Carlos Eduardo Mendes",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 53,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 212.3
+    },
+    {
+      "consulta": 44,
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data": "2026-08-19",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Psiquiatria",
+      "espera": 24,
+      "hora": "18:30",
+      "id": 17358,
+      "medico": "Dr. Alexandre Paiva",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 78,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Encaixe de Urg\u00eancia",
+      "turno": "Noite",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 153.33
+    },
+    {
+      "consulta": 19,
+      "convenio": "Particular",
+      "data": "2026-05-02",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Endocrinologia",
+      "espera": 11,
+      "hora": "07:45",
+      "id": 17357,
+      "medico": "Dra. Luciana Peixoto",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 38,
+      "tipo": "Particular",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 453.7
+    },
+    {
+      "consulta": 25,
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data": "2026-06-23",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "Otorrinolaringologia",
+      "espera": 12,
+      "hora": "09:45",
+      "id": 17356,
+      "medico": "Dr. Gustavo Henrique Neves",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 48,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 147.07
+    },
+    {
+      "consulta": 21,
+      "convenio": "Bradesco Sa\u00fade",
+      "data": "2026-03-14",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Otorrinolaringologia",
+      "espera": 4,
+      "hora": "10:45",
+      "id": 17355,
+      "medico": "Dr. Gustavo Henrique Neves",
+      "nps": 10,
+      "status": "Atendido",
+      "tempo_total": 38,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 203.06
+    },
+    {
+      "consulta": 42,
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data": "2026-10-19",
+      "dia_semana": "Segunda-feira",
+      "especialidade": "Psiquiatria",
+      "espera": 20,
+      "hora": "10:45",
+      "id": 17354,
+      "medico": "Dr. Alexandre Paiva",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 74,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 203.79
+    },
+    {
+      "consulta": 18,
+      "convenio": "Unimed Nacional",
+      "data": "2026-07-31",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Urologia",
+      "espera": 14,
+      "hora": "16:30",
+      "id": 17353,
+      "medico": "Dr. Marcelo Fagundes",
+      "nps": 10,
+      "status": "Atendido",
+      "tempo_total": 39,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 170.01
+    },
+    {
+      "consulta": 24,
+      "convenio": "Particular",
+      "data": "2026-06-13",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Urologia",
+      "espera": 13,
+      "hora": "08:00",
+      "id": 17352,
+      "medico": "Dr. Marcelo Fagundes",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 45,
+      "tipo": "Particular",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 469.55
+    },
+    {
+      "consulta": 17,
+      "convenio": "Bradesco Sa\u00fade",
+      "data": "2026-06-10",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Ortopedia",
+      "espera": 15,
+      "hora": "15:45",
+      "id": 17351,
+      "medico": "Dr. Fernando Prado",
+      "nps": 10,
+      "status": "Atendido",
+      "tempo_total": 41,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 226.78
+    },
+    {
+      "consulta": 40,
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data": "2026-01-10",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Psiquiatria",
+      "espera": 6,
+      "hora": "12:15",
+      "id": 17350,
+      "medico": "Dr. Alexandre Paiva",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 58,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 161.07
+    },
+    {
+      "consulta": 21,
+      "convenio": "Particular",
+      "data": "2026-01-20",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "Pneumologia",
+      "espera": 18,
+      "hora": "16:00",
+      "id": 17349,
+      "medico": "Dr. Andr\u00e9 Guimar\u00e3es",
+      "nps": 7,
+      "status": "Atendido",
+      "tempo_total": 53,
+      "tipo": "Particular",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 508.94
+    },
+    {
+      "consulta": 12,
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data": "2026-01-28",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Ortopedia",
+      "espera": 26,
+      "hora": "08:15",
+      "id": 17348,
+      "medico": "Dr. Fernando Prado",
+      "nps": 7,
+      "status": "Atendido",
+      "tempo_total": 49,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Encaixe de Urg\u00eancia",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 218.83
+    },
+    {
+      "consulta": 36,
+      "convenio": "Particular",
+      "data": "2026-04-08",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Psiquiatria",
+      "espera": 24,
+      "hora": "14:00",
+      "id": 17347,
+      "medico": "Dr. Alexandre Paiva",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 73,
+      "tipo": "Particular",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 652.16
+    },
+    {
+      "consulta": 17,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data": "2026-08-29",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Cl\u00ednica Geral",
+      "espera": 10,
+      "hora": "12:30",
+      "id": 17346,
+      "medico": "Dra. Juliana Barreto",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 39,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Morumbi - Diagn\u00f3sticos",
+      "valor": 190.81
+    },
+    {
+      "consulta": 29,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data": "2026-05-11",
+      "dia_semana": "Segunda-feira",
+      "especialidade": "Reumatologia",
+      "espera": 16,
+      "hora": "08:45",
+      "id": 17345,
+      "medico": "Dra. Vanessa Moura",
+      "nps": 8,
+      "status": "Atendido",
+      "tempo_total": 58,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 177.05
+    },
+    {
+      "consulta": 0,
+      "convenio": "Particular",
+      "data": "2026-02-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Dermatologia",
+      "espera": 0,
+      "hora": "12:00",
+      "id": 17344,
+      "medico": "Dra. Beatriz Silveira",
+      "nps": null,
+      "status": "Cancelado pelo Paciente",
+      "tempo_total": 0,
+      "tipo": "Particular",
+      "tipo_consulta": "Retorno de Exames",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 463.72
+    },
+    {
+      "consulta": 23,
+      "convenio": "Particular",
+      "data": "2026-07-30",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Pediatria",
+      "espera": 15,
+      "hora": "19:30",
+      "id": 17343,
+      "medico": "Dra. Camila Duarte",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 50,
+      "tipo": "Particular",
+      "tipo_consulta": "Acompanhamento Peri\u00f3dico",
+      "turno": "Noite",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 404.83
+    },
+    {
+      "consulta": 36,
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data": "2026-08-15",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Neurologia",
+      "espera": 9,
+      "hora": "08:00",
+      "id": 17342,
+      "medico": "Dr. Rodrigo Alencar",
+      "nps": 9,
+      "status": "Atendido",
+      "tempo_total": 60,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Centro M\u00e9dico Paulista",
+      "valor": 151.41
+    },
+    {
+      "consulta": 20,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data": "2026-06-03",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Ginecologia & Obstetr\u00edcia",
+      "espera": 16,
+      "hora": "16:45",
+      "id": 17341,
+      "medico": "Dra. Mariana Vasconcelos",
+      "nps": 7,
+      "status": "Atendido",
+      "tempo_total": 50,
+      "tipo": "Conv\u00eanio",
+      "tipo_consulta": "Primeira Consulta",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Premium",
+      "valor": 176.68
+    }
+  ]
+}
+;
+  
+  // Interceptador inteligente de fetch para funcionar perfeitamente tanto no GitHub Pages quanto no Flask
+  const _origFetch = window.fetch;
+  window.fetch = async function(url, options) {
+    try {
+      const res = await _origFetch(url, options);
+      if (res.ok) return res;
+      throw new Error('API indisponivel');
+    } catch (err) {
+      if (typeof url === 'string') {
+        if (url.includes('/api/filtros')) {
+          return new Response(JSON.stringify(window.FALLBACK_FILTROS), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        if (url.includes('/api/dados')) {
+          return new Response(JSON.stringify(window.FALLBACK_DADOS), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+      }
+      throw err;
+    }
+  };
+</script>
+
+</head>
+<body class="min-h-screen flex flex-col custom-scrollbar">
+
+    <!-- Top Navigation Bar -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-slate-800 px-6 py-3.5">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <!-- Brand & Clinic Info -->
+            <div class="flex items-center space-x-4">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-teal-600 via-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/20">
+                    <i class="fa-solid fa-stethoscope text-white text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-400 bg-teal-950/70 border border-teal-800/50 px-2.5 py-0.5 rounded-full">
+                            CENTRO MÉDICO INTEGRADO
+                        </span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
+                            <i class="fa-solid fa-circle text-[8px] mr-1 text-emerald-400 animate-pulse"></i>Gestão Ambulatorial
+                        </span>
+                    </div>
+                    <h1 class="text-xl font-heading font-extrabold text-white tracking-tight flex items-center gap-2 mt-0.5">
+                        Operações de Atendimento, Agendas &amp; Ranking de Operadoras
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
+                <a href="../index.html" class="px-3.5 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/40 flex items-center gap-2 transition" title="Voltar ao Portfólio Principal">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Voltar ao Portfólio</span>
+                </a>
+                                <button id="btn-fullscreen" onclick="toggleFullscreen()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-2 transition" title="Modo Tela Cheia (F11 ou tecla F)">
+                    <i class="fa-solid fa-expand" id="icon-fullscreen"></i>
+                    <span id="label-fullscreen">Tela Cheia</span>
+                </button>
+                <button onclick="carregarDados()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Atualizar</span>
+                </button>
+                <button onclick="exportarExcel()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-semibold shadow-lg shadow-teal-900/30 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>Exportar Relatório Excel</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-6 space-y-6">
+
+        <!-- Banner / Status Context -->
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-gradient-to-r from-teal-950/40 via-slate-900/60 to-cyan-950/40 p-4 rounded-2xl border border-teal-900/30">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-teal-400"></i>
+                    <h2 class="text-sm font-heading font-bold text-teal-200 uppercase tracking-wider">
+                        Monitoramento de Eficiência de Recepção, Tempos de Espera, Evolução Mês a Mês &amp; Ranking MoM/YoY
+                    </h2>
+                </div>
+                <p class="text-xs text-slate-400">
+                    Acompanhamento de volume mensal, curva de ocupação, especialidades mais atendidas e matriz de desempenho das operadoras de saúde.
+                </p>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-400 bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800">
+                <i class="fa-solid fa-user-doctor text-teal-400"></i>
+                <span>Competência: <strong class="text-white" id="comp-label">Consolidado 2026</strong></span>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <section class="glass-panel p-4 rounded-2xl">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                
+                <!-- Filtro Médico -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-user-doctor text-teal-400 mr-1"></i>Corpo Clínico
+                    </label>
+                    <select id="filtro-medico" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <option value="TODOS">Todos os Médicos</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Especialidade -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-notes-medical text-teal-400 mr-1"></i>Especialidade
+                    </label>
+                    <select id="filtro-especialidade" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <option value="TODOS">Todas Especialidades</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Tipo (Particular vs Convênio) -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-id-card-clip text-teal-400 mr-1"></i>Tipo Atendimento
+                    </label>
+                    <select id="filtro-tipo" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <option value="TODOS">Particular &amp; Convênio</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Convênio -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-shield-heart text-teal-400 mr-1"></i>Operadora / Plano
+                    </label>
+                    <select id="filtro-convenio" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <option value="TODOS">Todos os Planos</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Dia da Semana -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-regular fa-calendar-days text-teal-400 mr-1"></i>Dia da Semana
+                    </label>
+                    <select id="filtro-dia" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <option value="TODOS">Segunda a Sábado</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Mês -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-regular fa-calendar text-teal-400 mr-1"></i>Mês de Atendimento
+                    </label>
+                    <select id="filtro-mes" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <option value="ANO_TODO">Ano Completo 2026</option>
+                    </select>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- KPI Cards Grid -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            
+            <!-- KPI 1: Total de Atendimentos -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Atendimentos Realizados</span>
+                    <i class="fa-solid fa-users text-teal-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-white" id="kpi-atendidos">0</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Agendados:</span>
+                    <strong class="text-slate-200" id="kpi-agendados">0</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-emerald-400"></div>
+            </div>
+
+            <!-- KPI 2: Taxa de Ocupação da Agenda -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Taxa Ocupação Agenda</span>
+                    <i class="fa-solid fa-chart-pie text-cyan-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-cyan-400" id="kpi-ocupacao">0.0%</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Meta Clínica:</span>
+                    <strong class="text-cyan-300">&gt; 80%</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
+            </div>
+
+            <!-- KPI 3: Tempo Espera (Porta ao Consultório) -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Tempo Médio Espera</span>
+                    <i class="fa-solid fa-hourglass-start text-amber-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-amber-400" id="kpi-espera">0 min</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Meta Sala Espera:</span>
+                    <strong class="text-amber-300">&le; 20 min</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+            </div>
+
+            <!-- KPI 4: Tempo Total na Clínica -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Tempo Total na Clínica</span>
+                    <i class="fa-solid fa-stopwatch-20 text-indigo-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-indigo-300" id="kpi-tempo-total">0 min</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Consulta Média:</span>
+                    <strong class="text-indigo-200" id="kpi-tempo-consulta">0 min</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+            </div>
+
+            <!-- KPI 5: Mix Particular vs Convênio -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Mix Particular</span>
+                    <i class="fa-solid fa-credit-card text-emerald-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-emerald-400" id="kpi-mix-particular">0.0%</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Faturamento Total:</span>
+                    <strong class="text-emerald-300" id="kpi-faturamento">R$ 0</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+            </div>
+
+            <!-- KPI 6: Taxa de No-Show (Absenteísmo) -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Taxa de No-Show</span>
+                    <i class="fa-solid fa-user-xmark text-rose-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-rose-400" id="kpi-noshow">0.0%</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>NPS Médio Pacientes:</span>
+                    <strong class="text-slate-200" id="kpi-nps">0.0</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-red-600"></div>
+            </div>
+
+        </section>
+
+        <!-- 🌟 NOVA SEÇÃO 1: EVOLUÇÃO TEMPORAL MÊS A MÊS -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-heading font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-trend-up text-teal-400"></i>
+                        Evolução Temporal Mês a Mês (Atendimentos, Mix e Especialidades)
+                    </h3>
+                    <p class="text-xs text-slate-400">
+                        Análise de tendências mensais: volume de atendimentos, proporção Convênio vs Particular e evolução das especialidades.
+                    </p>
+                </div>
+                <span class="text-xs px-2.5 py-1 rounded bg-teal-950/70 border border-teal-800 text-teal-300 font-mono">
+                    Série Histórica
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Gráfico Mês a Mês 1: Quantidade de Atendimentos -->
+                <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-xs font-heading font-bold text-slate-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-line text-teal-400"></i>
+                            Atendimentos Mês a Mês
+                        </h4>
+                        <span class="text-[11px] text-slate-400">Volume Total</span>
+                    </div>
+                    <div class="relative flex-grow min-h-[250px]">
+                        <canvas id="chart-mes-a-mes"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico Mês a Mês 2: Atendimentos por Convênio ou Particular -->
+                <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-xs font-heading font-bold text-slate-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-layer-group text-emerald-400"></i>
+                            Convênio vs Particular Mês a Mês
+                        </h4>
+                        <span class="text-[11px] text-slate-400">Mix Mensal</span>
+                    </div>
+                    <div class="relative flex-grow min-h-[250px]">
+                        <canvas id="chart-tipo-mes-a-mes"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico Mês a Mês 3: Atendimento por Especialidade -->
+                <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-xs font-heading font-bold text-slate-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-stethoscope text-cyan-400"></i>
+                            Especialidades Mês a Mês
+                        </h4>
+                        <span class="text-[11px] text-slate-400">Top Especialidades</span>
+                    </div>
+                    <div class="relative flex-grow min-h-[250px]">
+                        <canvas id="chart-especialidades-mes"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 🌟 NOVA SEÇÃO 2: RANKING MÊS A MÊS DE OPERADORAS & PLANOS DE SAÚDE (MoM, YoY e Mudança de Posição) -->
+        <section class="glass-panel p-5 rounded-2xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
+                <div>
+                    <h3 class="text-base font-heading font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-400"></i>
+                        Ranking Mês a Mês das Operadoras &amp; Planos de Saúde
+                    </h3>
+                    <p class="text-xs text-slate-400">
+                        Classificação por volume de atendimentos: comparação com o mês anterior (MoM), mesmo período do ano anterior (YoY) e indicador de movimentação de posição (subiu / caiu).
+                    </p>
+                </div>
+
+                <!-- Seletor Rápido de Mês para o Ranking -->
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-slate-400 font-semibold whitespace-nowrap">
+                        <i class="fa-regular fa-calendar-check text-amber-400 mr-1"></i>Mês do Ranking:
+                    </label>
+                    <select id="filtro-ranking-mes" onchange="alterarMesRanking()" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="10" selected>Outubro / 2026</option>
+                        <option value="9">Setembro / 2026</option>
+                        <option value="8">Agosto / 2026</option>
+                        <option value="7">Julho / 2026</option>
+                        <option value="6">Junho / 2026</option>
+                        <option value="5">Maio / 2026</option>
+                        <option value="4">Abril / 2026</option>
+                        <option value="3">Março / 2026</option>
+                        <option value="2">Fevereiro / 2026</option>
+                        <option value="1">Janeiro / 2026</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabela Executiva do Ranking -->
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-700/80 text-slate-400 uppercase tracking-wider font-semibold bg-slate-900/60">
+                            <th class="py-3 px-3 text-center">Posição</th>
+                            <th class="py-3 px-3 text-center">Evolução Ranking</th>
+                            <th class="py-3 px-4">Operadora / Plano de Saúde</th>
+                            <th class="py-3 px-3 text-right">Atendimentos (Mês Atual)</th>
+                            <th class="py-3 px-3 text-right">Mês Anterior (MoM)</th>
+                            <th class="py-3 px-3 text-center">Variação MoM (%)</th>
+                            <th class="py-3 px-3 text-right">Ano Anterior (YoY)</th>
+                            <th class="py-3 px-3 text-center">Variação YoY (%)</th>
+                            <th class="py-3 px-3 text-right">Faturamento (R$)</th>
+                            <th class="py-3 px-4 text-right">Ticket Médio (R$)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-ranking-operadoras" class="divide-y divide-slate-800 text-slate-200">
+                        <tr>
+                            <td colspan="10" class="text-center py-6 text-slate-500">Carregando dados do ranking de operadoras...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Nota de Rodapé Explicativa -->
+            <div class="mt-3 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between text-[11px] text-slate-400 gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> <strong>▲ Subiu:</strong> Ganhou posições no ranking vs mês passado</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-400"></span> <strong>▼ Caiu:</strong> Perdeu posições no ranking vs mês passado</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-400"></span> <strong>▬ Manteve:</strong> Mesma posição do mês anterior</span>
+                </div>
+                <div class="text-slate-400 font-mono text-[10px]">
+                    Base Comparativa: MoM = Mês Anterior | YoY = Mesmo Mês de 2025
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Grid: Dias de Movimento & Ocupação de Agenda por Especialidade -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Gráfico: Dias de Maior Movimento & Tempo de Espera -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-column text-teal-400"></i>
+                            Dias de Maior Movimento &amp; Tempo Médio de Espera (min)
+                        </h3>
+                        <p class="text-xs text-slate-400">Volume de atendimentos realizados e tempo de espera por dia da semana</p>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded bg-teal-950/70 border border-teal-800 text-teal-300 font-mono">
+                        Pico Semanal
+                    </span>
+                </div>
+                <div class="relative flex-grow min-h-[290px]">
+                    <canvas id="chart-dias-movimento"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico: Taxa de Ocupação de Agenda por Especialidade -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-gauge-high text-cyan-400"></i>
+                            Taxa de Ocupação da Grade Médica por Especialidade (%)
+                        </h3>
+                        <p class="text-xs text-slate-400">% de horários preenchidos vs vagas ofertadas na agenda</p>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded bg-cyan-950/70 border border-cyan-800 text-cyan-300 font-mono">
+                        Eficiência de Grade
+                    </span>
+                </div>
+                <div class="relative flex-grow min-h-[290px]">
+                    <canvas id="chart-ocupacao-especialidade"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Strategic Cross-Section: Especialidades Mais Atendidas por Dia da Semana -->
+        <section class="glass-panel p-5 rounded-2xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2">
+                <div>
+                    <h3 class="text-base font-heading font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-check text-teal-400"></i>
+                        Especialidades Mais Atendidas por Dia da Semana (Demanda Diária)
+                    </h3>
+                    <p class="text-xs text-slate-400">
+                        Top especialidades médicas com maior procura de segunda a sábado para dimensionamento de salas e consultórios.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-slate-400 bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-800">
+                    <i class="fa-solid fa-door-open text-teal-400"></i>
+                    <span>Dimensionamento de Consultórios</span>
+                </div>
+            </div>
+
+            <!-- Cards Grid for Each Day of Week -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5" id="grid-dias-especialidades">
+                <!-- Preenchido dinamicamente via JS -->
+            </div>
+        </section>
+
+        <!-- Charts Grid: Tempos na Clínica & Mix de Convênios -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Gráfico: Tipo de Atendimento (Particular vs Convênio) -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-emerald-400"></i>
+                            Mix: Convênio vs Particular
+                        </h3>
+                        <p class="text-xs text-slate-400">Faturamento e volume por modalidade</p>
+                    </div>
+                </div>
+                <div class="relative flex-grow min-h-[240px]">
+                    <canvas id="chart-mix-tipo"></canvas>
+                </div>
+                <div class="mt-2 pt-2 border-t border-slate-800/80 text-[11px] text-slate-400 flex justify-between" id="mix-summary">
+                    <span>Particular: <strong class="text-emerald-400" id="mix-part-val">R$ 0</strong></span>
+                    <span>Convênio: <strong class="text-cyan-400" id="mix-conv-val">R$ 0</strong></span>
+                </div>
+            </div>
+
+            <!-- Gráfico: Ranking de Atendimentos por Convênio Geral -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col lg:col-span-2">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-building-shield text-cyan-400"></i>
+                            Atendimentos Realizados por Convênio / Operadora (Geral)
+                        </h3>
+                        <p class="text-xs text-slate-400">Volume de pacientes atendidos e tempo médio de espera por plano de saúde</p>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">Consolidado</span>
+                </div>
+                <div class="relative flex-grow min-h-[240px]">
+                    <canvas id="chart-convenios"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Productivity Table: Corpo Clínico & Pontualidade -->
+        <section class="glass-panel p-5 rounded-2xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2">
+                <div>
+                    <h3 class="text-base font-heading font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-stethoscope text-teal-400"></i>
+                        Indicadores de Produtividade &amp; Pontualidade por Médico
+                    </h3>
+                    <p class="text-xs text-slate-400">
+                        Atendimentos realizados, taxa de ocupação da grade, tempo médio de espera do paciente, duração da consulta e satisfação NPS.
+                    </p>
+                </div>
+                <span class="text-xs text-slate-400 bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-800">
+                    <i class="fa-solid fa-star text-amber-400 mr-1"></i>NPS Escala 0 a 10
+                </span>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-700/80 text-slate-400 uppercase tracking-wider font-semibold bg-slate-900/50">
+                            <th class="py-3 px-4">Médico</th>
+                            <th class="py-3 px-3">Especialidade</th>
+                            <th class="py-3 px-3 text-right">Agendados</th>
+                            <th class="py-3 px-3 text-right">Atendidos</th>
+                            <th class="py-3 px-3 text-center">Taxa Ocupação</th>
+                            <th class="py-3 px-3 text-center">Tempo Espera</th>
+                            <th class="py-3 px-3 text-center">Tempo Consulta</th>
+                            <th class="py-3 px-3 text-center">Tempo Total Clínica</th>
+                            <th class="py-3 px-3 text-right">Faturamento</th>
+                            <th class="py-3 px-4 text-center">NPS Pacientes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-medicos" class="divide-y divide-slate-800 text-slate-200">
+                        <tr>
+                            <td colspan="10" class="text-center py-6 text-slate-500">Carregando métricas do corpo clínico...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Operational Log Table: Amostra de Atendimentos -->
+        <section class="glass-panel p-5 rounded-2xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
+                <div>
+                    <h3 class="text-base font-heading font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-ol text-teal-400"></i>
+                        Amostra de Atendimentos Realizados (Últimos Registros)
+                    </h3>
+                    <p class="text-xs text-slate-400">Rastreabilidade pontual de triagem, espera na recepção, permanência e valores</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="filtro-pesquisa-tabela" onkeyup="filtrarTabelaAtendimentos()" placeholder="Buscar paciente, médico ou plano..." class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-teal-500 focus:outline-none w-64">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto max-h-[380px] custom-scrollbar">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="sticky top-0 bg-slate-900 z-10">
+                        <tr class="border-b border-slate-700/80 text-slate-400 uppercase tracking-wider font-semibold">
+                            <th class="py-2.5 px-3">ID</th>
+                            <th class="py-2.5 px-3">Data</th>
+                            <th class="py-2.5 px-3">Dia Semana</th>
+                            <th class="py-2.5 px-3">Hora</th>
+                            <th class="py-2.5 px-3">Médico</th>
+                            <th class="py-2.5 px-3">Especialidade</th>
+                            <th class="py-2.5 px-3">Modalidade</th>
+                            <th class="py-2.5 px-3">Convênio</th>
+                            <th class="py-2.5 px-2 text-center">Status</th>
+                            <th class="py-2.5 px-3 text-center">Espera</th>
+                            <th class="py-2.5 px-3 text-center">Consulta</th>
+                            <th class="py-2.5 px-3 text-center">Total Clínica</th>
+                            <th class="py-2.5 px-3 text-right">Valor Consulta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-atendimentos-body" class="divide-y divide-slate-800 text-slate-200">
+                        <tr>
+                            <td colspan="13" class="text-center py-6 text-slate-500">Carregando atendimentos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-slate-800 mt-12 py-5 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-xs text-slate-400 gap-3">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-code text-teal-400"></i>
+                <span>Desenvolvido para Gestão Ambulatorial, Eficiência Operacional &amp; BI Médico</span>
+            </div>
+            <div>
+                <span>Especialista Responsável: <strong class="text-slate-200">Antonio Carlos de Mello</strong> | Portfólio de Business Intelligence</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // Global Chart Instances
+        let chartMesAMes = null;
+        let chartTipoMesAMes = null;
+        let chartEspecialidadesMes = null;
+        let chartDiasMovimento = null;
+        let chartOcupacaoEspecialidade = null;
+        let chartMixTipo = null;
+        let chartConvenios = null;
+        let dadosAtendimentosCache = [];
+
+        // Formatting Helpers
+        function formatMoney(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                maximumFractionDigits: 2
+            }).format(value || 0);
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('pt-BR').format(value || 0);
+        }
+
+        // Initialize Filters
+        async function carregarFiltros() {
+            try {
+                const res = await fetch('/api/filtros');
+                const data = await res.json();
+
+                const selMed = document.getElementById('filtro-medico');
+                data.medicos.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m;
+                    opt.textContent = m;
+                    selMed.appendChild(opt);
+                });
+
+                const selEsp = document.getElementById('filtro-especialidade');
+                data.especialidades.forEach(e => {
+                    const opt = document.createElement('option');
+                    opt.value = e;
+                    opt.textContent = e;
+                    selEsp.appendChild(opt);
+                });
+
+                const selTipo = document.getElementById('filtro-tipo');
+                data.tipos.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t;
+                    opt.textContent = t;
+                    selTipo.appendChild(opt);
+                });
+
+                const selConv = document.getElementById('filtro-convenio');
+                data.convenios.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    selConv.appendChild(opt);
+                });
+
+                const selDia = document.getElementById('filtro-dia');
+                data.dias_semana.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    selDia.appendChild(opt);
+                });
+
+                const selMes = document.getElementById('filtro-mes');
+                data.meses.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.mes;
+                    opt.textContent = m.mes_nome;
+                    selMes.appendChild(opt);
+                });
+
+            } catch (err) {
+                console.error("Erro ao carregar filtros:", err);
+            }
+        }
+
+        function getQueryParams() {
+            const med = document.getElementById('filtro-medico').value;
+            const esp = document.getElementById('filtro-especialidade').value;
+            const tipo = document.getElementById('filtro-tipo').value;
+            const conv = document.getElementById('filtro-convenio').value;
+            const dia = document.getElementById('filtro-dia').value;
+            const mes = document.getElementById('filtro-mes').value;
+
+            const params = new URLSearchParams();
+            if (med !== "TODOS") params.append("medico", med);
+            if (esp !== "TODOS") params.append("especialidade", esp);
+            if (tipo !== "TODOS") params.append("tipo", tipo);
+            if (conv !== "TODOS") params.append("convenio", conv);
+            if (dia !== "TODOS") params.append("dia_semana", dia);
+            if (mes !== "ANO_TODO") params.append("mes", mes);
+
+            return params.toString();
+        }
+
+        function aplicarFiltros() {
+            const mesSel = document.getElementById('filtro-mes');
+            const mesText = mesSel.options[mesSel.selectedIndex].text;
+            document.getElementById('comp-label').textContent = mesText === "Ano Completo 2026" ? "Consolidado 2026" : `${mesText} / 2026`;
+            
+            // Sincroniza o seletor do ranking se o usuário filtrou um mês específico
+            if (mesSel.value !== "ANO_TODO") {
+                document.getElementById('filtro-ranking-mes').value = mesSel.value;
+            }
+            carregarDados();
+        }
+
+        function alterarMesRanking() {
+            const mesRank = document.getElementById('filtro-ranking-mes').value;
+            document.getElementById('filtro-mes').value = mesRank;
+            aplicarFiltros();
+        }
+
+        async function carregarDados() {
+            const qs = getQueryParams();
+            const url = `/api/dados${qs ? '?' + qs : ''}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+
+                renderKPIs(data.kpis);
+                renderChartMesAMes(data.evolucao_mensal);
+                renderChartTipoMesAMes(data.evolucao_tipo_mes);
+                renderChartEspecialidadesMes(data.especialidades_mes_a_mes, data.labels_meses);
+                renderTabelaRankingOperadoras(data.ranking_operadoras, data.ranking_info);
+
+                renderChartDiasMovimento(data.dias_movimento);
+                renderChartOcupacaoEspecialidade(data.ocupacao_especialidades);
+                renderGridEspecialidadesDia(data.especialidades_por_dia);
+                renderChartMixTipo(data.mix_atendimento);
+                renderChartConvenios(data.ranking_convenios);
+                renderTabelaMedicos(data.produtividade_medicos);
+
+                dadosAtendimentosCache = data.ultimos_atendimentos || [];
+                renderTabelaAtendimentos(dadosAtendimentosCache);
+
+            } catch (err) {
+                console.error("Erro ao carregar dados da clínica:", err);
+            }
+        }
+
+        function renderKPIs(kpis) {
+            document.getElementById('kpi-atendidos').textContent = formatNumber(kpis.total_atendidos);
+            document.getElementById('kpi-agendados').textContent = formatNumber(kpis.total_agendados);
+            document.getElementById('kpi-ocupacao').textContent = `${kpis.taxa_ocupacao_media.toFixed(1)}%`;
+            document.getElementById('kpi-espera').textContent = `${kpis.tempo_espera_medio.toFixed(0)} min`;
+            document.getElementById('kpi-tempo-total').textContent = `${kpis.tempo_total_medio.toFixed(0)} min`;
+            document.getElementById('kpi-tempo-consulta').textContent = `${kpis.tempo_consulta_medio.toFixed(0)} min`;
+            document.getElementById('kpi-mix-particular').textContent = `${kpis.mix_particular_pct.toFixed(1)}%`;
+            document.getElementById('kpi-faturamento').textContent = formatMoney(kpis.faturamento_total);
+            document.getElementById('kpi-noshow').textContent = `${kpis.taxa_noshow_pct.toFixed(1)}%`;
+            document.getElementById('kpi-nps').textContent = kpis.nps_medio ? kpis.nps_medio.toFixed(1) : '-';
+        }
+
+        // 1. Gráfico Mês a Mês (Quantidade Total)
+        function renderChartMesAMes(evList) {
+            const ctx = document.getElementById('chart-mes-a-mes').getContext('2d');
+            
+            const labels = evList.map(e => e.label);
+            const atendidos = evList.map(e => e.atendidos);
+            const faturamentos = evList.map(e => e.faturamento);
+
+            if (chartMesAMes) chartMesAMes.destroy();
+
+            chartMesAMes = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Consultas Atendidas',
+                            data: atendidos,
+                            backgroundColor: 'rgba(13, 148, 136, 0.75)',
+                            borderColor: '#0d9488',
+                            borderWidth: 1,
+                            borderRadius: 5,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Faturamento (R$)',
+                            data: faturamentos,
+                            type: 'line',
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            pointBackgroundColor: '#10b981',
+                            pointRadius: 4,
+                            borderWidth: 2,
+                            tension: 0.3,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1', font: { size: 10 }, boxWidth: 10 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.datasetIndex === 0) return ` Atendimentos: ${context.raw} consultas`;
+                                    return ` Faturamento: ${formatMoney(context.raw)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 10 } }
+                        },
+                        y: {
+                            position: 'left',
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y1: {
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            ticks: {
+                                color: '#10b981',
+                                callback: val => 'R$ ' + (val >= 1000 ? (val/1000).toFixed(0) + 'k' : val)
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Gráfico Convênio vs Particular Mês a Mês
+        function renderChartTipoMesAMes(tipoList) {
+            const ctx = document.getElementById('chart-tipo-mes-a-mes').getContext('2d');
+            
+            const labels = tipoList.map(t => t.label);
+            const convenios = tipoList.map(t => t.qtd_convenio);
+            const particulares = tipoList.map(t => t.qtd_particular);
+            const pcts = tipoList.map(t => t.pct_particular);
+
+            if (chartTipoMesAMes) chartTipoMesAMes.destroy();
+
+            chartTipoMesAMes = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Convênio',
+                            data: convenios,
+                            backgroundColor: 'rgba(6, 182, 212, 0.75)',
+                            borderColor: '#06b6d4',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Particular',
+                            data: particulares,
+                            backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 10 } }
+                        },
+                        y: {
+                            stacked: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1', font: { size: 10 }, boxWidth: 10 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return ` ${context.dataset.label}: ${context.raw} consultas (Mix Part: ${pcts[idx]}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Gráfico Especialidades Mês a Mês
+        function renderChartEspecialidadesMes(especDict, labelsMeses) {
+            const ctx = document.getElementById('chart-especialidades-mes').getContext('2d');
+            
+            // Seleciona as 5 maiores especialidades
+            const especialidades = Object.keys(especDict);
+            const totalPorEspec = especialidades.map(esp => {
+                const soma = Object.values(especDict[esp]).reduce((a, b) => a + b, 0);
+                return { esp, soma };
+            }).sort((a, b) => b.soma - a.soma);
+
+            const top5 = totalPorEspec.slice(0, 5).map(x => x.esp);
+            const cores = [
+                '#0d9488', '#06b6d4', '#6366f1', '#f59e0b', '#ec4899'
+            ];
+
+            const datasets = top5.map((esp, i) => {
+                const dataPoints = labelsMeses.map(lbl => especDict[esp][lbl] || 0);
+                return {
+                    label: esp,
+                    data: dataPoints,
+                    borderColor: cores[i % cores.length],
+                    backgroundColor: cores[i % cores.length],
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3
+                };
+            });
+
+            if (chartEspecialidadesMes) chartEspecialidadesMes.destroy();
+
+            chartEspecialidadesMes = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labelsMeses,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1', font: { size: 9 }, boxWidth: 10 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 4. Render Tabela Ranking de Operadoras (MoM, YoY e Subiu/Caiu)
+        function renderTabelaRankingOperadoras(ranking, rankingInfo) {
+            const tbody = document.getElementById('tabela-ranking-operadoras');
+            tbody.innerHTML = '';
+
+            if (!ranking || ranking.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-slate-500">Nenhum dado encontrado para o ranking do mês selecionado.</td></tr>';
+                return;
+            }
+
+            ranking.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+
+                // Posição Atual Badge
+                let posBadge = '';
+                if (r.posicao === 1) posBadge = `<span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold inline-flex items-center justify-center font-mono">1º</span>`;
+                else if (r.posicao === 2) posBadge = `<span class="w-6 h-6 rounded-full bg-slate-400/20 text-slate-200 border border-slate-400/40 font-bold inline-flex items-center justify-center font-mono">2º</span>`;
+                else if (r.posicao === 3) posBadge = `<span class="w-6 h-6 rounded-full bg-amber-700/20 text-amber-500 border border-amber-700/40 font-bold inline-flex items-center justify-center font-mono">3º</span>`;
+                else posBadge = `<span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 font-bold inline-flex items-center justify-center font-mono text-[11px]">${r.posicao}º</span>`;
+
+                // Badge de Evolução no Ranking (Subiu, Caiu, Manteve)
+                let statusBadge = '';
+                if (r.status_rank === 'subiu') {
+                    statusBadge = `
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-800">
+                            <i class="fa-solid fa-arrow-trend-up text-[10px]"></i> Subiu (${r.badge_rank})
+                        </span>`;
+                } else if (r.status_rank === 'caiu') {
+                    statusBadge = `
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-950/80 text-rose-400 border border-rose-800">
+                            <i class="fa-solid fa-arrow-trend-down text-[10px]"></i> Caiu (${r.badge_rank})
+                        </span>`;
+                } else if (r.status_rank === 'manteve') {
+                    statusBadge = `
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800/80 text-slate-300 border border-slate-700">
+                            <i class="fa-solid fa-equals text-[10px]"></i> Manteve
+                        </span>`;
+                } else {
+                    statusBadge = `
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-800">
+                            Novo
+                        </span>`;
+                }
+
+                // MoM Classes
+                const momColor = r.var_mom_qtd > 0 ? 'text-emerald-400' : (r.var_mom_qtd < 0 ? 'text-rose-400' : 'text-slate-400');
+                const momPrefix = r.var_mom_qtd > 0 ? '+' : '';
+
+                // YoY Classes
+                const yoyColor = r.var_yoy_qtd > 0 ? 'text-emerald-400' : (r.var_yoy_qtd < 0 ? 'text-rose-400' : 'text-slate-400');
+                const yoyPrefix = r.var_yoy_qtd > 0 ? '+' : '';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-3 text-center">${posBadge}</td>
+                    <td class="py-3 px-3 text-center">${statusBadge}</td>
+                    <td class="py-3 px-4 font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-shield-heart ${r.convenio === 'Particular' ? 'text-emerald-400' : 'text-cyan-400'} text-xs"></i>
+                        ${r.convenio}
+                    </td>
+                    <td class="py-3 px-3 text-right font-mono font-bold text-slate-100">${formatNumber(r.qtd_atual)}</td>
+                    <td class="py-3 px-3 text-right font-mono text-slate-400">
+                        ${formatNumber(r.qtd_anterior)} 
+                        <span class="text-[10px] text-slate-500">(${r.pos_anterior}º)</span>
+                    </td>
+                    <td class="py-3 px-3 text-center font-mono font-semibold ${momColor}">
+                        ${momPrefix}${r.var_mom_pct.toFixed(1)}%
+                        <span class="text-[10px] block opacity-80">(${momPrefix}${r.var_mom_qtd})</span>
+                    </td>
+                    <td class="py-3 px-3 text-right font-mono text-slate-400">
+                        ${formatNumber(r.qtd_yoy)} 
+                        <span class="text-[10px] text-slate-500">(${r.pos_yoy}º)</span>
+                    </td>
+                    <td class="py-3 px-3 text-center font-mono font-semibold ${yoyColor}">
+                        ${yoyPrefix}${r.var_yoy_pct.toFixed(1)}%
+                        <span class="text-[10px] block opacity-80">(${yoyPrefix}${r.var_yoy_qtd})</span>
+                    </td>
+                    <td class="py-3 px-3 text-right font-mono text-slate-200">${formatMoney(r.faturamento)}</td>
+                    <td class="py-3 px-4 text-right font-mono text-slate-300">${formatMoney(r.ticket_medio)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderChartDiasMovimento(diasList) {
+            const ctx = document.getElementById('chart-dias-movimento').getContext('2d');
+            
+            const labels = diasList.map(d => d.dia_semana);
+            const atendidos = diasList.map(d => d.total_atendidos);
+            const esperas = diasList.map(d => d.tempo_espera);
+
+            if (chartDiasMovimento) chartDiasMovimento.destroy();
+
+            chartDiasMovimento = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Atendimentos Realizados',
+                            data: atendidos,
+                            backgroundColor: 'rgba(13, 148, 136, 0.75)',
+                            borderColor: '#0d9488',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Tempo Médio Espera (min)',
+                            data: esperas,
+                            type: 'line',
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                            pointBackgroundColor: '#f59e0b',
+                            pointBorderColor: '#ffffff',
+                            pointRadius: 5,
+                            borderWidth: 2,
+                            tension: 0.3,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1', font: { size: 11 }, boxWidth: 12 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.datasetIndex === 0) return ` Atendimentos: ${context.raw} consultas`;
+                                    return ` Tempo Espera: ${context.raw} minutos`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 11 } }
+                        },
+                        y: {
+                            position: 'left',
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' },
+                            title: { display: true, text: 'Volume de Consultas', color: '#64748b', font: { size: 10 } }
+                        },
+                        y1: {
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: '#f59e0b', callback: val => val + ' min' },
+                            title: { display: true, text: 'Espera (minutos)', color: '#f59e0b', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderChartOcupacaoEspecialidade(especList) {
+            const ctx = document.getElementById('chart-ocupacao-especialidade').getContext('2d');
+            
+            const labels = especList.map(e => e.especialidade);
+            const ocupacoes = especList.map(e => e.taxa_ocupacao);
+
+            const colors = ocupacoes.map(val => {
+                if (val >= 85) return 'rgba(16, 185, 129, 0.85)';
+                if (val >= 75) return 'rgba(6, 182, 212, 0.85)';
+                return 'rgba(245, 158, 11, 0.85)';
+            });
+
+            if (chartOcupacaoEspecialidade) chartOcupacaoEspecialidade.destroy();
+
+            chartOcupacaoEspecialidade = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Taxa Ocupação (%)',
+                        data: ocupacoes,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` Ocupação da Grade: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            max: 100,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', callback: val => val + '%' }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 10, weight: '500' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderGridEspecialidadesDia(espPorDia) {
+            const container = document.getElementById('grid-dias-especialidades');
+            container.innerHTML = '';
+
+            const ordemDias = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+
+            ordemDias.forEach(dia => {
+                const lista = espPorDia[dia] || [];
+                const topEspec = lista.slice(0, 3);
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex flex-col justify-between";
+
+                let listaHtml = topEspec.map((item, idx) => `
+                    <div class="flex items-center justify-between text-xs py-1 border-b border-slate-800/60 last:border-0">
+                        <span class="text-slate-300 truncate max-w-[110px]" title="${item.especialidade}">
+                            <strong class="text-teal-400 mr-1">${idx+1}º</strong> ${item.especialidade}
+                        </span>
+                        <span class="font-mono font-semibold text-slate-100 bg-slate-800 px-1.5 py-0.5 rounded text-[11px]">${item.qtd}</span>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-heading font-bold text-teal-300 uppercase">${dia}</span>
+                            <i class="fa-regular fa-clock text-slate-500 text-xs"></i>
+                        </div>
+                        <div class="space-y-1">
+                            ${listaHtml || '<span class="text-xs text-slate-500">Sem dados</span>'}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderChartMixTipo(mixList) {
+            const ctx = document.getElementById('chart-mix-tipo').getContext('2d');
+            
+            const labels = mixList.map(m => m.tipo);
+            const faturamentos = mixList.map(m => m.faturamento);
+            const qtds = mixList.map(m => m.total_atendidos);
+
+            const part = mixList.find(m => m.tipo === "Particular");
+            const conv = mixList.find(m => m.tipo === "Convênio");
+            if (part) document.getElementById('mix-part-val').textContent = formatMoney(part.faturamento);
+            if (conv) document.getElementById('mix-conv-val').textContent = formatMoney(conv.faturamento);
+
+            if (chartMixTipo) chartMixTipo.destroy();
+
+            chartMixTipo = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: faturamentos,
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.85)',
+                            'rgba(6, 182, 212, 0.85)'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#0f172a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#cbd5e1', font: { size: 11 }, boxWidth: 12 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return ` ${context.label}: ${formatMoney(context.raw)} (${qtds[idx]} atendimentos)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        function renderChartConvenios(convList) {
+            const ctx = document.getElementById('chart-convenios').getContext('2d');
+            
+            const filtrados = convList.filter(c => c.convenio !== "Particular");
+            const labels = filtrados.map(c => c.convenio);
+            const atendidos = filtrados.map(c => c.total_atendidos);
+            const esperas = filtrados.map(c => c.tempo_espera);
+
+            if (chartConvenios) chartConvenios.destroy();
+
+            chartConvenios = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Pacientes Atendidos',
+                        data: atendidos,
+                        backgroundColor: 'rgba(6, 182, 212, 0.75)',
+                        borderColor: '#06b6d4',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return ` Consultas: ${context.raw} | Espera Média: ${esperas[idx]} min`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTabelaMedicos(medicos) {
+            const tbody = document.getElementById('tabela-medicos');
+            tbody.innerHTML = '';
+
+            if (!medicos || medicos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-slate-500">Nenhum médico encontrado para os filtros selecionados.</td></tr>';
+                return;
+            }
+
+            medicos.forEach(m => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+
+                let ocupBadge = 'text-emerald-400 bg-emerald-950/60 border border-emerald-800/40';
+                if (m.taxa_ocupacao < 75) ocupBadge = 'text-amber-400 bg-amber-950/60 border border-amber-800/40';
+
+                let esperaClass = 'text-emerald-400';
+                if (m.tempo_espera > 25) esperaClass = 'text-rose-400 font-semibold';
+                else if (m.tempo_espera > 18) esperaClass = 'text-amber-400';
+
+                let npsHtml = '-';
+                if (m.nps) {
+                    if (m.nps >= 9.0) npsHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800"><i class="fa-solid fa-star text-[10px] text-amber-400 mr-1"></i>${m.nps.toFixed(1)}</span>`;
+                    else if (m.nps >= 8.0) npsHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-800"><i class="fa-solid fa-star text-[10px] text-amber-400 mr-1"></i>${m.nps.toFixed(1)}</span>`;
+                    else npsHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-950/80 text-amber-300 border border-amber-800"><i class="fa-solid fa-star text-[10px] text-amber-400 mr-1"></i>${m.nps.toFixed(1)}</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-user-doctor text-teal-400 text-xs"></i>
+                        ${m.medico}
+                    </td>
+                    <td class="py-3 px-3 text-slate-300">${m.especialidade}</td>
+                    <td class="py-3 px-3 text-right font-mono text-slate-400">${formatNumber(m.total_agendados)}</td>
+                    <td class="py-3 px-3 text-right font-mono font-medium text-slate-100">${formatNumber(m.total_atendidos)}</td>
+                    <td class="py-3 px-3 text-center">
+                        <span class="px-2 py-0.5 rounded text-xs font-mono font-semibold ${ocupBadge}">
+                            ${m.taxa_ocupacao.toFixed(1)}%
+                        </span>
+                    </td>
+                    <td class="py-3 px-3 text-center font-mono ${esperaClass}">${m.tempo_espera.toFixed(0)} min</td>
+                    <td class="py-3 px-3 text-center font-mono text-slate-300">${m.tempo_consulta.toFixed(0)} min</td>
+                    <td class="py-3 px-3 text-center font-mono text-slate-300">${m.tempo_total.toFixed(0)} min</td>
+                    <td class="py-3 px-3 text-right font-mono text-slate-200">${formatMoney(m.faturamento)}</td>
+                    <td class="py-3 px-4 text-center">${npsHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderTabelaAtendimentos(atendimentos) {
+            const tbody = document.getElementById('tabela-atendimentos-body');
+            tbody.innerHTML = '';
+
+            if (!atendimentos || atendimentos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="13" class="text-center py-6 text-slate-500">Nenhum atendimento recente encontrado.</td></tr>';
+                return;
+            }
+
+            atendimentos.forEach(a => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+
+                let statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-950/70 text-emerald-400 border border-emerald-800">Atendido</span>';
+                if (a.status.includes('No-Show')) {
+                    statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-rose-950/70 text-rose-400 border border-rose-800">No-Show</span>';
+                } else if (a.status.includes('Cancelado')) {
+                    statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-amber-950/70 text-amber-400 border border-amber-800">Cancelado</span>';
+                }
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 font-mono text-teal-400 font-semibold">#${a.id}</td>
+                    <td class="py-2.5 px-3 font-mono text-slate-400">${a.data}</td>
+                    <td class="py-2.5 px-3 text-slate-300">${a.dia_semana}</td>
+                    <td class="py-2.5 px-3 font-mono text-slate-400">${a.hora}</td>
+                    <td class="py-2.5 px-3 font-medium text-slate-200">${a.medico}</td>
+                    <td class="py-2.5 px-3 text-slate-300">${a.especialidade}</td>
+                    <td class="py-2.5 px-3 text-[11px] ${a.tipo === 'Particular' ? 'text-emerald-400 font-semibold' : 'text-cyan-400'}">${a.tipo}</td>
+                    <td class="py-2.5 px-3 text-slate-300">${a.convenio}</td>
+                    <td class="py-2.5 px-2 text-center">${statusBadge}</td>
+                    <td class="py-2.5 px-3 text-center font-mono ${a.espera > 25 ? 'text-rose-400 font-semibold' : 'text-slate-300'}">${a.espera}m</td>
+                    <td class="py-2.5 px-3 text-center font-mono text-slate-300">${a.consulta}m</td>
+                    <td class="py-2.5 px-3 text-center font-mono text-slate-300">${a.tempo_total}m</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-medium">${formatMoney(a.valor)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filtrarTabelaAtendimentos() {
+            const termo = document.getElementById('filtro-pesquisa-tabela').value.toLowerCase();
+            if (!termo) {
+                renderTabelaAtendimentos(dadosAtendimentosCache);
+                return;
+            }
+
+            const filtrados = dadosAtendimentosCache.filter(a => {
+                return (
+                    String(a.id).includes(termo) ||
+                    a.medico.toLowerCase().includes(termo) ||
+                    a.especialidade.toLowerCase().includes(termo) ||
+                    a.convenio.toLowerCase().includes(termo) ||
+                    a.dia_semana.toLowerCase().includes(termo) ||
+                    a.tipo.toLowerCase().includes(termo)
+                );
+            });
+            renderTabelaAtendimentos(filtrados);
+        }
+
+        function exportarExcel() {
+            const qs = getQueryParams();
+            const url = `/api/exportar/excel${qs ? '?' + qs : ''}`;
+            window.location.href = url;
+        }
+
+        // Initialize on DOM Ready
+        document.addEventListener('DOMContentLoaded', async () => {
+            await carregarFiltros();
+            await carregarDados();
+        });
+    
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                const docEl = document.documentElement;
+                if (docEl.requestFullscreen) docEl.requestFullscreen();
+                else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+                else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        }
+
+        function updateFullscreenUI() {
+            const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+            const icon = document.getElementById('icon-fullscreen');
+            const label = document.getElementById('label-fullscreen');
+            const btn = document.getElementById('btn-fullscreen');
+            if (!btn) return;
+            if (isFS) {
+                if (icon) icon.className = 'fa-solid fa-compress';
+                if (label) label.textContent = 'Sair Tela Cheia';
+                btn.classList.add('bg-cyan-700', 'text-white');
+            } else {
+                if (icon) icon.className = 'fa-solid fa-expand';
+                if (label) label.textContent = 'Tela Cheia';
+                btn.classList.remove('bg-cyan-700', 'text-white');
+            }
+        }
+
+        document.addEventListener('fullscreenchange', updateFullscreenUI);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+        document.addEventListener('msfullscreenchange', updateFullscreenUI);
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'f' || e.key === 'F') && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+                toggleFullscreen();
+            }
+        });
+</script>
+</body>
+</html>

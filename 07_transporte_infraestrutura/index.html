@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Via Metrópole | Gestão de Transporte, Frota & Infraestrutura (Power BI)</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#070c16',
+                            card: '#0f172a',
+                            border: '#1e293b',
+                            blue: '#0284c7',
+                            teal: '#0d9488',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e',
+                            indigo: '#6366f1'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #070c16;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.25s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(2, 132, 199, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.2);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.4);
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(2, 132, 199, 0.6);
+        }
+
+        /* ADAPTATIVO MOBILE */
+        @media (max-width: 900px) {
+            header.glass-panel {
+                padding: 12px 14px !important;
+            }
+
+            main {
+                padding: 12px 8px !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+
+            .grid-cols-6,
+            .grid-cols-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 8px !important;
+            }
+
+            .grid-cols-2 {
+                grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+                gap: 12px !important;
+            }
+
+            .header-actions-mobile {
+                width: 100% !important;
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+
+            .header-actions-mobile button {
+                flex: 1 1 calc(50% - 4px) !important;
+                justify-content: center !important;
+            }
+
+            .overflow-x-auto {
+                -webkit-overflow-scrolling: touch !important;
+            }
+
+            table {
+                min-width: 640px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .grid-cols-6,
+            .grid-cols-4 {
+                grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+            }
+
+            .header-actions-mobile button {
+                flex: 1 1 100% !important;
+            }
+        }
+
+        /* ══════════════════════════════════════════════════════════════════════════
+           🤖 BOTÃO FLUTUANTE DO AGENTE DE IA (VIA METRÓPOLE)
+           ══════════════════════════════════════════════════════════════════════════ */
+        #ai-chat-button {
+            position: fixed !important;
+            bottom: 110px !important;
+            right: 28px !important;
+            width: 66px !important;
+            height: 66px !important;
+            border-radius: 50% !important;
+            background: #091322 !important;
+            border: 3px solid #00d2ff !important;
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.8), 0 8px 25px rgba(0, 0, 0, 0.85) !important;
+            cursor: pointer !important;
+            z-index: 9999999 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            animation: pulseTranspBtn 2.2s infinite !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        }
+
+        #ai-chat-button:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 0 35px rgba(0, 210, 255, 1), 0 10px 30px rgba(0, 0, 0, 0.9) !important;
+        }
+
+        #ai-chat-button img {
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+            display: block !important;
+            pointer-events: none !important;
+        }
+
+        #ai-chat-button .ai-badge-online {
+            position: absolute !important;
+            top: -2px !important;
+            right: -2px !important;
+            width: 18px !important;
+            height: 18px !important;
+            background: #10b981 !important;
+            border: 2px solid #091322 !important;
+            border-radius: 50% !important;
+            box-shadow: 0 0 8px #10b981 !important;
+        }
+
+        @keyframes pulseTranspBtn {
+            0% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.75), 0 0 20px rgba(0, 210, 255, 0.75); }
+            70% { box-shadow: 0 0 0 16px rgba(0, 210, 255, 0), 0 0 20px rgba(0, 210, 255, 0.75); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0), 0 0 20px rgba(0, 210, 255, 0.75); }
+        }
+
+        #ai-chat-widget {
+            position: fixed !important;
+            bottom: 24px !important;
+            right: 24px !important;
+            width: 370px !important;
+            height: 530px !important;
+            max-width: calc(100vw - 32px) !important;
+            max-height: calc(100vh - 48px) !important;
+            background: #0d1627 !important;
+            border: 2px solid #00d2ff !important;
+            border-radius: 16px !important;
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95), 0 0 25px rgba(0, 210, 255, 0.35) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            z-index: 10000000 !important;
+            transition: all 0.25s ease !important;
+            overflow: hidden !important;
+            font-family: inherit !important;
+        }
+
+        #ai-chat-widget.hidden {
+            display: none !important;
+        }
+
+        .ai-chat-header {
+            height: 50px !important;
+            min-height: 50px !important;
+            background: linear-gradient(90deg, #091222, #132446) !important;
+            border-bottom: 1px solid rgba(0, 210, 255, 0.3) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 0 16px !important;
+            cursor: pointer !important;
+            user-select: none !important;
+        }
+
+        .ai-chat-title {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            color: #00d2ff !important;
+            font-weight: 800 !important;
+            font-size: 13.5px !important;
+            letter-spacing: 0.4px !important;
+        }
+
+        .ai-avatar-img {
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+            border: 2px solid #00d2ff !important;
+        }
+
+        .ai-chat-controls button {
+            background: none !important;
+            border: none !important;
+            color: #94a3b8 !important;
+            font-size: 18px !important;
+            cursor: pointer !important;
+            line-height: 1 !important;
+            padding: 4px 6px !important;
+        }
+        .ai-chat-controls button:hover {
+            color: #00d2ff !important;
+        }
+
+        .ai-chat-body {
+            flex: 1 !important;
+            padding: 14px !important;
+            overflow-y: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 10px !important;
+            background: rgba(7, 13, 24, 0.95) !important;
+        }
+
+        .ai-message {
+            padding: 10px 14px !important;
+            border-radius: 8px !important;
+            font-size: 12.5px !important;
+            line-height: 1.5 !important;
+            word-wrap: break-word !important;
+        }
+
+        .ai-message.ai {
+            background: #111d33 !important;
+            color: #e2e8f0 !important;
+            border-left: 3px solid #00d2ff !important;
+            align-self: flex-start !important;
+            width: 100% !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        .ai-message.user {
+            background: rgba(0, 210, 255, 0.15) !important;
+            color: #ffffff !important;
+            border-right: 3px solid #00d2ff !important;
+            align-self: flex-end !important;
+            max-width: 85% !important;
+        }
+
+        .ai-chips-bar {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 6px !important;
+            margin-top: 4px !important;
+        }
+
+        .ai-chip {
+            background: rgba(0, 210, 255, 0.12) !important;
+            border: 1px solid rgba(0, 210, 255, 0.35) !important;
+            color: #00d2ff !important;
+            padding: 5px 10px !important;
+            border-radius: 16px !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+        .ai-chip:hover {
+            background: #00d2ff !important;
+            color: #0b1528 !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .ai-chat-footer {
+            height: 54px !important;
+            padding: 8px 12px !important;
+            background: #091222 !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+
+        .ai-chat-footer input {
+            flex: 1 !important;
+            background: #111d33 !important;
+            border: 1px solid rgba(0, 210, 255, 0.25) !important;
+            border-radius: 6px !important;
+            padding: 8px 12px !important;
+            color: #ffffff !important;
+            font-size: 12px !important;
+            outline: none !important;
+        }
+        .ai-chat-footer input:focus {
+            border-color: #00d2ff !important;
+            box-shadow: 0 0 8px rgba(0, 210, 255, 0.3) !important;
+        }
+
+        .ai-chat-footer button {
+            background: linear-gradient(135deg, #00d2ff, #0090ff) !important;
+            border: none !important;
+            color: #0b1528 !important;
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 6px !important;
+            cursor: pointer !important;
+            font-weight: 800 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s ease !important;
+        }
+        .ai-chat-footer button:hover {
+            transform: scale(1.05) !important;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.5) !important;
+        }
+    </style>
+
+    <script>
+        window.FALLBACK_FILTROS = {
+            "anos": [
+                2026,
+                2025
+            ],
+            "combustiveis": [
+                "Diesel S10",
+                "Eletricidade"
+            ],
+            "garagens": [
+                {
+                    "id_instalacao": "CENTRO-ADM",
+                    "nome_instalacao": "Centro de Controle Operacional (CCO) & Adm",
+                    "tipo_instalacao": "Pr\u00e9dio Administrativo & CCO"
+                },
+                {
+                    "id_instalacao": "GAR-LESTE",
+                    "nome_instalacao": "Garagem Operacional Leste - Itaquera",
+                    "tipo_instalacao": "Garagem Operacional"
+                },
+                {
+                    "id_instalacao": "GAR-NORTE",
+                    "nome_instalacao": "Garagem Operacional Norte - Cantareira",
+                    "tipo_instalacao": "Garagem Operacional"
+                },
+                {
+                    "id_instalacao": "GAR-OESTE",
+                    "nome_instalacao": "Garagem Operacional Oeste - Butant\u00e3",
+                    "tipo_instalacao": "Garagem Operacional"
+                },
+                {
+                    "id_instalacao": "GAR-SUL",
+                    "nome_instalacao": "Garagem Operacional Sul - Santo Amaro",
+                    "tipo_instalacao": "Garagem Operacional"
+                },
+                {
+                    "id_instalacao": "TERM-CENTRAL",
+                    "nome_instalacao": "Terminal Urbano de Integra\u00e7\u00e3o Central",
+                    "tipo_instalacao": "Terminal de Passageiros"
+                }
+            ],
+            "linhas": [
+                {
+                    "codigo_linha": "101-T",
+                    "id_linha": "L-101",
+                    "nome_linha": "Term. Central - Cco. Universit\u00e1ria",
+                    "tipo_servico": "Troncal Expresso"
+                },
+                {
+                    "codigo_linha": "102-E",
+                    "id_linha": "L-102",
+                    "nome_linha": "Term. Central - Aeroporto Metropolitano",
+                    "tipo_servico": "Troncal Expresso"
+                },
+                {
+                    "codigo_linha": "201-P",
+                    "id_linha": "L-201",
+                    "nome_linha": "Term. Santo Amaro - Term. Itaquera",
+                    "tipo_servico": "Perimetral Sul-Leste"
+                },
+                {
+                    "codigo_linha": "202-P",
+                    "id_linha": "L-202",
+                    "nome_linha": "Term. Santana - Term. Pinheiros",
+                    "tipo_servico": "Perimetral Norte-Oeste"
+                },
+                {
+                    "codigo_linha": "301-A",
+                    "id_linha": "L-301",
+                    "nome_linha": "Term. Central - Distrito Industrial Norte",
+                    "tipo_servico": "Alimentadora Industrial"
+                },
+                {
+                    "codigo_linha": "302-A",
+                    "id_linha": "L-302",
+                    "nome_linha": "Term. Santo Amaro - Polo Tecnol\u00f3gico Sul",
+                    "tipo_servico": "Alimentadora Corporativa"
+                },
+                {
+                    "codigo_linha": "303-A",
+                    "id_linha": "L-303",
+                    "nome_linha": "Term. Itaquera - Hospital Regional Leste",
+                    "tipo_servico": "Alimentadora Sa\u00fade"
+                },
+                {
+                    "codigo_linha": "401-BRT",
+                    "id_linha": "L-401",
+                    "nome_linha": "Corredor BRT Eixo Leste-Oeste",
+                    "tipo_servico": "BRT Exclusivo"
+                },
+                {
+                    "codigo_linha": "402-BRT",
+                    "id_linha": "L-402",
+                    "nome_linha": "Corredor BRT Eixo Norte-Sul",
+                    "tipo_servico": "BRT Exclusivo"
+                },
+                {
+                    "codigo_linha": "501-N",
+                    "id_linha": "L-501",
+                    "nome_linha": "Coruja Noturna - Circular Central",
+                    "tipo_servico": "Noturna Circular"
+                }
+            ],
+            "tipos_onibus": [
+                "Articulado BRT (18.6m)",
+                "El\u00e9trico E-Bus Bateria (12.5m)",
+                "Micro-\u00f4nibus Urbano (9.2m)",
+                "Padr\u00f3n Urbano (13.2m)",
+                "Superarticulado (23.0m)"
+            ]
+        }
+            ;
+        window.FALLBACK_DADOS = {
+            "charts": {
+                "facilities": {
+                    "agua_m3": [
+                        6575.5,
+                        5963.1,
+                        6546.0,
+                        5728.6,
+                        6209.8,
+                        6866.1,
+                        6476.9,
+                        6566.0,
+                        6025.2,
+                        6914.5,
+                        6224.6,
+                        6300.9,
+                        6146.4,
+                        6479.5,
+                        5669.6,
+                        6376.0,
+                        6369.9,
+                        6510.7,
+                        6723.8,
+                        6175.9,
+                        5984.2,
+                        5958.4
+                    ],
+                    "agua_reuso_m3": [
+                        3036.3,
+                        3042.8,
+                        2945.3,
+                        3052.5,
+                        3116.4,
+                        3156.7,
+                        2981.8,
+                        3239.6,
+                        2930.7,
+                        3034.9,
+                        3092.6,
+                        3366.7,
+                        2980.0,
+                        3322.6,
+                        2958.2,
+                        3077.2,
+                        3053.9,
+                        2996.0,
+                        3317.5,
+                        3035.2,
+                        3069.6,
+                        3042.2
+                    ],
+                    "custo_predial": [
+                        948406.45,
+                        946811.15,
+                        975891.58,
+                        959802.29,
+                        955616.03,
+                        942586.08,
+                        977577.51,
+                        965511.81,
+                        943513.92,
+                        965120.91,
+                        952198.19,
+                        966209.91,
+                        1024690.45,
+                        1023778.01,
+                        998160.6,
+                        999533.55,
+                        1011793.06,
+                        1016915.73,
+                        1019615.83,
+                        1016520.69,
+                        1012237.88,
+                        1003155.85
+                    ],
+                    "energia_kwh": [
+                        552030.0,
+                        537607.0,
+                        518076.0,
+                        542737.0,
+                        558911.0,
+                        538592.0,
+                        567344.0,
+                        507812.0,
+                        509611.0,
+                        567439.0,
+                        576360.0,
+                        505643.0,
+                        517298.0,
+                        531806.0,
+                        570200.0,
+                        580343.0,
+                        518868.0,
+                        518012.0,
+                        523754.0,
+                        551960.0,
+                        540975.0,
+                        540481.0
+                    ],
+                    "labels": [
+                        "2025-01",
+                        "2025-02",
+                        "2025-03",
+                        "2025-04",
+                        "2025-05",
+                        "2025-06",
+                        "2025-07",
+                        "2025-08",
+                        "2025-09",
+                        "2025-10",
+                        "2025-11",
+                        "2025-12",
+                        "2026-01",
+                        "2026-02",
+                        "2026-03",
+                        "2026-04",
+                        "2026-05",
+                        "2026-06",
+                        "2026-07",
+                        "2026-08",
+                        "2026-09",
+                        "2026-10"
+                    ]
+                },
+                "garagens": {
+                    "agua": [
+                        650054.4,
+                        538700.49,
+                        458391.99,
+                        388013.37,
+                        497763.59,
+                        92435.61
+                    ],
+                    "aluguel": [
+                        4162500.0,
+                        3262500.0,
+                        2812500.0,
+                        2587500.0,
+                        2137500.0,
+                        1237500.0
+                    ],
+                    "energia": [
+                        2763525.7,
+                        1527146.44,
+                        2248170.43,
+                        2125181.59,
+                        838327.91,
+                        501224.22
+                    ],
+                    "labels": [
+                        "Santo Amaro",
+                        "Itaquera",
+                        "Cantareira",
+                        "Butant\u00e3",
+                        "Terminal Urbano de Integra\u00e7\u00e3o Central",
+                        "Centro de Controle Operacional (CCO) & Adm"
+                    ],
+                    "nomes_completos": [
+                        "Garagem Operacional Sul - Santo Amaro",
+                        "Garagem Operacional Leste - Itaquera",
+                        "Garagem Operacional Norte - Cantareira",
+                        "Garagem Operacional Oeste - Butant\u00e3",
+                        "Terminal Urbano de Integra\u00e7\u00e3o Central",
+                        "Centro de Controle Operacional (CCO) & Adm"
+                    ],
+                    "total": [
+                        5550580.31,
+                        4381424.41,
+                        3779290.76,
+                        3472631.45,
+                        2912417.23,
+                        1529303.32
+                    ]
+                },
+                "linhas": {
+                    "ipk": [
+                        2.75,
+                        2.88,
+                        2.5,
+                        1.96,
+                        3.04,
+                        2.32,
+                        1.56,
+                        1.13,
+                        2.56,
+                        2.04
+                    ],
+                    "labels": [
+                        "401-BRT",
+                        "402-BRT",
+                        "101-T",
+                        "102-E",
+                        "501-N",
+                        "302-A",
+                        "202-P",
+                        "201-P",
+                        "303-A",
+                        "301-A"
+                    ],
+                    "nomes": [
+                        "Corredor BRT Eixo Leste-Oeste",
+                        "Corredor BRT Eixo Norte-Sul",
+                        "Term. Central - Cco. Universit\u00e1ria",
+                        "Term. Central - Aeroporto Metropolitano",
+                        "Coruja Noturna - Circular Central",
+                        "Term. Santo Amaro - Polo Tecnol\u00f3gico Sul",
+                        "Term. Santana - Term. Pinheiros",
+                        "Term. Santo Amaro - Term. Itaquera",
+                        "Term. Itaquera - Hospital Regional Leste",
+                        "Term. Central - Distrito Industrial Norte"
+                    ],
+                    "ocupacao": [
+                        71.8,
+                        71.6,
+                        71.4,
+                        71.4,
+                        68.5,
+                        71.2,
+                        71.7,
+                        71.4,
+                        71.9,
+                        71.3
+                    ],
+                    "passageiros": [
+                        1896694,
+                        1892970,
+                        1177401,
+                        1160878,
+                        892007,
+                        843109,
+                        836159,
+                        832266,
+                        830564,
+                        824595
+                    ]
+                },
+                "mensal": {
+                    "capacidade": [
+                        751384,
+                        651116,
+                        673297,
+                        715039,
+                        752676,
+                        703697,
+                        718465,
+                        736744,
+                        705893,
+                        698487,
+                        688889,
+                        755111,
+                        719745,
+                        648056,
+                        754199,
+                        716523,
+                        684503,
+                        712925,
+                        763496,
+                        682876,
+                        712989,
+                        742436
+                    ],
+                    "diesel_litros": [
+                        118430.0,
+                        101330.0,
+                        106618.0,
+                        111161.0,
+                        117589.0,
+                        111284.0,
+                        112648.0,
+                        116546.0,
+                        111480.0,
+                        111873.0,
+                        109247.0,
+                        118821.0,
+                        113396.0,
+                        102317.0,
+                        119168.0,
+                        112533.0,
+                        107258.0,
+                        113679.0,
+                        120422.0,
+                        109184.0,
+                        112906.0,
+                        117054.0
+                    ],
+                    "labels": [
+                        "2025-01",
+                        "2025-02",
+                        "2025-03",
+                        "2025-04",
+                        "2025-05",
+                        "2025-06",
+                        "2025-07",
+                        "2025-08",
+                        "2025-09",
+                        "2025-10",
+                        "2025-11",
+                        "2025-12",
+                        "2026-01",
+                        "2026-02",
+                        "2026-03",
+                        "2026-04",
+                        "2026-05",
+                        "2026-06",
+                        "2026-07",
+                        "2026-08",
+                        "2026-09",
+                        "2026-10"
+                    ],
+                    "passageiros": [
+                        538253,
+                        463290,
+                        477468,
+                        509359,
+                        531806,
+                        502894,
+                        513900,
+                        523287,
+                        504592,
+                        503664,
+                        488614,
+                        541475,
+                        514817,
+                        463389,
+                        537066,
+                        512218,
+                        483102,
+                        507566,
+                        548603,
+                        480876,
+                        512381,
+                        528023
+                    ]
+                }
+            },
+            "kpis": {
+                "agua_rede_m3_total": 138791.6,
+                "agua_reuso_m3_total": 67848.7,
+                "aluguel_total_rs": 16200000.0,
+                "capacidade_ofertada": 15688546,
+                "cumprimento_viagens_pct": 99.2,
+                "custo_combustivel_rs": 15952953.17,
+                "custo_energia_total": 10003576.29,
+                "custo_predial_total_rs": 21625647.48,
+                "emissoes_co2_ton": 6647.3,
+                "energia_kwh_total": 11875861.0,
+                "frota_ativa": 100,
+                "ipk_geral": 2.21,
+                "km_rodados": 5072171.3,
+                "passageiros_gratuidades": 2403253,
+                "passageiros_pagantes": 8783390,
+                "pct_reuso_agua": 32.8,
+                "rendimento_kml": 2.0,
+                "taxa_ocupacao_pct": 71.3,
+                "total_diesel_litros": 2474943.0,
+                "total_kwh_eletrico": 160871.0,
+                "total_lavagens_onibus": 242317,
+                "total_passageiros": 11186643,
+                "viagens_realizadas": 166723
+            },
+            "tabela_garagens": [
+                {
+                    "agua_rs": 650054.4,
+                    "aluguel_total": 4162500.0,
+                    "capacidade_vagas_onibus": 160,
+                    "energia_rs": 2763525.7,
+                    "nome_instalacao": "Garagem Operacional Sul - Santo Amaro",
+                    "tipo_instalacao": "Garagem Operacional",
+                    "total_predial": 5550580.31
+                },
+                {
+                    "agua_rs": 538700.49,
+                    "aluguel_total": 3262500.0,
+                    "capacidade_vagas_onibus": 130,
+                    "energia_rs": 1527146.44,
+                    "nome_instalacao": "Garagem Operacional Leste - Itaquera",
+                    "tipo_instalacao": "Garagem Operacional",
+                    "total_predial": 4381424.41
+                },
+                {
+                    "agua_rs": 458391.99,
+                    "aluguel_total": 2812500.0,
+                    "capacidade_vagas_onibus": 110,
+                    "energia_rs": 2248170.43,
+                    "nome_instalacao": "Garagem Operacional Norte - Cantareira",
+                    "tipo_instalacao": "Garagem Operacional",
+                    "total_predial": 3779290.76
+                },
+                {
+                    "agua_rs": 388013.37,
+                    "aluguel_total": 2587500.0,
+                    "capacidade_vagas_onibus": 95,
+                    "energia_rs": 2125181.59,
+                    "nome_instalacao": "Garagem Operacional Oeste - Butant\u00e3",
+                    "tipo_instalacao": "Garagem Operacional",
+                    "total_predial": 3472631.45
+                },
+                {
+                    "agua_rs": 497763.59,
+                    "aluguel_total": 2137500.0,
+                    "capacidade_vagas_onibus": 24,
+                    "energia_rs": 838327.91,
+                    "nome_instalacao": "Terminal Urbano de Integra\u00e7\u00e3o Central",
+                    "tipo_instalacao": "Terminal de Passageiros",
+                    "total_predial": 2912417.23
+                },
+                {
+                    "agua_rs": 92435.61,
+                    "aluguel_total": 1237500.0,
+                    "capacidade_vagas_onibus": 0,
+                    "energia_rs": 501224.22000000003,
+                    "nome_instalacao": "Centro de Controle Operacional (CCO) & Adm",
+                    "tipo_instalacao": "Pr\u00e9dio Administrativo & CCO",
+                    "total_predial": 1529303.32
+                }
+            ],
+            "tabela_linhas": [
+                {
+                    "codigo_linha": "401-BRT",
+                    "ipk": 2.75,
+                    "km": 690690.0,
+                    "nome_linha": "Corredor BRT Eixo Leste-Oeste",
+                    "ocupacao": 71.8,
+                    "passageiros": 1896694,
+                    "tipo_servico": "BRT Exclusivo"
+                },
+                {
+                    "codigo_linha": "402-BRT",
+                    "ipk": 2.88,
+                    "km": 656213.5,
+                    "nome_linha": "Corredor BRT Eixo Norte-Sul",
+                    "ocupacao": 71.6,
+                    "passageiros": 1892970,
+                    "tipo_servico": "BRT Exclusivo"
+                },
+                {
+                    "codigo_linha": "101-T",
+                    "ipk": 2.5,
+                    "km": 470730.0,
+                    "nome_linha": "Term. Central - Cco. Universit\u00e1ria",
+                    "ocupacao": 71.4,
+                    "passageiros": 1177401,
+                    "tipo_servico": "Troncal Expresso"
+                },
+                {
+                    "codigo_linha": "102-E",
+                    "ipk": 1.96,
+                    "km": 592883.6,
+                    "nome_linha": "Term. Central - Aeroporto Metropolitano",
+                    "ocupacao": 71.4,
+                    "passageiros": 1160878,
+                    "tipo_servico": "Troncal Expresso"
+                },
+                {
+                    "codigo_linha": "501-N",
+                    "ipk": 3.04,
+                    "km": 293600.0,
+                    "nome_linha": "Coruja Noturna - Circular Central",
+                    "ocupacao": 68.5,
+                    "passageiros": 892007,
+                    "tipo_servico": "Noturna Circular"
+                },
+                {
+                    "codigo_linha": "302-A",
+                    "ipk": 2.32,
+                    "km": 363990.0,
+                    "nome_linha": "Term. Santo Amaro - Polo Tecnol\u00f3gico Sul",
+                    "ocupacao": 71.2,
+                    "passageiros": 843109,
+                    "tipo_servico": "Alimentadora Corporativa"
+                },
+                {
+                    "codigo_linha": "202-P",
+                    "ipk": 1.56,
+                    "km": 536563.4,
+                    "nome_linha": "Term. Santana - Term. Pinheiros",
+                    "ocupacao": 71.7,
+                    "passageiros": 836159,
+                    "tipo_servico": "Perimetral Norte-Oeste"
+                },
+                {
+                    "codigo_linha": "201-P",
+                    "ipk": 1.13,
+                    "km": 739558.4,
+                    "nome_linha": "Term. Santo Amaro - Term. Itaquera",
+                    "ocupacao": 71.4,
+                    "passageiros": 832266,
+                    "tipo_servico": "Perimetral Sul-Leste"
+                },
+                {
+                    "codigo_linha": "303-A",
+                    "ipk": 2.56,
+                    "km": 323888.4,
+                    "nome_linha": "Term. Itaquera - Hospital Regional Leste",
+                    "ocupacao": 71.9,
+                    "passageiros": 830564,
+                    "tipo_servico": "Alimentadora Sa\u00fade"
+                },
+                {
+                    "codigo_linha": "301-A",
+                    "ipk": 2.04,
+                    "km": 404054.0,
+                    "nome_linha": "Term. Central - Distrito Industrial Norte",
+                    "ocupacao": 71.3,
+                    "passageiros": 824595,
+                    "tipo_servico": "Alimentadora Industrial"
+                }
+            ]
+        }
+            ;
+
+        // Interceptador inteligente de fetch para funcionar perfeitamente tanto no GitHub Pages quanto no Flask
+        const _origFetch = window.fetch;
+        window.fetch = async function (url, options) {
+            try {
+                const res = await _origFetch(url, options);
+                if (res.ok) return res;
+                throw new Error('API indisponivel');
+            } catch (err) {
+                if (typeof url === 'string') {
+                    if (url.includes('/api/filtros')) {
+                        return new Response(JSON.stringify(window.FALLBACK_FILTROS), {
+                            status: 200,
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                    }
+                    if (url.includes('/api/dados')) {
+                        return new Response(JSON.stringify(window.FALLBACK_DADOS), {
+                            status: 200,
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                    }
+                }
+                throw err;
+            }
+        };
+    </script>
+
+</head>
+
+<body class="min-h-screen flex flex-col custom-scrollbar">
+
+    <!-- Top Navigation Header -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-slate-800 px-6 py-3.5">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+
+            <!-- Brand & Authority Info -->
+            <div class="flex items-center space-x-4">
+                <div
+                    class="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-600 via-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+                    <i class="fa-solid fa-bus text-white text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span
+                            class="text-xs font-bold uppercase tracking-wider text-sky-400 bg-sky-950/70 border border-sky-800/50 px-2.5 py-0.5 rounded-full">
+                            VIA METRÓPOLE MOBILIDADE &amp; INFRAESTRUTURA
+                        </span>
+                        <span
+                            class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
+                            <i class="fa-solid fa-circle text-[8px] mr-1 text-emerald-400 animate-pulse"></i>Dashboard
+                            Executivo Oficial
+                        </span>
+                    </div>
+                    <h1
+                        class="text-xl font-heading font-extrabold text-white tracking-tight flex items-center gap-2 mt-0.5">
+                        Gestão de Transporte, Frota de Ônibus, Combustível &amp; Facilities
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons & Fullscreen -->
+            <div class="header-actions-mobile flex items-center space-x-3 w-full md:w-auto justify-end">
+                <button onclick="toggleChat(true)"
+                    class="px-3.5 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-950 text-xs font-extrabold border border-cyan-300 flex items-center gap-2 shadow-lg shadow-cyan-500/30 transition transform hover:scale-105 cursor-pointer"
+                    title="Abrir Assistente de IA Operacional (Frota, Diesel & Facilities)">
+                    <img src="viacao_ai_avatar.png" class="w-5 h-5 rounded-full object-cover border border-slate-900" onerror="this.onerror=null; this.src='https://sracm.github.io/portfolio-antonio-mello-bi/viacao_ai_avatar.png';">
+                    <span>Assistente IA</span>
+                </button>
+                <a href="../index.html"
+                    class="px-3.5 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/40 flex items-center gap-2 transition"
+                    title="Voltar ao Portfólio Principal">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Voltar ao Portfólio</span>
+                </a>
+                <button id="btn-fullscreen" onclick="toggleFullscreen()"
+                    class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-2 transition"
+                    title="Modo Tela Cheia (F11 ou tecla F)">
+                    <i class="fa-solid fa-expand" id="icon-fullscreen"></i>
+                    <span id="label-fullscreen">Tela Cheia</span>
+                </button>
+                <button onclick="carregarDados()"
+                    class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Atualizar</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-6 space-y-6">
+
+        <!-- Executive Banner Context -->
+        <div
+            class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-gradient-to-r from-sky-950/40 via-slate-900/60 to-blue-950/40 p-4 rounded-2xl border border-sky-900/30">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-sky-400"></i>
+                    <h2 class="text-sm font-heading font-bold text-sky-200 uppercase tracking-wider">
+                        Painel Executivo C-Level: Operações de Linhas, Frota &amp; Gestão Predial de Facilities
+                    </h2>
+                </div>
+                <p class="text-xs text-slate-400">
+                    Acompanhamento de passageiros transportados, taxa de ocupação, índice IPK, consumo de diesel (km/l),
+                    eletricidade de recarga, contas de energia/água e aluguéis de garagens operacionais.
+                </p>
+            </div>
+            <div
+                class="flex items-center gap-3 text-xs bg-slate-950/60 px-3.5 py-2 rounded-xl border border-slate-800 text-slate-300">
+                <i class="fa-solid fa-database text-sky-400"></i>
+                <span>Star Schema: <strong>34.764 registros diários</strong> + 6 Dimensões</span>
+            </div>
+        </div>
+
+        <!-- Global Filters Bar -->
+        <div class="glass-panel p-4 rounded-2xl border border-slate-800/80">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <!-- Filtro Ano -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Ano de Exercício</label>
+                    <select id="filtro-ano" onchange="carregarDados()"
+                        class="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="TODOS">Todos os Anos (Consolidado)</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Linha / Itinerário -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Linha / Itinerário</label>
+                    <select id="filtro-linha" onchange="carregarDados()"
+                        class="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="TODAS">Todas as Linhas (10 Itinerários)</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Garagem / Instalação -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Garagem / Terminal</label>
+                    <select id="filtro-garagem" onchange="carregarDados()"
+                        class="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="TODAS">Todas as Garagens &amp; Terminais</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Tipo Combustível -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Matriz Energética</label>
+                    <select id="filtro-combustivel" onchange="carregarDados()"
+                        class="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="TODOS">Todos (Diesel + Elétrico)</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Tipo Veículo -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Tipo de Ônibus</label>
+                    <select id="filtro-veiculo" onchange="carregarDados()"
+                        class="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="TODOS">Toda a Frota (100 Ônibus)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards Grid (Transporte & Operação) -->
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <i class="fa-solid fa-users text-sky-400"></i>
+                    1. Indicadores de Passageiros, Frota &amp; Capacidade Operacional
+                </h3>
+                <span class="text-[11px] text-slate-500">Métricas Principais da Operação</span>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                <!-- KPI 1: Passageiros -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400">Passageiros Totais</span>
+                        <div class="w-7 h-7 rounded-lg bg-sky-500/10 flex items-center justify-center text-sky-400">
+                            <i class="fa-solid fa-person text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <div class="text-xl sm:text-2xl font-bold font-mono text-white" id="kpi-passageiros">--</div>
+                    </div>
+                    <div class="text-[10px] text-slate-400 flex items-center justify-between">
+                        <span id="kpi-pagantes">Pagantes: --</span>
+                        <span class="text-sky-400 font-semibold" id="kpi-gratuidades">Grat.: --</span>
+                    </div>
+                </div>
+
+                <!-- KPI 2: Capacidade Ofertada -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400">Capacidade Ofertada</span>
+                        <div class="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                            <i class="fa-solid fa-chair text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <div class="text-xl sm:text-2xl font-bold font-mono text-white" id="kpi-capacidade">--</div>
+                    </div>
+                    <div class="text-[10px] text-slate-400 flex items-center justify-between">
+                        <span>Viagens: <strong id="kpi-viagens" class="text-slate-200">--</strong></span>
+                        <span class="text-emerald-400" id="kpi-cumprimento">--%</span>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Taxa de Ocupação -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400">Taxa Média Ocupação</span>
+                        <div
+                            class="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                            <i class="fa-solid fa-gauge text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <div class="text-xl sm:text-2xl font-bold font-mono text-emerald-400" id="kpi-ocupacao">--%
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-slate-400">
+                        <span>Meta Operacional: <strong>75% - 85%</strong></span>
+                    </div>
+                </div>
+
+                <!-- KPI 4: IPK (Passageiro por Km) -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400">Índice IPK (Pass./km)</span>
+                        <div class="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                            <i class="fa-solid fa-route text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <div class="text-xl sm:text-2xl font-bold font-mono text-amber-300" id="kpi-ipk">--</div>
+                    </div>
+                    <div class="text-[10px] text-slate-400 flex items-center justify-between">
+                        <span>Km Total: <strong id="kpi-km" class="text-slate-200">--</strong></span>
+                    </div>
+                </div>
+
+                <!-- KPI 5: Consumo Diesel & Rendimento -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400">Diesel (Litros)</span>
+                        <div class="w-7 h-7 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400">
+                            <i class="fa-solid fa-gas-pump text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <div class="text-xl sm:text-2xl font-bold font-mono text-rose-300" id="kpi-diesel">-- L</div>
+                    </div>
+                    <div class="text-[10px] text-slate-400 flex items-center justify-between">
+                        <span>Rendimento: <strong id="kpi-rendimento" class="text-emerald-400">-- km/l</strong></span>
+                    </div>
+                </div>
+
+                <!-- KPI 6: Frota Ativa & Sustentabilidade -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400">Frota Ativa</span>
+                        <div
+                            class="w-7 h-7 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                            <i class="fa-solid fa-van-shuttle text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <div class="text-xl sm:text-2xl font-bold font-mono text-indigo-300" id="kpi-frota">-- / 100
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-slate-400 flex items-center justify-between">
+                        <span>Emissões: <strong id="kpi-co2" class="text-slate-200">-- t CO2</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards Grid (Facilities: Energia, Água & Aluguel de Garagens) -->
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <i class="fa-solid fa-building text-teal-400"></i>
+                    2. Indicadores de Facilities, Sustentabilidade &amp; Infraestrutura Predial
+                </h3>
+                <span class="text-[11px] text-slate-500">Garagens, Terminais &amp; CCO</span>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <!-- FAC 1: Energia Elétrica -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400">Energia Elétrica (kWh)</span>
+                        <div class="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                            <i class="fa-solid fa-bolt text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <div class="text-xl sm:text-2xl font-bold font-mono text-amber-400" id="kpi-energia-kwh">-- kWh
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-slate-400 flex items-center justify-between">
+                        <span>Custo Fatura: <strong id="kpi-energia-custo" class="text-slate-200">R$ --</strong></span>
+                    </div>
+                </div>
+
+                <!-- FAC 2: Consumo de Água -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400">Consumo de Água (m³)</span>
+                        <div class="w-7 h-7 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-400">
+                            <i class="fa-solid fa-faucet-drip text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <div class="text-xl sm:text-2xl font-bold font-mono text-teal-300" id="kpi-agua-m3">-- m³</div>
+                    </div>
+                    <div class="text-[10px] text-slate-400 flex items-center justify-between">
+                        <span>Custo Água: <strong id="kpi-agua-custo" class="text-slate-200">R$ --</strong></span>
+                        <span class="text-emerald-400 font-semibold" id="kpi-agua-reuso">Reuso: --%</span>
+                    </div>
+                </div>
+
+                <!-- FAC 3: Aluguel Contratual de Garagens -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400">Aluguel de Garagens &amp; Terminais</span>
+                        <div class="w-7 h-7 rounded-lg bg-sky-500/10 flex items-center justify-center text-sky-400">
+                            <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <div class="text-xl sm:text-2xl font-bold font-mono text-sky-400" id="kpi-aluguel-rs">R$ --
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-slate-400">
+                        <span>Contratos de Locação Ativos</span>
+                    </div>
+                </div>
+
+                <!-- FAC 4: Custo Predial Total -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400">Custo Predial Total (Aluguel + IPTU +
+                            Manut)</span>
+                        <div
+                            class="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
+                            <i class="fa-solid fa-warehouse text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <div class="text-xl sm:text-2xl font-bold font-mono text-purple-300" id="kpi-custo-predial-rs">
+                            R$ --</div>
+                    </div>
+                    <div class="text-[10px] text-slate-400 flex items-center justify-between">
+                        <span>Lavagens Frota: <strong id="kpi-lavagens" class="text-slate-200">--</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid 1: Transporte & Operação -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Gráfico 1: Evolução Mensal Passageiros vs Capacidade -->
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h4 class="text-sm font-heading font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-area text-sky-400"></i>
+                            Evolução Mensal de Passageiros vs Capacidade Ofertada
+                        </h4>
+                        <p class="text-[11px] text-slate-400">Volume de demanda atendida vs oferta programada</p>
+                    </div>
+                </div>
+                <div class="h-[280px]">
+                    <canvas id="chartMensal"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 2: Ranking de Linhas por Passageiros & IPK -->
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h4 class="text-sm font-heading font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-ranking-star text-amber-400"></i>
+                            Ranking de Linhas por Volume de Passageiros &amp; IPK
+                        </h4>
+                        <p class="text-[11px] text-slate-400">Linhas de maior fluxo e densidade de passageiro/km</p>
+                    </div>
+                </div>
+                <div class="h-[280px]">
+                    <canvas id="chartLinhas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid 2: Facilities & Sustentabilidade -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Gráfico 3: Consumo de Energia Elétrica & Água -->
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h4 class="text-sm font-heading font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-teal-400"></i>
+                            Consumo Mensal de Energia (kWh) vs Água de Rede &amp; Reuso (m³)
+                        </h4>
+                        <p class="text-[11px] text-slate-400">Eficiência e sustentabilidade hídrica e elétrica</p>
+                    </div>
+                </div>
+                <div class="h-[280px]">
+                    <canvas id="chartFacilities"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 4: Custos por Garagem e Instalação -->
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h4 class="text-sm font-heading font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-building-circle-check text-indigo-400"></i>
+                            Custos Prediais &amp; Aluguéis por Garagem / Instalação
+                        </h4>
+                        <p class="text-[11px] text-slate-400">Composição de aluguel, energia e água por base operacional
+                        </p>
+                    </div>
+                </div>
+                <div class="h-[280px]">
+                    <canvas id="chartGaragens"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operational Tables Section -->
+        <div class="space-y-6">
+            <!-- Tabela 1: Linhas e Itinerários -->
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h4 class="text-sm font-heading font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-route text-sky-400"></i>
+                            Detalhamento Operacional por Linha &amp; Itinerário
+                        </h4>
+                        <p class="text-[11px] text-slate-400">Passageiros, quilometragem, índice IPK e taxa de ocupação
+                        </p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto max-h-[360px] custom-scrollbar">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead
+                            class="sticky top-0 bg-slate-900/95 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="py-2.5 px-3">Código</th>
+                                <th class="py-2.5 px-3">Nome da Linha / Itinerário</th>
+                                <th class="py-2.5 px-3">Tipo de Serviço</th>
+                                <th class="py-2.5 px-3 text-right">Passageiros</th>
+                                <th class="py-2.5 px-3 text-right">Km Rodados</th>
+                                <th class="py-2.5 px-3 text-center">IPK</th>
+                                <th class="py-2.5 px-3 text-center">Taxa Ocupação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-linhas" class="divide-y divide-slate-800/60">
+                            <!-- Inserido dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabela 2: Garagens e Instalações Prediais -->
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h4 class="text-sm font-heading font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-warehouse text-purple-400"></i>
+                            Gestão de Contratos de Aluguel &amp; Custos das Instalações (Facilities)
+                        </h4>
+                        <p class="text-[11px] text-slate-400">Aluguéis contratuais, despesas de energia, água e custos
+                            consolidados</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto max-h-[320px] custom-scrollbar">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead
+                            class="sticky top-0 bg-slate-900/95 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="py-2.5 px-3">Instalação / Garagem</th>
+                                <th class="py-2.5 px-3">Tipo</th>
+                                <th class="py-2.5 px-3 text-center">Vagas Ônibus</th>
+                                <th class="py-2.5 px-3 text-right">Aluguel Contratual (R$)</th>
+                                <th class="py-2.5 px-3 text-right">Energia Elétrica (R$)</th>
+                                <th class="py-2.5 px-3 text-right">Água (R$)</th>
+                                <th class="py-2.5 px-3 text-right">Custo Predial Total (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-garagens" class="divide-y divide-slate-800/60">
+                            <!-- Inserido dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-slate-800/80 py-4 px-6 mt-8">
+        <div
+            class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <div>
+                © 2026 <strong>Via Metrópole Mobilidade &amp; Infraestrutura</strong> — Projeto de Demonstração Técnica
+                Power BI &amp; Analytics
+            </div>
+            <div>
+                Especialista em BI &amp; Analytics: <strong>Antonio Carlos de Mello</strong>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts JavaScript -->
+    <script>
+        // Formatter helpers
+        const formatNumber = (v) => new Intl.NumberFormat('pt-BR').format(v || 0);
+        const formatMoney = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v || 0);
+
+        // Chart instances
+        let chartMensalInst = null;
+        let chartLinhasInst = null;
+        let chartFacilitiesInst = null;
+        let chartGaragensInst = null;
+
+        // Load Filters
+        async function carregarFiltros() {
+            try {
+                const res = await fetch('/api/filtros');
+                const data = await res.json();
+
+                // Anos
+                const selAno = document.getElementById('filtro-ano');
+                data.anos.forEach(a => {
+                    const opt = document.createElement('option');
+                    opt.value = a;
+                    opt.textContent = `Ano ${a}`;
+                    selAno.appendChild(opt);
+                });
+
+                // Linhas
+                const selLinha = document.getElementById('filtro-linha');
+                data.linhas.forEach(l => {
+                    const opt = document.createElement('option');
+                    opt.value = l.id_linha;
+                    opt.textContent = `${l.codigo_linha} - ${l.nome_linha}`;
+                    selLinha.appendChild(opt);
+                });
+
+                // Garagens
+                const selGar = document.getElementById('filtro-garagem');
+                data.garagens.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.id_instalacao;
+                    opt.textContent = g.nome_instalacao;
+                    selGar.appendChild(opt);
+                });
+
+                // Combustível
+                const selComb = document.getElementById('filtro-combustivel');
+                data.combustiveis.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    selComb.appendChild(opt);
+                });
+
+                // Veículos
+                const selVeic = document.getElementById('filtro-veiculo');
+                data.tipos_onibus.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t;
+                    opt.textContent = t;
+                    selVeic.appendChild(opt);
+                });
+
+            } catch (err) {
+                console.error("Erro ao carregar filtros:", err);
+            }
+        }
+
+        function getQueryParams() {
+            const params = new URLSearchParams();
+            const ano = document.getElementById('filtro-ano').value;
+            const linha = document.getElementById('filtro-linha').value;
+            const garagem = document.getElementById('filtro-garagem').value;
+            const combustivel = document.getElementById('filtro-combustivel').value;
+            const tipo_veiculo = document.getElementById('filtro-veiculo').value;
+
+            if (ano !== 'TODOS') params.append('ano', ano);
+            if (linha !== 'TODAS') params.append('linha', linha);
+            if (garagem !== 'TODAS') params.append('garagem', garagem);
+            if (combustivel !== 'TODOS') params.append('combustivel', combustivel);
+            if (tipo_veiculo !== 'TODOS') params.append('tipo_veiculo', tipo_veiculo);
+
+            return params.toString();
+        }
+
+        async function carregarDados() {
+            try {
+                const qs = getQueryParams();
+                const res = await fetch(`/api/dados${qs ? '?' + qs : ''}`);
+                const data = await res.json();
+
+                renderKPIs(data.kpis);
+                renderCharts(data.charts);
+                renderTabelas(data.tabela_linhas, data.tabela_garagens);
+
+            } catch (err) {
+                console.error("Erro ao carregar dados:", err);
+            }
+        }
+
+        function renderKPIs(k) {
+            document.getElementById('kpi-passageiros').textContent = formatNumber(k.total_passageiros);
+            document.getElementById('kpi-pagantes').textContent = `Pagantes: ${formatNumber(k.passageiros_pagantes)}`;
+            document.getElementById('kpi-gratuidades').textContent = `Grat.: ${formatNumber(k.passageiros_gratuidades)}`;
+
+            document.getElementById('kpi-capacidade').textContent = formatNumber(k.capacidade_ofertada);
+            document.getElementById('kpi-viagens').textContent = formatNumber(k.viagens_realizadas);
+            document.getElementById('kpi-cumprimento').textContent = `${k.cumprimento_viagens_pct}% cump.`;
+
+            document.getElementById('kpi-ocupacao').textContent = `${k.taxa_ocupacao_pct}%`;
+            document.getElementById('kpi-ipk').textContent = k.ipk_geral.toFixed(2);
+            document.getElementById('kpi-km').textContent = `${formatNumber(k.km_rodados)} km`;
+
+            document.getElementById('kpi-diesel').textContent = `${formatNumber(k.total_diesel_litros)} L`;
+            document.getElementById('kpi-rendimento').textContent = `${k.rendimento_kml.toFixed(2)} km/l`;
+
+            document.getElementById('kpi-frota').textContent = `${k.frota_ativa} / 100`;
+            document.getElementById('kpi-co2').textContent = `${formatNumber(k.emissoes_co2_ton)} t CO2`;
+
+            // Facilities
+            document.getElementById('kpi-energia-kwh').textContent = `${formatNumber(k.energia_kwh_total)} kWh`;
+            document.getElementById('kpi-energia-custo').textContent = formatMoney(k.custo_energia_total);
+
+            document.getElementById('kpi-agua-m3').textContent = `${formatNumber(k.agua_rede_m3_total)} m³`;
+            document.getElementById('kpi-agua-custo').textContent = formatMoney(k.custo_agua_total);
+            document.getElementById('kpi-agua-reuso').textContent = `Reuso: ${k.pct_reuso_agua}%`;
+
+            document.getElementById('kpi-aluguel-rs').textContent = formatMoney(k.aluguel_total_rs);
+            document.getElementById('kpi-custo-predial-rs').textContent = formatMoney(k.custo_predial_total_rs);
+            document.getElementById('kpi-lavagens').textContent = formatNumber(k.total_lavagens_onibus);
+        }
+
+        function renderCharts(c) {
+            // Chart 1: Mensal Passageiros vs Capacidade
+            const ctxM = document.getElementById('chartMensal').getContext('2d');
+            if (chartMensalInst) chartMensalInst.destroy();
+            chartMensalInst = new Chart(ctxM, {
+                type: 'line',
+                data: {
+                    labels: c.mensal.labels,
+                    datasets: [
+                        {
+                            label: 'Passageiros Transportados',
+                            data: c.mensal.passageiros,
+                            borderColor: '#38bdf8',
+                            backgroundColor: 'rgba(56, 189, 248, 0.15)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Capacidade Ofertada',
+                            data: c.mensal.capacidade,
+                            borderColor: '#64748b',
+                            borderDash: [5, 5],
+                            tension: 0.35,
+                            borderWidth: 2,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { size: 11 } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+
+            // Chart 2: Linhas Ranking
+            const ctxL = document.getElementById('chartLinhas').getContext('2d');
+            if (chartLinhasInst) chartLinhasInst.destroy();
+            chartLinhasInst = new Chart(ctxL, {
+                type: 'bar',
+                data: {
+                    labels: c.linhas.labels,
+                    datasets: [
+                        {
+                            label: 'Passageiros Totais',
+                            data: c.linhas.passageiros,
+                            backgroundColor: '#0284c7',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => c.linhas.nomes[items[0].dataIndex],
+                                afterLabel: (item) => `IPK: ${c.linhas.ipk[item.dataIndex]} pass/km | Ocupação: ${c.linhas.ocupacao[item.dataIndex]}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+
+            // Chart 3: Facilities Energia vs Água
+            const ctxF = document.getElementById('chartFacilities').getContext('2d');
+            if (chartFacilitiesInst) chartFacilitiesInst.destroy();
+            chartFacilitiesInst = new Chart(ctxF, {
+                type: 'bar',
+                data: {
+                    labels: c.facilities.labels,
+                    datasets: [
+                        {
+                            label: 'Água Rede (m³)',
+                            data: c.facilities.agua_m3,
+                            backgroundColor: '#0d9488',
+                            borderRadius: 4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Água de Reuso (m³)',
+                            data: c.facilities.agua_reuso_m3,
+                            backgroundColor: '#10b981',
+                            borderRadius: 4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Energia (kWh)',
+                            data: c.facilities.energia_kwh,
+                            type: 'line',
+                            borderColor: '#f59e0b',
+                            backgroundColor: '#f59e0b',
+                            tension: 0.3,
+                            borderWidth: 2,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { size: 11 } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { display: false } },
+                        y: { position: 'left', ticks: { color: '#10b981' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y1: { position: 'right', ticks: { color: '#f59e0b' }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // Chart 4: Custos por Garagem
+            const ctxG = document.getElementById('chartGaragens').getContext('2d');
+            if (chartGaragensInst) chartGaragensInst.destroy();
+            chartGaragensInst = new Chart(ctxG, {
+                type: 'bar',
+                data: {
+                    labels: c.garagens.labels,
+                    datasets: [
+                        {
+                            label: 'Aluguel (R$)',
+                            data: c.garagens.aluguel,
+                            backgroundColor: '#0284c7'
+                        },
+                        {
+                            label: 'Energia (R$)',
+                            data: c.garagens.energia,
+                            backgroundColor: '#f59e0b'
+                        },
+                        {
+                            label: 'Água (R$)',
+                            data: c.garagens.agua,
+                            backgroundColor: '#0d9488'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true, ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
+                        y: { stacked: true, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => c.garagens.nomes_completos[items[0].dataIndex]
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTabelas(linhas, garagens) {
+            const tbodyL = document.getElementById('tbody-linhas');
+            tbodyL.innerHTML = '';
+            linhas.forEach(l => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/40 transition';
+                tr.innerHTML = `
+                    <td class="py-2 px-3 font-mono font-bold text-sky-400">${l.codigo_linha}</td>
+                    <td class="py-2 px-3 text-slate-200 font-medium">${l.nome_linha}</td>
+                    <td class="py-2 px-3 text-slate-400 text-[11px]">${l.tipo_servico}</td>
+                    <td class="py-2 px-3 text-right font-mono text-slate-100">${formatNumber(l.passageiros)}</td>
+                    <td class="py-2 px-3 text-right font-mono text-slate-400">${formatNumber(l.km)} km</td>
+                    <td class="py-2 px-3 text-center font-mono font-bold text-amber-300">${l.ipk}</td>
+                    <td class="py-2 px-3 text-center font-mono text-emerald-400">${l.ocupacao}%</td>
+                `;
+                tbodyL.appendChild(tr);
+            });
+
+            const tbodyG = document.getElementById('tbody-garagens');
+            tbodyG.innerHTML = '';
+            garagens.forEach(g => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/40 transition';
+                tr.innerHTML = `
+                    <td class="py-2 px-3 text-slate-200 font-semibold">${g.nome_instalacao}</td>
+                    <td class="py-2 px-3 text-slate-400 text-[11px]">${g.tipo_instalacao}</td>
+                    <td class="py-2 px-3 text-center font-mono text-slate-300">${g.capacidade_vagas_onibus}</td>
+                    <td class="py-2 px-3 text-right font-mono text-sky-400">${formatMoney(g.aluguel_total)}</td>
+                    <td class="py-2 px-3 text-right font-mono text-amber-300">${formatMoney(g.energia_rs)}</td>
+                    <td class="py-2 px-3 text-right font-mono text-teal-300">${formatMoney(g.agua_rs)}</td>
+                    <td class="py-2 px-3 text-right font-mono font-bold text-purple-300">${formatMoney(g.total_predial)}</td>
+                `;
+                tbodyG.appendChild(tr);
+            });
+        }
+
+        function exportarExcel() {
+            window.location.href = '/api/exportar/excel';
+        }
+
+        // Fullscreen Mode
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                const docEl = document.documentElement;
+                if (docEl.requestFullscreen) docEl.requestFullscreen();
+                else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+                else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        }
+
+        function updateFullscreenUI() {
+            const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+            const icon = document.getElementById('icon-fullscreen');
+            const label = document.getElementById('label-fullscreen');
+            const btn = document.getElementById('btn-fullscreen');
+            if (!btn) return;
+            if (isFS) {
+                if (icon) icon.className = 'fa-solid fa-compress';
+                if (label) label.textContent = 'Sair Tela Cheia';
+                btn.classList.add('bg-sky-700', 'text-white');
+            } else {
+                if (icon) icon.className = 'fa-solid fa-expand';
+                if (label) label.textContent = 'Tela Cheia';
+                btn.classList.remove('bg-sky-700', 'text-white');
+            }
+        }
+
+        document.addEventListener('fullscreenchange', updateFullscreenUI);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+        document.addEventListener('msfullscreenchange', updateFullscreenUI);
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'f' || e.key === 'F') && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+                toggleFullscreen();
+            }
+        });
+
+        // ══════════════════════════════════════════════════════════════════════════
+        // 🤖 AGENTE DE IA FLUTUANTE — VIA METRÓPOLE (FROTA, DIESEL & FACILITIES)
+        // ══════════════════════════════════════════════════════════════════════════
+        function toggleChat(forceOpen) {
+            const btn = document.getElementById('ai-chat-button');
+            const widget = document.getElementById('ai-chat-widget');
+            const input = document.getElementById('ai-chat-input');
+            if (!widget) return;
+
+            const shouldOpen = (forceOpen !== undefined) ? forceOpen : widget.classList.contains('hidden');
+
+            if (shouldOpen) {
+                widget.classList.remove('hidden');
+                if (btn) btn.style.display = 'none';
+                if (input) setTimeout(() => input.focus(), 150);
+            } else {
+                widget.classList.add('hidden');
+                if (btn) btn.style.display = 'flex';
+            }
+        }
+        window.toggleChat = toggleChat;
+
+        function handleChipTransp(txt) {
+            const input = document.getElementById('ai-chat-input');
+            if (input) input.value = txt;
+            sendTranspIA();
+        }
+        window.handleChipTransp = handleChipTransp;
+
+        function appendMessageTransp(sender, text) {
+            const chatBody = document.getElementById('ai-chat-body');
+            if (!chatBody) return;
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `ai-message ${sender}`;
+            
+            const formatted = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+            msgDiv.innerHTML = formatted;
+
+            chatBody.appendChild(msgDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function sendTranspIA() {
+            const input = document.getElementById('ai-chat-input');
+            if (!input) return;
+            const text = input.value.trim();
+            if (!text) return;
+
+            appendMessageTransp('user', text);
+            input.value = '';
+
+            setTimeout(() => {
+                const resp = gerarRespostaTranspIA(text);
+                appendMessageTransp('ai', resp);
+            }, 300);
+        }
+        window.sendTranspIA = sendTranspIA;
+
+        function gerarRespostaTranspIA(promptText) {
+            const q = (promptText || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+            // Saudação
+            if (
+                q === 'ola' || q === 'oi' || q === 'opa' || q === 'ola!' || q === 'oi!' ||
+                q.startsWith('ola ') || q.startsWith('oi ') || q.startsWith('bom dia') ||
+                q.startsWith('boa tarde') || q.startsWith('boa noite') ||
+                q.includes('tudo bem') || q.includes('como vai') || q.includes('e ai')
+            ) {
+                const hora = new Date().getHours();
+                let saud = 'Boa noite';
+                if (hora >= 5 && hora < 12) saud = 'Bom dia';
+                else if (hora >= 12 && hora < 18) saud = 'Boa tarde';
+
+                return `${saud}, Antônio! Tudo bem?\n` +
+                       `Sou o **Assistente IA de Gestão de Frota, Diesel & Facilities da Via Metrópole**.\n\n` +
+                       `Conectado diretamente à telemetria dos 100 ônibus urbanos e às 4 garagens operacionais. O que você deseja inspecionar?\n` +
+                       `• 🚍 **Status da Frota & IPK** (100 carros | 94 ativos | IPK 2.64 pass/km)\n` +
+                       `• ⛽ **Consumo de Diesel** (754.510 L | Rendimento 2.42 km/l)\n` +
+                       `• ⏰ **Curva de Horários de Pico** (Pico Manhã 06h-08h | Tarde 17h-19h)\n` +
+                       `• 🏢 **Custos de Garagens & Facilities** (R$ 420.550/mês)\n` +
+                       `• 💧 **Água de Reuso & Lavagem** (68.5% reuso | 12.450 lavagens)\n` +
+                       `• 💡 **Oportunidades de Redução de Custos** (-6.4% em diesel)`;
+            }
+
+            // Status da Frota / IPK
+            if (q.includes('frota') || q.includes('ipk') || q.includes('onibus') || q.includes('veiculo') || q.includes('status da frota') || q.includes('passageiro')) {
+                return `🚍 **Diagnóstico Operacional da Frota (Via Metrópole):**\n\n` +
+                       `• **Frota Total Cadastrada:** 100 ônibus urbanos (Padron 13m, BRT Articulado 18m e Elétricos BYD).\n` +
+                       `• **Frota Operacional Ativa:** 94 ônibus em circulação regular (94% de disponibilidade operacional).\n` +
+                       `• **Em Manutenção Preventiva:** 6 veículos retidos em garagens para revisão mecânica periódica.\n` +
+                       `• **Passageiros Transportados:** 4.820.450 passageiros acumulados (3.986.870 pagantes + 833.580 gratuidades/estudantes).\n` +
+                       `• **IPK Médio Geral:** **2.64 passageiros/km** (Meta contratual: >2.30 pass/km).\n` +
+                       `• **Quilometragem Rodada:** 1.825.930 km com 98.6% de cumprimento do quadro de partidas.`;
+            }
+
+            // Diesel / Combustível / Rendimento
+            if (q.includes('diesel') || q.includes('combustivel') || q.includes('consumo') || q.includes('rendimento') || q.includes('km/l') || q.includes('litro')) {
+                return `⛽ **Eficiência Energética & Consumo de Diesel:**\n\n` +
+                       `• **Volume Total Consumido:** 754.510 litros de Diesel S10.\n` +
+                       `• **Rendimento Médio da Frota:** **2.42 km/litro** (acima do baseline de 2.27 km/l, gerando economia líquida de 6.4%).\n` +
+                       `• **Top Eficiência:** Linha 101-T (Troncal Expresso) atingiu 2.58 km/l com telemetria de condução econômica (Eco-Drive).\n` +
+                       `• **Pegada de Carbono:** 1.992 toneladas de CO2 geradas, com redução de 136 t CO2 após adoção de rotas otimizadas e frota elétrica experimental.`;
+            }
+
+            // Horários de Pico
+            if (q.includes('pico') || q.includes('horario') || q.includes('manha') || q.includes('tarde') || q.includes('curva horaria')) {
+                return `⏰ **Comportamento da Curva Horária de Demanda:**\n\n` +
+                       `• 🌅 **Pico Manhã (06:00 às 08:30):** Concentração de 34.2% da demanda diária. Taxa média de ocupação de **88.4%**. Linhas com maior carregamento: Troncal 101-T e Corredor BRT 401.\n` +
+                       `• 🌇 **Pico Tarde/Noite (17:00 às 19:30):** Concentração de 38.6% da demanda diária. Taxa média de ocupação de **91.2%**.\n` +
+                       `• 🌤️ **Entrepico / Vale (10:00 às 15:00):** Ocupação média de 48.5%. Recomendação técnica: modulação do intervalo entre viagens (headway) de 8 para 14 min para economizar diesel sem penalizar tempo de espera.`;
+            }
+
+            // Garagens / Facilities / Custos Prediais
+            if (q.includes('garagem') || q.includes('facilit') || q.includes('predial') || q.includes('aluguel') || q.includes('energia') || q.includes('kwh') || q.includes('instalac')) {
+                return `🏢 **Facilities & Gestão Patrimonial de Garagens:**\n\n` +
+                       `Custo Operacional Predial Consolidado: **R$ 420.550/mês** distribuído em 6 instalações:\n` +
+                       `• **Garagem Leste (Itaquera):** 35 vagas | Aluguel R$ 48.000 | Energia R$ 38.400 | Total R$ 94.600\n` +
+                       `• **Garagem Norte (Cantareira):** 40 vagas | Aluguel R$ 52.000 | Energia R$ 42.100 | Total R$ 103.500\n` +
+                       `• **Garagem Sul (Santo Amaro):** 30 vagas | Aluguel R$ 42.000 | Energia R$ 35.800 | Total R$ 86.200\n` +
+                       `• **Garagem Oeste (Butantã):** 25 vagas | Aluguel R$ 36.000 | Energia R$ 29.500 | Total R$ 73.800\n` +
+                       `• **Centro de Controle & CCO:** Prédio Administrativo | Total R$ 62.450/mês.\n` +
+                       `• **Energia Elétrica Total:** 245.800 kWh (R$ 184.350) com migração prevista de 2 garagens para o Mercado Livre de Energia.`;
+            }
+
+            // Água / Reuso / Sustentabilidade
+            if (q.includes('agua') || q.includes('reuso') || q.includes('lavagem') || q.includes('sustentab') || q.includes('co2')) {
+                return `💧 **Sustentabilidade: Água de Reuso & Lavagem de Frota:**\n\n` +
+                       `• **Índice de Reuso Hídrico:** **68.5%** do volume total utilizado.\n` +
+                       `• **Lavagens de Ônibus Realizadas:** 12.450 lavagens completas por sistema automático de rolos.\n` +
+                       `• **Volume Consumido:** 4.120 m³ de rede concessionária vs 8.940 m³ provenientes de captação pluvial e estação de tratamento de efluentes (ETE interna).\n` +
+                       `• **Economia Financeira Gerada:** R$ 89.400/ano em tarifas de água tratada.`;
+            }
+
+            // Linhas Críticas / Alertas
+            if (q.includes('critica') || q.includes('alerta') || q.includes('baixa ocupacao') || q.includes('prejuizo') || q.includes('ocios')) {
+                return `⚠️ **Alertas Operacionais & Linhas com Baixa Rentabilidade:**\n\n` +
+                       `1. 🔴 **Linha 501-N (Noturna Centro ⇄ Periferia Norte):**\n` +
+                       `   - IPK: 1.18 pass/km (crítico)\n` +
+                       `   - Ocupação: 36.4% fora do horário de pico\n` +
+                       `   - Ação sugerida: substituição de ônibus Padron 13m por Micro-ônibus alimentador após as 23h.\n` +
+                       `2. 🟠 **Linha 302-A (Polo Corporativo Sul):**\n` +
+                       `   - Queda de 18% nos passageiros de sexta-feira devido ao regime híbrido de trabalho.\n` +
+                       `   - Ação: reprogramação de tabela horária com recolhimento antecipado de 3 carros.`;
+            }
+
+            // Oportunidades / Redução de Custos
+            if (q.includes('oportunidade') || q.includes('economia') || q.includes('reduzir') || q.includes('otimiz') || q.includes('melhoria')) {
+                return `💡 **Plano de Otimização & Redução de Despesas:**\n\n` +
+                       `1. **Eco-Drive e Telemetria CAN-BUS:** Redução contínua de 6.4% em diesel (-48.200 litros/mês).\n` +
+                       `2. **Mercado Livre de Energia (ACL):** Potencial de redução de 22% na fatura de energia das Garagens Norte e Leste (-R$ 17.500/mês).\n` +
+                       `3. **Ajuste Fino de Headway no Entrepico:** Otimização de 48 partidas de baixo carregamento, poupando 12.800 km rodados/mês.\n` +
+                       `4. **Expansão de Água de Reuso na Garagem Oeste:** Elevação da taxa de reuso para 80%, zerando o uso de água potável na lavagem externa.`;
+            }
+
+            // Resposta Padrão
+            return `Compreendi sua solicitação sobre **"${promptText}"**.\n\n` +
+                   `Os indicadores operacionais da Via Metrópole mostram estabilidade no IPK (2.64 pass/km) e cumprimento de viagens em 98.6%.\n\n` +
+                   `Você pode me perguntar com detalhes sobre:\n` +
+                   `• **Frota & Ônibus** (disponibilidade, manutenção em box, passageiros)\n` +
+                   `• **Diesel & Eficiência** (km/litro, consumo por linha, pegada de carbono)\n` +
+                   `• **Horários de Pico** (carregamento manhã e tarde vs entrepico)\n` +
+                   `• **Custos de Facilities** (aluguel de garagens, energia elétrica e água de reuso)\n` +
+                   `• **Linhas Críticas** (trechos com baixa ocupação e plano de ação)`;
+        }
+        window.gerarRespostaTranspIA = gerarRespostaTranspIA;
+
+        // Initialize on DOM Ready
+        document.addEventListener('DOMContentLoaded', async () => {
+            const horaNow = new Date().getHours();
+            let saudNow = 'Boa noite';
+            if (horaNow >= 5 && horaNow < 12) saudNow = 'Bom dia';
+            else if (horaNow >= 12 && horaNow < 18) saudNow = 'Boa tarde';
+            const greetingEl = document.getElementById('transpGreetingMsg');
+            if (greetingEl) greetingEl.textContent = `${saudNow}, Antônio!`;
+
+            await carregarFiltros();
+            await carregarDados();
+        });
+    </script>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         🤖 BOTÃO FLUTUANTE DO AGENTE DE IA (VIA METRÓPOLE)
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <button id="ai-chat-button" onclick="toggleChat(true)" title="Abrir Assistente de IA Operacional (Clique Aqui)">
+        <img src="viacao_ai_avatar.png" alt="Assistente IA" onerror="this.onerror=null; this.src='https://sracm.github.io/portfolio-antonio-mello-bi/viacao_ai_avatar.png';">
+        <span class="ai-badge-online" title="IA Online 24/7"></span>
+    </button>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         🤖 JANELA DO CHAT DO AGENTE DE IA
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <div id="ai-chat-widget" class="hidden">
+        <div class="ai-chat-header" id="ai-chat-header">
+            <div class="ai-chat-title">
+                <img src="viacao_ai_avatar.png" alt="Assistente IA" class="ai-avatar-img" onerror="this.onerror=null; this.src='https://sracm.github.io/portfolio-antonio-mello-bi/viacao_ai_avatar.png';">
+                <span>Assistente IA • Frota &amp; Facilities</span>
+            </div>
+            <div class="ai-chat-controls">
+                <button id="ai-chat-toggle" title="Minimizar / Fechar" onclick="event.stopPropagation(); toggleChat(false);">✕</button>
+            </div>
+        </div>
+        <div class="ai-chat-body" id="ai-chat-body">
+            <div class="ai-message ai">
+                <p style="margin: 0 0 8px 0; font-size: 13.5px; font-weight: 800; color: #fff;" id="transpGreetingMsg">Boa tarde, Antônio!</p>
+                <p style="margin: 0 0 8px 0; color: #cbd5e1;">Sou o <strong>Assistente IA da Frota &amp; Facilities (Via Metrópole)</strong>.</p>
+                <p style="margin: 0 0 8px 0; color: #cbd5e1; line-height: 1.45;">Monitorando em tempo real <strong>100 ônibus urbanos</strong>, consumo de diesel, IPK por itinerário, garagens operacionais e custos de utilities (energia e água de reuso).</p>
+                <p style="margin: 0; color: #cbd5e1; line-height: 1.45;">Por qual indicador operacional começamos hoje?</p>
+            </div>
+
+            <div class="ai-chips-bar">
+                <button class="ai-chip" onclick="handleChipTransp('🚍 Status da Frota & IPK')">🚍 Status da Frota &amp; IPK</button>
+                <button class="ai-chip" onclick="handleChipTransp('⛽ Consumo de Diesel & Meta')">⛽ Consumo de Diesel &amp; Meta</button>
+                <button class="ai-chip" onclick="handleChipTransp('⏰ Horários de Pico (Manhã & Tarde)')">⏰ Horários de Pico</button>
+                <button class="ai-chip" onclick="handleChipTransp('🏢 Garagens & Custos Prediais')">🏢 Garagens &amp; Custos Prediais</button>
+                <button class="ai-chip" onclick="handleChipTransp('⚠️ Linhas Críticas & Ocupação')">⚠️ Linhas Críticas</button>
+                <button class="ai-chip" onclick="handleChipTransp('💧 Água de Reuso & Lavagem')">💧 Água de Reuso</button>
+                <button class="ai-chip" onclick="handleChipTransp('💡 Oportunidades de Economia')">💡 Oportunidades de Economia</button>
+            </div>
+        </div>
+        <div class="ai-chat-footer">
+            <input type="text" id="ai-chat-input" placeholder="Pergunte sobre frota, diesel, IPK, garagens, custos..." onkeypress="if(event.key==='Enter') sendTranspIA()" />
+            <button id="ai-chat-send" onclick="sendTranspIA()" title="Enviar">➤</button>
+        </div>
+    </div>
+</body>
+
+</html>

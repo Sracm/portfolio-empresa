@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Power BI - Medicina Diagnóstica, Exames & Demografia Clínica | Microsoft Power BI Pro</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --pbi-yellow: #F2C811;
+            --pbi-yellow-dark: #D4A700;
+            --pbi-black: #111111;
+            --pbi-bar: #1f1f1f;
+            --pbi-rail: #141414;
+            --pbi-canvas: #0e121a;
+            --pbi-border: rgba(255, 255, 255, 0.1);
+            --mq-gold: #cb9727;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--pbi-black);
+            color: #ffffff;
+            font-family: 'Segoe UI', 'Montserrat', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* ── Top Power BI Service Header ── */
+        .pbi-topbar {
+            min-height: 48px;
+            background: var(--pbi-bar);
+            border-bottom: 1px solid var(--pbi-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 16px;
+            flex-shrink: 0;
+            z-index: 100;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .pbi-logo-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #ffffff;
+            letter-spacing: -0.2px;
+        }
+        .pbi-logo-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 2.5px;
+            height: 20px;
+        }
+        .pbi-logo-bars span {
+            width: 4px;
+            background: var(--pbi-yellow);
+            border-radius: 1px;
+        }
+        .pbi-logo-bars span:nth-child(1) { height: 8px; }
+        .pbi-logo-bars span:nth-child(2) { height: 14px; }
+        .pbi-logo-bars span:nth-child(3) { height: 20px; }
+        
+        .pbi-divider {
+            width: 1px;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .report-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .badge-status {
+            background: rgba(242, 200, 17, 0.15);
+            border: 1px solid rgba(242, 200, 17, 0.4);
+            color: var(--pbi-yellow);
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .badge-safe {
+            background: rgba(0, 210, 106, 0.15);
+            border: 1px solid rgba(0, 210, 106, 0.4);
+            color: #00d26a;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* View Switcher Pills */
+        .page-switcher {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #151821;
+            padding: 3px 6px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .page-tab-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.73rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+        .page-tab-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .page-tab-btn.active {
+            background: #cb9727;
+            color: #000000;
+            box-shadow: 0 0 10px rgba(203, 151, 39, 0.5);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pbi-btn {
+            background: #2b2b2b;
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+            text-decoration: none;
+            font-family: 'Segoe UI', 'Montserrat', sans-serif;
+        }
+        .pbi-btn:hover {
+            background: #383838;
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+        .pbi-btn-primary {
+            background: linear-gradient(135deg, #F2C811 0%, #D4A700 100%);
+            color: #000000;
+            font-weight: 700;
+            border: none;
+        }
+        .pbi-btn-primary:hover {
+            box-shadow: 0 0 10px rgba(242, 200, 17, 0.5);
+            color: #000;
+        }
+
+        /* ── Main App Layout ── */
+        .app-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Left Service Rail */
+        .pbi-rail {
+            width: 48px;
+            background: var(--pbi-rail);
+            border-right: 1px solid var(--pbi-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+        .rail-icon {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8c9ba5;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .rail-icon:hover, .rail-icon.active {
+            background: #2a2a2a;
+            color: var(--pbi-yellow);
+        }
+
+        /* Main Workspace Canvas */
+        .canvas-workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--pbi-canvas);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Report Canvas Area */
+        .report-viewport {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            padding: 14px;
+            position: relative;
+            background: radial-gradient(circle at center, #151b28 0%, #080b11 95%);
+        }
+
+        .report-sheet-container {
+            max-width: 100%;
+            max-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: transform 0.2s ease-out;
+            cursor: default;
+        }
+
+        .report-img {
+            max-width: 100%;
+            max-height: calc(100vh - 75px);
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.2s;
+        }
+
+        /* Floating Viewport Controls */
+        .canvas-floating-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 24px;
+            background: rgba(20, 20, 20, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+            z-index: 50;
+        }
+        .control-btn {
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 0.8rem;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+        .zoom-level {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--pbi-yellow);
+            min-width: 42px;
+            text-align: center;
+        }
+
+        /* ── DAX & Modelagem Drawer ── */
+        .dax-drawer {
+            position: fixed;
+            top: 48px;
+            right: -420px;
+            width: 400px;
+            height: calc(100vh - 48px);
+            background: #141720;
+            border-left: 2px solid rgba(242, 200, 17, 0.4);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .dax-drawer.open {
+            right: 0;
+        }
+        .dax-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .dax-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--pbi-yellow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .close-dax {
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+        .close-dax:hover { color: #ffffff; }
+        
+        .dax-item {
+            background: #0d1017;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .dax-name {
+            font-weight: 700;
+            color: #00e5ff;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .dax-code {
+            background: #06080d;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8px 10px;
+            border-radius: 4px;
+            color: #ffd600;
+            font-family: 'Consolas', monospace;
+            font-size: 0.72rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            margin-bottom: 6px;
+        }
+        .dax-desc {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            line-height: 1.35;
+        }
+
+        @media (max-width: 768px) {
+            .pbi-rail { display: none; }
+            .page-switcher { order: 3; width: 100%; justify-content: center; margin-top: 6px; }
+            .dax-drawer { width: 100vw; right: -100vw; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <header class="pbi-topbar">
+        <div class="topbar-left">
+            <div class="pbi-logo-box">
+                <div class="pbi-logo-bars">
+                    <span></span><span></span><span></span>
+                </div>
+                <span>Power BI</span>
+            </div>
+            <div class="pbi-divider"></div>
+            <div class="report-title">
+                Medicina Diagnóstica, Exames & Demografia
+                <span class="badge-status">Relatório Pro</span>
+                <span class="badge-safe"><i class="fa-solid fa-shield-halved"></i> 100% Preservado</span>
+            </div>
+        </div>
+
+        <!-- Interactive View Selector -->
+        <div class="page-switcher">
+            <button class="page-tab-btn active" id="btn-sumario" onclick="switchView('sumario', this)">
+                <i class="fa-solid fa-users"></i> Sumário Gerencial
+            </button>
+            <button class="page-tab-btn" id="btn-evolucao" onclick="switchView('evolucao', this)">
+                <i class="fa-solid fa-chart-line"></i> Evolução Temporal
+            </button>
+            <button class="page-tab-btn" id="btn-extensivos" onclick="switchView('extensivos', this)">
+                <i class="fa-solid fa-vial"></i> Indicadores Extensivos
+            </button>
+        </div>
+
+        <div class="topbar-right">
+            <button class="pbi-btn" onclick="toggleDaxDrawer()" title="Ver Medidas DAX e Modelagem Star Schema">
+                <i class="fa-solid fa-code"></i> Modelagem DAX
+            </button>
+            <button class="pbi-btn pbi-btn-primary" onclick="toggleFullScreen()">
+                <i class="fa-solid fa-expand"></i> Tela Cheia
+            </button>
+            <a href="../index.html" class="pbi-btn" style="background:#252830; color:#f5d372; border:1px solid rgba(203,151,39,0.5); font-weight:700;" title="Voltar ao Portfólio Principal">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao Portfólio
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN APP -->
+    <div class="app-body">
+        <!-- Service Rail -->
+        <nav class="pbi-rail">
+            <div class="rail-icon active" title="Página Inicial"><i class="fa-solid fa-chart-simple"></i></div>
+            <div class="rail-icon" title="Favoritos"><i class="fa-solid fa-star"></i></div>
+            <div class="rail-icon" title="Compartilhado"><i class="fa-solid fa-users"></i></div>
+            <div class="rail-icon" title="Modelagem"><i class="fa-solid fa-diagram-project"></i></div>
+            <div class="rail-icon" style="margin-top:auto;" title="Configurações"><i class="fa-solid fa-gear"></i></div>
+        </nav>
+
+        <!-- Canvas Area -->
+        <main class="canvas-workspace">
+            <div class="report-viewport" id="viewport">
+                <div class="report-sheet-container" id="sheet-container">
+                    <img src="../static/portfolio_screenshots/pbi_diagnostica_sumario.jpg" alt="Sumário Gerencial - Demografia Clínica" class="report-img" id="report-img">
+                </div>
+            </div>
+
+            <!-- Floating Controls -->
+            <div class="canvas-floating-controls">
+                <button class="control-btn" onclick="zoomIn()" title="Aproximar"><i class="fa-solid fa-plus"></i></button>
+                <span class="zoom-level" id="zoom-text">100%</span>
+                <button class="control-btn" onclick="zoomOut()" title="Afastar"><i class="fa-solid fa-minus"></i></button>
+                <div style="width:1px; height:14px; background:rgba(255,255,255,0.2);"></div>
+                <button class="control-btn" onclick="resetZoom()" title="Ajustar à Tela"><i class="fa-solid fa-compress"></i></button>
+            </div>
+        </main>
+    </div>
+
+    <!-- DAX DRAWER -->
+    <aside class="dax-drawer" id="dax-drawer">
+        <div class="dax-header">
+            <div class="dax-title">
+                <i class="fa-solid fa-database"></i> Modelagem & Medidas DAX
+            </div>
+            <div class="close-dax" onclick="toggleDaxDrawer()">&times;</div>
+        </div>
+
+        <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:14px; line-height:1.4;">
+            Arquitetura dimensional <b>Star Schema</b> para medicina diagnóstica, SADT e análise demográfica de pacientes:
+        </div>
+
+        <div class="dax-item">
+            <span class="dax-name">Total de Exames / Atendimentos =</span>
+            <pre class="dax-code">Total Atendimentos = 
+COUNTROWS(fProducaoExames)</pre>
+            <div class="dax-desc">Volume total consolidado (2.033.139 exames/consultas no período).</div>
+        </div>
+
+        <div class="dax-item">
+            <span class="dax-name">Valor Total Faturado =</span>
+            <pre class="dax-code">Valor Total = 
+SUM(fProducaoExames[ValorProcedimento])</pre>
+            <div class="dax-desc">Receita bruta clínica gerada (R$ 102.302.850,00).</div>
+        </div>
+
+        <div class="dax-item">
+            <span class="dax-name">Ticket Médio Clínico =</span>
+            <pre class="dax-code">Ticket Medio = 
+DIVIDE([Valor Total], [Total Atendimentos], 0)</pre>
+            <div class="dax-desc">Ticket médio calculado por linha de atendimento (R$ 50,32 geral e R$ 433,39 em SADT).</div>
+        </div>
+
+        <div class="dax-item">
+            <span class="dax-name">Distribuição por Gênero & Faixa Etária =</span>
+            <pre class="dax-code">% Atendimento Feminino = 
+DIVIDE(
+    CALCULATE([Total Atendimentos], dPaciente[Genero] = "Feminino"),
+    [Total Atendimentos],
+    0
+)</pre>
+            <div class="dax-desc">Proporção demográfica de pacientes (65,89% feminino vs 34,07% masculino).</div>
+        </div>
+
+        <div class="dax-item">
+            <span class="dax-name">Conversão de Orçamentos por Unidade =</span>
+            <pre class="dax-code">Taxa Conversao Orcamento = 
+DIVIDE(
+    [Orcamentos Convertidos em Exame],
+    [Total Orcamentos Gerados],
+    0
+)</pre>
+            <div class="dax-desc">Mede a taxa de fechamento de orçamentos por unidade (VNC 43,3%, Sto Amaro 42,6%, Penha 49,1%).</div>
+        </div>
+
+        <div class="dax-item" style="border-left: 3px solid #00d26a;">
+            <span class="dax-name" style="color:#00d26a;"><i class="fa-solid fa-circle-nodes"></i> Modelagem Star Schema:</span>
+            <div class="dax-desc" style="color:#e2e8f0; font-size:0.74rem;">
+                <b>• fProducaoExames:</b> Id_Atendimento, Id_Paciente, Id_Medico, Id_Unidade, Id_Item, Data, Valor<br>
+                <b>• dPaciente:</b> Id_Paciente, Genero, FaixaEtaria, Cidade<br>
+                <b>• dUnidade:</b> Id_Unidade, Nome (VNC, Osasco, Sto Amaro, Penha), Regiao<br>
+                <b>• dServicos:</b> Id_Item, Categoria (Análises Clínicas, Imagem, SADT), Exame<br>
+                <b>• dMedicos:</b> Id_Medico, Nome, Especialidade
+            </div>
+        </div>
+    </aside>
+
+    <script>
+        const views = {
+            'sumario': {
+                src: '../static/portfolio_screenshots/pbi_diagnostica_sumario.jpg',
+                alt: 'Sumário Gerencial - Demografia Clínica & Especialidades'
+            },
+            'evolucao': {
+                src: '../static/portfolio_screenshots/pbi_diagnostica_evolucao.jpg',
+                alt: 'Indicadores Analíticos - Evolução Temporal de Quantidades'
+            },
+            'extensivos': {
+                src: '../static/portfolio_screenshots/pbi_diagnostica_extensivos.jpg',
+                alt: 'Indicadores Extensivos - Serviços, SADT e Orçamentos'
+            }
+        };
+
+        let currentZoom = 1.0;
+
+        function switchView(viewKey, btn) {
+            const data = views[viewKey];
+            if (!data) return;
+            const img = document.getElementById('report-img');
+            img.src = data.src;
+            img.alt = data.alt;
+            
+            document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            
+            resetZoom();
+        }
+
+        function updateZoom() {
+            const img = document.getElementById('report-img');
+            img.style.transform = `scale(${currentZoom})`;
+            document.getElementById('zoom-text').innerText = Math.round(currentZoom * 100) + '%';
+        }
+
+        function zoomIn() {
+            if (currentZoom < 2.0) {
+                currentZoom += 0.15;
+                updateZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > 0.6) {
+                currentZoom -= 0.15;
+                updateZoom();
+            }
+        }
+
+        function resetZoom() {
+            currentZoom = 1.0;
+            updateZoom();
+        }
+
+        function toggleFullScreen() {
+            const el = document.documentElement;
+            if (!document.fullscreenElement) {
+                if (el.requestFullscreen) el.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function toggleDaxDrawer() {
+            document.getElementById('dax-drawer').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

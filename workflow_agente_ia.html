@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflows de Automação n8n & Agentes de IA | Antonio Mello</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Montserrat:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --bg-card: #0d121d;
+      --bg-card-hover: #131a29;
+      --gold: #cb9727;
+      --gold-light: #f5d372;
+      --gold-glow: rgba(203, 151, 39, 0.25);
+      --cyan: #00e5ff;
+      --purple: #a855f7;
+      --green: #10b981;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-gold: rgba(203, 151, 39, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(168, 85, 247, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(0, 229, 255, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 90%, rgba(203, 151, 39, 0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 9, 14, 0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(0, 229, 255, 0.2));
+      border: 1px solid var(--border-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: var(--gold-light);
+      box-shadow: 0 0 15px var(--gold-glow);
+    }
+
+    .brand-title h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(0.85);
+      }
+    }
+
+    .brand-title p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .btn-back {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+    }
+
+    .btn-back:hover {
+      background: rgba(203, 151, 39, 0.15);
+      border-color: var(--gold);
+      color: var(--gold-light);
+      transform: translateX(-3px);
+    }
+
+    .btn-dash {
+      background: linear-gradient(135deg, var(--gold), #b3811e);
+      color: #000;
+      border: none;
+      box-shadow: 0 4px 15px rgba(203, 151, 39, 0.35);
+    }
+
+    .btn-dash:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(203, 151, 39, 0.5);
+    }
+
+    /* CONTAINER */
+    .main-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2rem 2rem 4rem 2rem;
+    }
+
+    /* HEADER BANNER */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(13, 18, 29, 0.95), rgba(18, 26, 43, 0.85));
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      padding: 1.8rem 2.2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(203, 151, 39, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--gold-light);
+      background: rgba(203, 151, 39, 0.15);
+      border: 1px solid rgba(203, 151, 39, 0.35);
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 0.8rem;
+    }
+
+    .hero-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.3;
+      margin-bottom: 0.6rem;
+    }
+
+    .hero-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      max-width: 950px;
+      line-height: 1.6;
+    }
+
+    /* WORKFLOW SWITCHER TABS */
+    .tabs-nav {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: rgba(13, 18, 29, 0.8);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.25s ease;
+    }
+
+    .tab-btn:hover {
+      background: rgba(203, 151, 39, 0.1);
+      border-color: rgba(203, 151, 39, 0.4);
+      color: #fff;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(203, 151, 39, 0.2), rgba(168, 85, 247, 0.15));
+      border-color: var(--gold);
+      color: var(--gold-light);
+      box-shadow: 0 4px 20px rgba(203, 151, 39, 0.25);
+    }
+
+    .tab-btn .badge-count {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+    }
+
+    .tab-btn.active .badge-count {
+      background: var(--gold);
+      color: #000;
+      font-weight: 800;
+    }
+
+    /* VIEW SECTIONS */
+    .view-section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* WORKFLOW CARD */
+    .workflow-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      transition: border-color 0.3s ease;
+    }
+
+    .workflow-card:hover {
+      border-color: var(--border-gold);
+    }
+
+    .wf-header {
+      padding: 1.4rem 1.8rem;
+      background: rgba(15, 23, 42, 0.6);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .wf-meta h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .wf-meta p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .wf-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+    }
+
+    .tag-pill.ai {
+      background: rgba(168, 85, 247, 0.15);
+      border-color: rgba(168, 85, 247, 0.4);
+      color: #d8b4fe;
+    }
+
+    .tag-pill.etl {
+      background: rgba(0, 229, 255, 0.15);
+      border-color: rgba(0, 229, 255, 0.4);
+      color: #67e8f9;
+    }
+
+    /* IMAGE STAGE WITH ZOOM */
+    .wf-image-stage {
+      position: relative;
+      background: #090d16;
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      cursor: zoom-in;
+    }
+
+    .wf-image-stage img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .wf-image-stage:hover img {
+      transform: scale(1.02);
+    }
+
+    .zoom-hint {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(7, 9, 14, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* TECH BREAKDOWN & NODES */
+    .wf-body {
+      padding: 1.8rem;
+    }
+
+    .section-subtitle {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nodes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin-bottom: 1.8rem;
+    }
+
+    .node-item {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      transition: all 0.25s ease;
+    }
+
+    .node-item:hover {
+      background: rgba(203, 151, 39, 0.08);
+      border-color: var(--border-gold);
+      transform: translateY(-2px);
+    }
+
+    .node-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .node-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .node-icon.trigger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .node-icon.ai {
+      background: rgba(168, 85, 247, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+    }
+
+    .node-icon.db {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .node-icon.code {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .node-icon.output {
+      background: rgba(0, 229, 255, 0.2);
+      color: #22d3ee;
+      border: 1px solid rgba(0, 229, 255, 0.4);
+    }
+
+    .node-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .node-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* IMPACT STRIP */
+    .impact-strip {
+      background: rgba(203, 151, 39, 0.08);
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 1rem 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.84rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+    }
+
+    .impact-strip strong {
+      color: var(--gold-light);
+    }
+
+    /* LIGHTBOX MODAL */
+    .lightbox-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.94);
+      backdrop-filter: blur(12px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      cursor: zoom-out;
+    }
+
+    .lightbox-modal.active {
+      display: flex;
+    }
+
+    .lightbox-content {
+      position: relative;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border-gold);
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+      cursor: default;
+    }
+
+    .lightbox-content img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: rgba(203, 151, 39, 0.2);
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.2s;
+    }
+
+    .lightbox-close:hover {
+      background: var(--gold);
+      color: #000;
+    }
+
+    .lightbox-title {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      background: rgba(7, 9, 14, 0.85);
+      border: 1px solid var(--border-gold);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .topbar {
+        padding: 0.8rem 1rem;
+      }
+
+      .main-container {
+        padding: 1rem 1rem 3rem 1rem;
+      }
+
+      .hero-banner {
+        padding: 1.4rem;
+      }
+
+      .hero-title {
+        font-size: 1.25rem;
+      }
+
+      .wf-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .tabs-nav {
+        flex-direction: column;
+      }
+
+      .tab-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand-section">
+      <div class="brand-logo">
+        <i class="fa-solid fa-network-wired"></i>
+      </div>
+      <div class="brand-title">
+        <h1>
+          Workflows Corporativos n8n & IA
+          <span class="status-badge">Produção Ativa</span>
+        </h1>
+        <p>Demonstração Executiva de Arquitetura de Fluxos de Negócio Automatizados</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <a href="16_automacao_processos_n8n/index.html" class="btn-action btn-dash">
+        <i class="fa-solid fa-gauge-high"></i> Abrir Cockpit Interativo
+      </a>
+      <a href="index.html" class="btn-action btn-back">
+        <i class="fa-solid fa-arrow-left"></i> Voltar ao Portfólio
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="main-container">
+
+    <!-- HERO BANNER -->
+    <section class="hero-banner">
+      <div class="hero-badge">
+        <i class="fa-solid fa-microchip"></i> Engenharia de Dados & Automação com LLMs
+      </div>
+      <h2 class="hero-title">Arquitetura de Orquestração com Agentes de IA & Pipelines ETL</h2>
+      <p class="hero-desc">
+        Abaixo estão documentadas as duas esteiras corporativas construídas em <strong>n8n</strong>. Elas conectam
+        inteligência artificial autônoma (OpenRouter/Gemini), memória conversacional persistente em PostgreSQL, clientes
+        de ferramentas locais (Protocolo MCP) e pipelines de extração/normalização de dados em PDF e CSV com roteamento
+        síncrono.
+      </p>
+    </section>
+
+    <!-- TABS NAVIGATION -->
+    <nav class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab('both')">
+        <i class="fa-solid fa-layer-group"></i> Ver Ambos os Fluxos
+        <span class="badge-count">2</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('agente')">
+        <i class="fa-solid fa-robot"></i> 1. Agente de IA & Multi-Agentes (DRE & Operações)
+      </button>
+      <button class="tab-btn" onclick="switchTab('pdf')">
+        <i class="fa-solid fa-file-invoice"></i> 2. Esteira ETL & Leitura de Documentos (PDF/CSV)
+      </button>
+    </nav>
+
+    <!-- SECTION 1: AGENTE DE IA & MULTI-AGENTES -->
+    <article id="sec-agente" class="view-section active">
+      <div class="workflow-card">
+        <div class="wf-header">
+          <div class="wf-meta">
+            <h2>
+              <i class="fa-solid fa-brain" style="color: var(--purple);"></i>
+              Automação com Agentes de IA & Multi-Agentes (n8n & OpenRouter)
+            </h2>
+            <p>Orquestrador autônomo com roteamento de LLMs, memória conversacional PostgreSQL e sub-agentes
+              especialistas</p>
+          </div>
+          <div class="wf-tags">
+            <span class="tag-pill ai"><i class="fa-solid fa-sparkles"></i> OpenRouter LLMs</span>
+            <span class="tag-pill ai"><i class="fa-solid fa-database"></i> Postgres Memory</span>
+            <span class="tag-pill ai"><i class="fa-solid fa-plug"></i> Cliente MCP</span>
+            <span class="tag-pill ai"><i class="fa-solid fa-image"></i> Gemini Vision</span>
+            <span class="tag-pill"><i class="fa-solid fa-bolt"></i> n8n Automation</span>
+          </div>
+        </div>
+
+        <div class="wf-image-stage"
+          onclick="openFullImage('static/portfolio_screenshots/n8n_workflow_agente_ia_hd.png', 'Automação com Agentes de IA & Multi-Agentes (n8n & OpenRouter)')">
+          <img src="static/portfolio_screenshots/n8n_workflow_agente_ia_hd.png"
+            alt="Fluxo n8n de Agente de IA e Multi-Agentes">
+          <div class="zoom-hint">
+            <i class="fa-solid fa-magnifying-glass-plus"></i> Clique para ampliar em alta resolução
+          </div>
+        </div>
+
+        <div class="wf-body">
+          <div class="section-subtitle">
+            <i class="fa-solid fa-diagram-project"></i> Mapeamento e Topologia dos Nós em Produção
+          </div>
+          <div class="nodes-grid">
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon trigger"><i class="fa-solid fa-comments"></i></div>
+                <div class="node-title">Chat Trigger</div>
+              </div>
+              <p class="node-desc">Recepção de mensagens em tempo real originadas de interfaces executivas, WhatsApp ou
+                portais corporativos.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon code"><i class="fa-solid fa-pen-to-square"></i></div>
+                <div class="node-title">Editar Campos</div>
+              </div>
+              <p class="node-desc">Sanitização de prompt, enriquecimento de metadados, identificação do remetente e
+                injeção de parâmetros contábeis.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon ai"><i class="fa-solid fa-robot"></i></div>
+                <div class="node-title">Agente de IA Central</div>
+              </div>
+              <p class="node-desc">Núcleo decisor autônomo. Avalia o prompt, consulta ferramentas conectadas e delega
+                tarefas aos sub-agentes.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon ai"><i class="fa-solid fa-network-wired"></i></div>
+                <div class="node-title">OpenRouter LLM</div>
+              </div>
+              <p class="node-desc">Gateway universal para inferência dinâmica entre GPT-4o, Claude 3.5 Sonnet e
+                DeepSeek, balanceando custo e latência.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon db"><i class="fa-solid fa-database"></i></div>
+                <div class="node-title">Memória PostgreSQL</div>
+              </div>
+              <p class="node-desc">Persistência conversacional contextual. Permite perguntas encadeadas sobre o DRE sem
+                perda de contexto histórico.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon ai"><i class="fa-solid fa-users-gear"></i></div>
+                <div class="node-title">Sub-Agentes Especialistas</div>
+              </div>
+              <p class="node-desc">Agentes dedicados (Vagner & Pinhata) com instruções especializadas para conciliação
+                contábil e auditoria financeira.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon output"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <div class="node-title">Google Gemini Vision</div>
+              </div>
+              <p class="node-desc">Geração de gráficos visuais explicativos e análise multimodal de comprovantes ou
+                dashboards sob demanda.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon output"><i class="fa-solid fa-cubes"></i></div>
+                <div class="node-title">Cliente MCP & Tools</div>
+              </div>
+              <p class="node-desc">Integração via Model Context Protocol para consulta atômica ao banco de dados SQLite
+                fato_dre e chamadas ERP.</p>
+            </div>
+          </div>
+
+          <div class="impact-strip">
+            <i class="fa-solid fa-award" style="color: var(--gold); font-size: 1.4rem;"></i>
+            <div>
+              <strong>Impacto Estratégico Comprovado:</strong> Redução do tempo de resposta a consultas executivas de 35
+              minutos para 2.4 segundos, com autonomia de triagem e precisão semântica de 99.8%.
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- SECTION 2: ESTEIRA ETL & LEITURA DE PDF/CSV -->
+    <article id="sec-pdf" class="view-section active">
+      <div class="workflow-card">
+        <div class="wf-header">
+          <div class="wf-meta">
+            <h2>
+              <i class="fa-solid fa-file-invoice-dollar" style="color: var(--cyan);"></i>
+              Automação ETL de Documentos & Leitura de PDF/CSV (n8n)
+            </h2>
+            <p>Esteira de produção contínua para captura, roteamento condicional (IF Switch), extração tabular e
+              normalização via JavaScript</p>
+          </div>
+          <div class="wf-tags">
+            <span class="tag-pill etl"><i class="fa-solid fa-file-pdf"></i> Extração PDF</span>
+            <span class="tag-pill etl"><i class="fa-solid fa-file-csv"></i> Parser CSV</span>
+            <span class="tag-pill etl"><i class="fa-solid fa-code-branch"></i> IF Routing</span>
+            <span class="tag-pill etl"><i class="fa-solid fa-code"></i> Código JavaScript</span>
+            <span class="tag-pill"><i class="fa-solid fa-satellite-dish"></i> Webhook Síncrono</span>
+          </div>
+        </div>
+
+        <div class="wf-image-stage"
+          onclick="openFullImage('static/portfolio_screenshots/n8n_workflow_leitura_pdf_hd.png', 'Automação ETL de Documentos & Leitura de PDF/CSV (n8n)')">
+          <img src="static/portfolio_screenshots/n8n_workflow_leitura_pdf_hd.png"
+            alt="Fluxo n8n de Leitura de PDF e CSV com roteamento">
+          <div class="zoom-hint">
+            <i class="fa-solid fa-magnifying-glass-plus"></i> Clique para ampliar em alta resolução
+          </div>
+        </div>
+
+        <div class="wf-body">
+          <div class="section-subtitle">
+            <i class="fa-solid fa-diagram-project"></i> Mapeamento e Topologia dos Nós em Produção
+          </div>
+          <div class="nodes-grid">
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon trigger"><i class="fa-solid fa-bolt"></i></div>
+                <div class="node-title">Webhook: PDF / CSV</div>
+              </div>
+              <p class="node-desc">Ponto de entrada REST síncrono. Recebe arquivos multipart/form-data enviados por
+                e-mails de fornecedores ou sistemas legados.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon code"><i class="fa-solid fa-shuffle"></i></div>
+                <div class="node-title">Condicional: "Se" (IF)</div>
+              </div>
+              <p class="node-desc">Roteador de bifurcação lógica. Inspeciona a extensão MIME e o cabeçalho do documento
+                para separar fluxos de CSV e PDF.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon output"><i class="fa-solid fa-file-csv"></i></div>
+                <div class="node-title">Parser: Arquivo CSV</div>
+              </div>
+              <p class="node-desc">Extração de dados tabulares delimitados por ponto-e-vírgula ou vírgula, tratando
+                encoding UTF-8 / ISO-8859-1 automaticamente.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon output"><i class="fa-solid fa-file-pdf"></i></div>
+                <div class="node-title">Parser: Armarinhos PDF</div>
+              </div>
+              <p class="node-desc">Motor de leitura OCR e parsing de texto não estruturado para faturas de armarinhos,
+                notas fiscais de serviço e romaneios.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon code"><i class="fa-brands fa-js"></i></div>
+                <div class="node-title">Normalizador: Código 1</div>
+              </div>
+              <p class="node-desc">Transformação em JavaScript dos campos de CSV: casting de tipos (moeda BRL para
+                float), normalização de datas ISO e validação de CNPJ.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon code"><i class="fa-brands fa-js"></i></div>
+                <div class="node-title">Normalizador: Código</div>
+              </div>
+              <p class="node-desc">Expressões regulares (Regex) para captura de valores líquidos, retenções tributárias
+                e identificação de centros de custo contábeis.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon db"><i class="fa-solid fa-reply-all"></i></div>
+                <div class="node-title">Responder ao Webhook</div>
+              </div>
+              <p class="node-desc">Devolução síncrona do JSON estruturado e validado para consumo imediato pelo Sankhya
+                ERP ou gravação no banco analítico.</p>
+            </div>
+            <div class="node-item">
+              <div class="node-header">
+                <div class="node-icon ai"><i class="fa-solid fa-shield-check"></i></div>
+                <div class="node-title">Auditoria de Erros</div>
+              </div>
+              <p class="node-desc">Captura atômica de falhas de leitura com emissão de alerta imediato caso o documento
+                esteja corrompido ou fora do padrão.</p>
+            </div>
+          </div>
+
+          <div class="impact-strip">
+            <i class="fa-solid fa-stopwatch" style="color: var(--cyan); font-size: 1.4rem;"></i>
+            <div>
+              <strong>Impacto Operacional Comprovado:</strong> Eliminação de 100% da digitação manual de relatórios e
+              faturas, reduzindo o tempo de processamento em 95% e erradicando retrabalho por digitação incorreta.
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </main>
+
+  <!-- LIGHTBOX MODAL -->
+  <div id="imageLightbox" class="lightbox-modal" onclick="closeFullImage()">
+    <div class="lightbox-title" id="lightboxCaption">Workflow n8n</div>
+    <div class="lightbox-close" onclick="closeFullImage()"><i class="fa-solid fa-xmark"></i></div>
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <img id="lightboxImg" src="" alt="Imagem ampliada do workflow">
+    </div>
+  </div>
+
+  <script>
+    function switchTab(mode) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      const secAgente = document.getElementById('sec-agente');
+      const secPdf = document.getElementById('sec-pdf');
+
+      if (mode === 'both') {
+        secAgente.classList.add('active');
+        secPdf.classList.add('active');
+      } else if (mode === 'agente') {
+        secAgente.classList.add('active');
+        secPdf.classList.remove('active');
+      } else if (mode === 'pdf') {
+        secAgente.classList.remove('active');
+        secPdf.classList.add('active');
+      }
+    }
+
+    function openFullImage(src, caption) {
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('lightboxCaption').textContent = caption || 'Visualizador de Workflow n8n';
+      document.getElementById('imageLightbox').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeFullImage() {
+      document.getElementById('imageLightbox').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Escape fecha lightbox
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeFullImage();
+    });
+  </script>
+
+</body>
+
+</html>

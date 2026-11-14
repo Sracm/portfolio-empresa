@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Portfólio Corporativo de Dashboards & Soluções em BI | Antonio Mello</title>
+  <meta name="description"
+    content="Portfólio profissional de Business Intelligence com visualização das telas de todos os dashboards desenvolvidos (Power BI e Fullstack Python).">
+
+  <!-- Google Fonts: Montserrat (Executive Design System) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* EXECUTIVE DESIGN SYSTEM */
+    :root {
+      --mq-black: #0A0A0A;
+      --mq-dark-bg: #121212;
+      --mq-dark-surface: #18191D;
+      --mq-dark-surface-elevated: #22252A;
+      --mq-gold: #CB9727;
+      --mq-gold-light: #E5B74B;
+      --mq-gold-dark: #A6781B;
+      --mq-gold-gradient: linear-gradient(135deg, #CB9727 0%, #F5D372 50%, #A6781B 100%);
+      --mq-creme: #FDFBD4;
+      --mq-white: #FFFFFF;
+      --font-primary: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-primary);
+      background-color: var(--mq-black);
+      color: #E2E2E2;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--mq-black);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--mq-gold);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* HEADER COM MENU DE NAVEGAÇÃO */
+    header.portfolio-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(10, 10, 10, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(203, 151, 39, 0.25);
+      padding: 0.9rem 2.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-badge {
+      background: var(--mq-gold-gradient);
+      color: #000;
+      font-weight: 900;
+      font-size: 0.9rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 1.5px;
+      box-shadow: 0 2px 8px rgba(203, 151, 39, 0.4);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--mq-white);
+      letter-spacing: 0.5px;
+      text-decoration: none;
+    }
+
+    /* MENU COM ÂNCORAS NO CABEÇALHO */
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .nav-link {
+      color: #C0C5CE;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 6px 4px;
+      position: relative;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .nav-link i {
+      font-size: 0.76rem;
+      color: var(--mq-gold);
+      opacity: 0.85;
+      transition: all 0.25s ease;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: var(--mq-gold-gradient);
+      transition: width 0.25s ease;
+      border-radius: 2px;
+    }
+
+    .nav-link:hover {
+      color: #FFFFFF;
+    }
+
+    .nav-link:hover i {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    @media (max-width: 950px) {
+      header.portfolio-header {
+        padding: 0.8rem 1.2rem;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .header-nav {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        gap: 14px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        overflow-x: auto;
+      }
+      .nav-link {
+        font-size: 0.74rem;
+        white-space: nowrap;
+      }
+    }
+
+    .brand-title span {
+      color: var(--mq-gold);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border: none;
+    }
+
+    .btn-gold {
+      background: var(--mq-gold-gradient);
+      color: #000;
+      box-shadow: 0 4px 14px rgba(203, 151, 39, 0.35);
+    }
+
+    .btn-linkedin {
+      background: rgba(10, 102, 194, 0.15);
+      border: 1px solid rgba(10, 102, 194, 0.45);
+      color: #FFF;
+      text-decoration: none;
+    }
+
+    .btn-linkedin:hover {
+      background: rgba(10, 102, 194, 0.32);
+      border-color: #0A66C2;
+      color: #FFF;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(10, 102, 194, 0.4);
+    }
+
+    .btn-whatsapp {
+      background: rgba(37, 211, 102, 0.15);
+      border: 1px solid rgba(37, 211, 102, 0.45);
+      color: #FFF;
+      text-decoration: none;
+    }
+
+    .btn-whatsapp:hover {
+      background: rgba(37, 211, 102, 0.32);
+      border-color: #25D366;
+      color: #FFF;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
+    }
+
+    a.contact-chip {
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+
+    a.contact-chip:hover {
+      border-color: var(--mq-gold);
+      background: rgba(203, 151, 39, 0.16);
+      color: #FFF;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(203, 151, 39, 0.5);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--mq-gold);
+      color: var(--mq-gold);
+    }
+
+    .btn-outline:hover {
+      background: rgba(203, 151, 39, 0.12);
+      transform: translateY(-2px);
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      padding: 2.2rem 1.5rem 1.5rem;
+      max-width: 1350px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      border: 1px solid rgba(203, 151, 39, 0.4);
+      background: rgba(203, 151, 39, 0.08);
+      color: var(--mq-gold-light);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero h1 {
+      font-size: 2.0rem;
+      font-weight: 900;
+      color: var(--mq-white);
+      line-height: 1.2;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero h1 span.highlight {
+      background: var(--mq-gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p.lead {
+      max-width: 860px;
+      margin: 0 auto 1.4rem;
+      font-size: 0.95rem;
+      color: #B4B9C2;
+    }
+
+
+    /* HERO CONTACT ACTIONS */
+    .hero-contact-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin: 1.5rem auto 2.2rem;
+      max-width: 950px;
+    }
+
+    .hero-contact-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      background: var(--mq-dark-surface);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #FFF;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-contact-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .hero-btn-linkedin {
+      border-color: rgba(10, 102, 194, 0.6);
+      background: rgba(10, 102, 194, 0.18);
+      color: #FFF;
+    }
+
+    .hero-btn-linkedin i {
+      color: #0A66C2;
+      font-size: 1.25rem;
+    }
+
+    .hero-btn-linkedin:hover {
+      background: rgba(10, 102, 194, 0.35);
+      border-color: #0A66C2;
+      color: #FFF;
+    }
+
+    .hero-btn-whatsapp {
+      border-color: rgba(37, 211, 102, 0.6);
+      background: rgba(37, 211, 102, 0.18);
+      color: #FFF;
+    }
+
+    .hero-btn-whatsapp i {
+      color: #25D366;
+      font-size: 1.25rem;
+    }
+
+    .hero-btn-whatsapp:hover {
+      background: rgba(37, 211, 102, 0.35);
+      border-color: #25D366;
+      color: #FFF;
+    }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      max-width: 1050px;
+      margin: 2rem auto 1rem;
+    }
+
+    .stat-card {
+      background: var(--mq-dark-surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 1.4rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      border-color: var(--mq-gold);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .stat-number {
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: var(--mq-gold);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #9AA0A6;
+    }
+
+    /* CONTROLS */
+    .controls-container {
+      max-width: 1350px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .search-box-wrapper {
+      position: relative;
+      max-width: 650px;
+      margin: 0 auto 1.8rem;
+    }
+
+    .search-box-wrapper input {
+      width: 100%;
+      background: var(--mq-dark-surface);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 30px;
+      padding: 14px 24px 14px 52px;
+      color: #FFF;
+      font-size: 0.95rem;
+      font-family: var(--font-primary);
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .search-box-wrapper input:focus {
+      border-color: var(--mq-gold);
+      box-shadow: 0 0 15px rgba(203, 151, 39, 0.3);
+      background: var(--mq-dark-surface-elevated);
+    }
+
+    .search-box-wrapper i.fa-search {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--mq-gold);
+    }
+
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .filter-tab {
+      background: var(--mq-dark-surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #B0B5BC;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-tab:hover {
+      border-color: var(--mq-gold);
+      color: #FFF;
+    }
+
+    .filter-tab-featured {
+      border-color: rgba(203, 151, 39, 0.5) !important;
+      color: var(--mq-gold) !important;
+      background: rgba(203, 151, 39, 0.12) !important;
+      font-weight: 700 !important;
+    }
+
+    .filter-tab-featured:hover {
+      background: rgba(203, 151, 39, 0.25) !important;
+      box-shadow: 0 0 12px rgba(203, 151, 39, 0.4) !important;
+    }
+
+    .filter-tab.active {
+      background: var(--mq-gold);
+      color: #000;
+      border-color: var(--mq-gold);
+      font-weight: 700;
+      box-shadow: 0 3px 10px rgba(203, 151, 39, 0.35);
+    }
+
+    /* GRID VISUAL DE DASHBOARDS (CARDS COM SCREENSHOT) */
+    .dashboard-grid {
+      max-width: 1350px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 2rem;
+    }
+
+    .dashboard-card {
+      background: var(--mq-dark-surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: all 0.35s ease;
+      overflow: hidden;
+    }
+
+    .dashboard-card:hover {
+      border-color: var(--mq-gold);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 25px rgba(203, 151, 39, 0.2);
+    }
+
+    /* CONTAINER DA IMAGEM / SCREENSHOT */
+    .card-preview-container {
+      position: relative;
+      width: 100%;
+      height: 195px;
+      background: #0d0e11;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+    }
+
+    .card-preview-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      transition: transform 0.4s ease;
+    }
+
+    .dashboard-card:hover .card-preview-img {
+      transform: scale(1.04);
+    }
+
+    .card-preview-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .dashboard-card:hover .card-preview-overlay {
+      opacity: 1;
+    }
+
+    .btn-zoom {
+      background: var(--mq-gold-gradient);
+      color: #000;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 8px 16px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-body {
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.9rem;
+    }
+
+    .dept-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(203, 151, 39, 0.12);
+      border: 1px solid rgba(203, 151, 39, 0.3);
+      color: var(--mq-gold-light);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tech-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .tech-powerbi {
+      background: rgba(242, 200, 17, 0.15);
+      border: 1px solid rgba(242, 200, 17, 0.4);
+      color: #F2C811;
+    }
+
+    .tech-n8n {
+      background: rgba(234, 75, 113, 0.15) !important;
+      color: #ff6d5a !important;
+      border: 1px solid rgba(234, 75, 113, 0.4) !important;
+    }
+
+    .tech-fullstack {
+      background: rgba(40, 167, 69, 0.15);
+      border: 1px solid rgba(40, 167, 69, 0.4);
+      color: #4cd964;
+    }
+
+    .card-title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #FFF;
+      margin-bottom: 0.6rem;
+      line-height: 1.35;
+    }
+
+    .card-desc {
+      font-size: 0.86rem;
+      color: #A0A6AF;
+      margin-bottom: 1.1rem;
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+
+    .card-impact {
+      background: rgba(0, 0, 0, 0.35);
+      border-left: 3px solid var(--mq-gold);
+      padding: 8px 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.78rem;
+      color: #D1D5DB;
+      margin-bottom: 1.1rem;
+    }
+
+    .card-impact strong {
+      color: var(--mq-gold-light);
+    }
+
+    .card-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 1.2rem;
+    }
+    .card-stack:empty {
+      display: none;
+      margin-bottom: 0;
+    }
+
+    .stack-tag {
+      background: #25282C;
+      color: #BDC2C8;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .card-action {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .btn-card {
+      flex: 1;
+      text-align: center;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-card-primary {
+      background: var(--mq-gold-gradient);
+      color: #000;
+    }
+
+    .btn-card-primary:hover {
+      box-shadow: 0 4px 12px rgba(203, 151, 39, 0.4);
+    }
+
+    /* SEÇÃO SOBRE & TRAJETÓRIA */
+    .about-section {
+      max-width: 1350px;
+      margin: 0 auto 3.5rem;
+      padding: 0 2rem;
+      position: relative;
+    }
+
+    .about-card-wrapper {
+      background: linear-gradient(145deg, #12141a 0%, #1a1e27 100%);
+      border: 1px solid rgba(203, 151, 39, 0.35);
+      border-radius: 18px;
+      padding: 2.8rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-card-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle, rgba(203, 151, 39, 0.14) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .about-header-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(203, 151, 39, 0.45);
+      background: rgba(203, 151, 39, 0.1);
+      color: var(--mq-gold-light);
+      padding: 5px 14px;
+      border-radius: 50px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .about-title {
+      font-size: 2.1rem;
+      font-weight: 900;
+      color: #FFF;
+      margin-bottom: 1.8rem;
+      line-height: 1.25;
+    }
+    .about-title span.highlight {
+      background: var(--mq-gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 2.6rem;
+      align-items: stretch;
+    }
+
+    .about-text-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .about-text-lead {
+      font-size: 1.12rem;
+      font-weight: 600;
+      color: #FFFFFF;
+      line-height: 1.65;
+      border-left: 3px solid var(--mq-gold);
+      padding: 10px 18px;
+      background: rgba(203, 151, 39, 0.06);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .about-p {
+      font-size: 0.95rem;
+      color: #C0C6CF;
+      line-height: 1.75;
+    }
+
+    .about-pillars {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .pillar-card {
+      background: rgba(10, 12, 16, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 1.15rem 1.3rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      transition: all 0.3s ease;
+    }
+    .pillar-card:hover {
+      border-color: var(--mq-gold);
+      transform: translateX(4px);
+      background: rgba(203, 151, 39, 0.06);
+    }
+    .pillar-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(203, 151, 39, 0.15);
+      border: 1px solid rgba(203, 151, 39, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--mq-gold);
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+    .pillar-content h4 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #FFF;
+      margin-bottom: 0.3rem;
+    }
+    .pillar-content p {
+      font-size: 0.81rem;
+      color: #9AA0A6;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 992px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .about-card-wrapper {
+        padding: 1.8rem;
+      }
+      .about-title {
+        font-size: 1.7rem;
+      }
+    }
+
+    /* SEÇÃO STACK TECNOLÓGICA */
+    .stack-section {
+      max-width: 1350px;
+      margin: 0 auto 3rem;
+      padding: 0 2rem;
+    }
+
+    .stack-wrapper {
+      background: var(--mq-dark-surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 1.8rem 2.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .stack-header h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stack-header h3 i { color: var(--mq-gold); }
+    .stack-header p {
+      font-size: 0.82rem;
+      color: #8C939D;
+      margin-top: 3px;
+    }
+
+    .stack-badges-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .tech-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #DDD;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+    .tech-chip:hover {
+      border-color: var(--mq-gold);
+      background: rgba(203, 151, 39, 0.14);
+      color: #FFF;
+      transform: translateY(-2px);
+    }
+    .tech-chip i {
+      color: var(--mq-gold);
+    }
+
+    /* MODAL DE EXPANSÃO DA TELA (LIGHTBOX) */
+    .lightbox-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(5, 7, 10, 0.94);
+      backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.28s ease;
+    }
+
+    .lightbox-modal.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .lightbox-content {
+      max-width: 95vw;
+      max-height: 94vh;
+      width: fit-content;
+      position: relative;
+      border: 1px solid rgba(203, 151, 39, 0.5);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(203, 151, 39, 0.25);
+      background: #0c0d11;
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.96);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .lightbox-modal.active .lightbox-content {
+      transform: scale(1);
+    }
+
+    .lightbox-img-wrapper {
+      max-height: calc(94vh - 75px);
+      overflow: auto;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .lightbox-content img {
+      max-width: 100%;
+      max-height: calc(94vh - 75px);
+      width: auto;
+      height: auto;
+      display: block;
+      object-fit: contain;
+      user-select: none;
+    }
+
+    .lightbox-caption {
+      padding: 14px 22px;
+      background: #11141a;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .lightbox-close {
+      position: fixed;
+      top: 20px;
+      right: 25px;
+      color: #fff;
+      font-size: 1.8rem;
+      cursor: pointer;
+      background: rgba(20, 22, 28, 0.9);
+      width: 46px;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: all 0.25s;
+      z-index: 10000;
+    }
+
+    .lightbox-close:hover {
+      background: var(--mq-gold);
+      color: #000;
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(203, 151, 39, 0.6);
+    }
+
+    /* FOOTER */
+    footer.portfolio-footer {
+      background: #080808;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 3.5rem 2rem;
+      text-align: center;
+    }
+
+    .footer-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .footer-logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #FFF;
+      margin-bottom: 0.8rem;
+    }
+
+    .footer-logo span {
+      color: var(--mq-gold);
+    }
+
+    .footer-desc {
+      color: #8C939D;
+      font-size: 0.88rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .contact-chip {
+      background: var(--mq-dark-surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      color: #DDD;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .contact-chip i {
+      color: var(--mq-gold);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- CABEÇALHO EXECUTIVO COM NAVEGAÇÃO SUAVE -->
+  <header class="portfolio-header">
+    <div class="brand-logo">
+      <a href="#inicio" class="brand-title">Antonio Mello <span>Business Intelligence</span></a>
+    </div>
+    
+    <nav class="header-nav" aria-label="Navegação do Portfólio">
+      <a href="#inicio" class="nav-link"><i class="fa-solid fa-house"></i> Início</a>
+      <a href="#sobre" class="nav-link"><i class="fa-solid fa-user-tie"></i> Sobre</a>
+      <a href="#projetos" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Projetos</a>
+      <a href="#stack" class="nav-link"><i class="fa-solid fa-layer-group"></i> Stack</a>
+      <a href="#contato" class="nav-link"><i class="fa-solid fa-envelope"></i> Contato</a>
+    </nav>
+
+        <div class="header-actions">
+      <a href="https://wa.me/5511999553359?text=Ol%C3%A1%20Ant%C3%B4nio,%20vi%20seu%20Portf%C3%B3lio%20de%20BI%20Corporativo%20e%20gostaria%20de%20conversar." target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="border-color: #25D366; color: #25D366;" title="Contato direto WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i> CONTATO
+      </a>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="hero" id="inicio">
+    <div class="hero-tag">Visão completa, controle total.</div>
+    <h1 style="color: #FFFFFF;">Cockpit Executivo Estratégico</h1>
+    <p class="lead">
+      Confira as telas reais de cada solução implementada. Painéis desenhados para tomada de decisão ágil, clareza
+      métrica e alta densidade de valor analítico para Diretorias e Gestores.
+    </p>
+
+    <!-- CONTATOS & LINKEDIN EM DESTAQUE -->
+    <div class="hero-contact-actions">
+      <a href="https://www.linkedin.com/in/antonio-carlos-mello/" target="_blank" rel="noopener noreferrer"
+        class="hero-contact-btn hero-btn-linkedin" title="Acessar Perfil no LinkedIn">
+        <i class="fa-brands fa-linkedin"></i>
+        <span>LinkedIn: linkedin.com/in/antonio-carlos-mello/</span>
+      </a>
+      <a href="https://wa.me/5511999553359" target="_blank" rel="noopener noreferrer"
+        class="hero-contact-btn hero-btn-whatsapp" title="Contato direto via WhatsApp ou Telefone">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span>Contato: 11-99955-3359</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- SEÇÃO SOBRE & TRAJETÓRIA -->
+  <section class="about-section" id="sobre">
+    <div class="about-card-wrapper">
+      <div class="about-header-tag">
+        <i class="fa-solid fa-compass"></i> Perfil & Trajetória Executiva
+      </div>
+      <h2 class="about-title">Sobre & <span class="highlight">Trajetória</span></h2>
+
+      <div class="about-grid">
+        <div class="about-text-content">
+          <p class="about-text-lead">
+            <strong style="color: #FFFFFF; display: block; margin-bottom: 6px;">Transformo dados em inteligência estratégica e resultados de negócio.</strong>
+            <span style="font-weight: 400; font-size: 1.0rem; color: #D6DAE2; display: block;">Especialista em Business Intelligence e Analytics, conectando tecnologia, indicadores e estratégia para impulsionar decisões, eficiência operacional e resultados financeiros.</span>
+          </p>
+
+          <p class="about-p">
+            Minha trajetória é marcada por estruturar áreas de Business Intelligence do zero. Entro onde ainda predominam processos manuais e planilhas paralelas, e construo uma cultura analítica sólida: dados organizados, rotinas automatizadas e visões executivas confiáveis para a tomada de decisão.
+          </p>
+
+          <p class="about-p">
+            Ao longo da carreira, desenvolvi mais de 500 dashboards e soluções em Power BI, atuando no ciclo completo: alinho com a liderança para entender o problema de negócio e definir OKRs e KPIs, estruturo a engenharia de dados (modelagem dimensional, Star Schema e DAX) e entrego o painel pronto com métricas governadas. Tenho atuação prática em setores complexos como saúde hospitalar, logística rodoviária e controladoria.
+          </p>
+
+          <p class="about-p">
+            Para ganhar escala, integro ao BI tradicional fluxos de automação com n8n, Python e desenvolvimento assistido por IA (Claude Code, Gemini, ChatGPT), acelerando diagnósticos e eliminando tarefas repetitivas que custam tempo e dinheiro às organizações.
+          </p>
+        </div>
+
+        <div class="about-pillars">
+          <div class="pillar-card">
+            <div class="pillar-icon"><i class="fa-solid fa-sitemap"></i></div>
+            <div class="pillar-content">
+              <h4>Estruturação do Zero</h4>
+              <p>Eliminação de planilhas paralelas e implantação de cultura analítica governada e confiável.</p>
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="pillar-content">
+              <h4>+500 Dashboards & DAX Avançado</h4>
+              <p>Modelagem dimensional Star Schema, métricas auditadas e painéis de alta performance executiva.</p>
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon"><i class="fa-solid fa-briefcase"></i></div>
+            <div class="pillar-content">
+              <h4>Negócios Complexos</h4>
+              <p>Atuação estratégica em Saúde Hospitalar, Logística Rodoviária, Controladoria e Faturamento.</p>
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon"><i class="fa-solid fa-robot"></i></div>
+            <div class="pillar-content">
+              <h4>Automação & IA Generativa</h4>
+              <p>Workflows em n8n, scripts Python e engenharia assistida por LLMs (Claude Code, Gemini, ChatGPT).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEÇÃO STACK TECNOLÓGICA -->
+  <section class="stack-section" id="stack">
+    <div class="stack-wrapper">
+      <div class="stack-header">
+        <h3><i class="fa-solid fa-layer-group"></i> Stack Tecnológica & Arquitetura Analítica</h3>
+        <p>Ecossistema corporativo aplicado em projetos de missão crítica e alta escala de decisão</p>
+      </div>
+
+      <div class="stack-badges-grid">
+        <span class="tech-chip"><i class="fa-solid fa-chart-pie"></i> Microsoft Power BI</span>
+        <span class="tech-chip"><i class="fa-solid fa-calculator"></i> DAX Avançado & Star Schema</span>
+        <span class="tech-chip"><i class="fa-brands fa-python"></i> Python & Flask Analytics</span>
+        <span class="tech-chip"><i class="fa-solid fa-network-wired"></i> n8n & Agentes Autônomos</span>
+        <span class="tech-chip"><i class="fa-solid fa-database"></i> SQL Server & PostgreSQL</span>
+        <span class="tech-chip"><i class="fa-solid fa-brain"></i> IA Generativa (Claude / Gemini)</span>
+        <span class="tech-chip"><i class="fa-solid fa-code-branch"></i> Git & GitHub Pages</span>
+        <span class="tech-chip"><i class="fa-solid fa-tv"></i> ECharts & Dashboards TV</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTROLES: BUSCA & FILTROS POR DEPARTAMENTO (PROJETOS) -->
+  <section class="controls-container" id="projetos">
+    <div class="search-box-wrapper">
+      <i class="fa-solid fa-search"></i>
+      <input type="text" id="searchInput"
+        placeholder="Buscar por nome do dashboard, tecnologia, métrica ou departamento..." onkeyup="filterDashboards()">
+    </div>
+
+    <div class="filter-tabs" id="filterTabs">
+      <button class="filter-tab active" onclick="setDepartmentFilter('ALL')">Todos (8)</button>
+    </div>
+  </section>
+
+  <!-- GRID DE PROJETOS COM CAPTURA DE TELAS -->
+  <main class="dashboard-grid" id="dashboardGrid">
+    <!-- Renderizado dinamicamente via JS -->
+  </main>
+
+  <!-- MODAL LIGHTBOX DE ZOOM NA TELA -->
+  <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox(event)">
+    <div class="lightbox-close" onclick="closeLightboxDirect()" title="Fechar tela ampliada (ESC)">&times;</div>
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <div class="lightbox-img-wrapper">
+        <img id="lightboxImg" src="" alt="Dashboard Zoom">
+      </div>
+      <div class="lightbox-caption">
+        <div>
+          <div id="lightboxTitle" style="font-weight: 800; font-size: 1.05rem; color: #fff; margin-bottom: 2px;">Título do Dashboard</div>
+          <span id="lightboxDept" style="display: inline-block; font-size: 0.78rem; color: #CB9727; font-weight: 700; text-transform: uppercase;">Departamento</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;" id="lightboxActions">
+          <span style="font-size: 0.75rem; color: #999; background: #222; padding: 5px 12px; border-radius: 4px; border: 1px solid #444;">
+            <i class="fa-solid fa-magnifying-glass-plus"></i> Imagem Ampliada
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER / CONTATO -->
+  <footer class="portfolio-footer" id="contato">
+    <div class="footer-content">
+      <div class="footer-logo">Antonio Mello <span>Business Intelligence</span></div>
+      <p class="footer-desc">
+        Especialista em Business Intelligence & Arquitetura de Decisão • Power BI, Modelagem Dimensional, DAX Avançado, Web Analytics Python & Automações com n8n e Agentes IA.
+      </p>
+
+      <div class="contact-chips">
+        <a href="https://wa.me/5511999553359" target="_blank" rel="noopener noreferrer" class="contact-chip" title="WhatsApp Direto">
+          <i class="fa-brands fa-whatsapp"></i> (11) 99955-3359
+        </a>
+        <a href="https://www.linkedin.com/in/antonio-carlos-mello/" target="_blank" rel="noopener noreferrer" class="contact-chip" title="Perfil LinkedIn">
+          <i class="fa-brands fa-linkedin"></i> LinkedIn Oficial
+        </a>
+        </div>
+
+  <p style="font-size: 0.75rem; color: #555;">
+    &copy; 2026 Antonio Mello • Executive Analytics & BI Architecture • Todos os direitos reservados.
+  </p>
+  </div>
+  </footer>
+
+  <!-- SCRIPT DINÂMICO -->
+  <script>
+    const DASHBOARDS = [
+      {
+        "id": 20,
+        "title": "<i class=\"fa-solid fa-bus\" style=\"color: #ffb300; margin-right: 6px;\"></i>Viação S/A • Transportes",
+        "department": "Logística & Transporte Rodoviário",
+        "description": "Cockpit de inteligência comercial para empresa de transporte rodoviário interestadual (Nordeste, SP, ES, BA, AL e DF). Cruza rotas mais e menos ocupadas (Load Factor), sazonalidade mês a mês e dia da semana, eficiência e gastos de óleo diesel por km, divisão de linhas regulares vs fretamento corporativo/turismo, mapa georreferenciado interativo e simulador de Yield Management.",
+        "url": "dashboard_viacao_rotas_onibus.html?v=ia",
+        "tech": "Executive Analytics / Leaflet.js / Chart.js / Dark Glass",
+        "stack": [
+          "Agente de IA",
+          "Python 3",
+          "Leaflet.js",
+          "Chart.js"
+        ],
+        "impact": "Apoio à Diretoria Comercial na precificação dinâmica, redução de ociosidade em trechos críticos e economia de combustível em malha interestadual de 430 mil passageiros/mês.",
+        "image": "static/portfolio_screenshots/dash_viacao_rotas_onibus.jpg?v=20261112",
+        "is_static": false,
+        "live_url": "dashboard_viacao_rotas_onibus.html?v=ia",
+        "secondary_url": null,
+        "secondary_label": null,
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 11,
+        "title": "Cockpit TV - Unidades de Negócios & Performance Global",
+        "department": "Diretoria & Cockpit TV",
+        "description": "Cockpit executivo estilo TV com 6 velocímetros dinâmicos por Unidade de Negócios, análise trimestral (Convênio, Glosa, Total, Qtde, Recuperação), mapa do Brasil regional e exportações por país.",
+        "url": "08_unidade_de_negocios/mapa_brasil.html",
+        "tech": "ECharts & Fullstack Web TV",
+        "stack": [
+          "TV Dashboard",
+          "Dark Glass",
+          "ECharts",
+          "Mapas Geográficos",
+          "Analytics Executivo"
+        ],
+        "impact": "Monitoramento em tempo real para salas de diretoria e TVs corporativas, com metas trimestrais e zero compliance.",
+        "image": "static/portfolio_screenshots/dash_portfolio_08_unidade_negocios.jpg?v=20261112",
+        "is_static": false,
+        "live_url": "08_unidade_de_negocios/mapa_brasil.html",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 10,
+        "title": "Gestão de Transporte, Frota de Ônibus, Combustível & Facilities",
+        "department": "Mobilidade & Infraestrutura",
+        "description": "Gestão de frota de ônibus, passageiros, curva horária de pico, índice de passageiros por km (IPK), consumo de diesel, energia elétrica (kWh), água e aluguel de garagens operacionais.",
+        "url": "07_transporte_infraestrutura/index.html?v=ia",
+        "tech": "Fullstack Python / Chart.js",
+        "stack": [
+          "Agente de IA",
+          "Python 3",
+          "Flask",
+          "Chart.js",
+          "Facilities & Utilities"
+        ],
+        "impact": "Redução de 6.4% no custo de diesel por passageiro, otimização de itinerários e controle de custos prediais de garagens.",
+        "image": "static/portfolio_screenshots/dash_portfolio_07_transporte.jpg?v=20261112",
+        "is_static": false,
+        "live_url": "07_transporte_infraestrutura/index.html?v=ia",
+        "secondary_url": null,
+        "secondary_label": null,
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 19,
+        "title": "<i class=\"fa-solid fa-chart-line\" style=\"color: #00D2FF; margin-right: 6px;\"></i>Real Time Unidades de Negocios",
+        "department": "Automação & Processos (n8n)",
+        "description": "Cockpit executivo e gerencial em tempo real por unidades de negócios: curvas diárias acumuladas de Meta vs Realizado, projeções lineares de fechamento, histórico comparativo do mês anterior (M-1), quadro consolidado de resultados operacionais, modalidades de faturamento e matriz executiva por unidade (Logística, Brasil, Ásia, Latim América e Europa).",
+        "url": "dashboard_analise_plantas.html",
+        "tech": "Executive Analytics / Chart.js / Real Time",
+        "stack": [],
+        "impact": "Governança executiva operacional em tempo real com monitoramento de R$ 3.6M faturados, atingimento de 111.5% da meta acumulada e visibilidade preditiva de desvios operacionais.",
+        "image": "static/portfolio_screenshots/dash_analise_plantas.jpg",
+        "is_static": false,
+        "live_url": "dashboard_analise_plantas.html",
+        "secondary_url": null,
+        "secondary_label": null,
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 4,
+        "title": "Dashboard de Acompanhamento de Efetividade da Automação",
+        "department": "Automação & Processos (n8n)",
+        "description": "Cockpit executivo para monitoramento contínuo da efetividade, ROI e desempenho de esteiras automatizadas com n8n & IA: disponibilidade de cluster de 99.85%, redução de 384h/mês de trabalho (2.4 FTEs), economia líquida de R$ 26.540 e assertividade de 99.98%.",
+        "url": "16_automacao_processos_n8n/index.html",
+        "tech": "n8n / Python / Fullstack / LLMs",
+        "stack": [
+          "n8n Workflow Automation",
+          "Métricas de ROI & FTE",
+          "Monitoramento de Ciclo (2.4s)",
+          "Dual-Branch Pipeline",
+          "Integração ERP Sankhya",
+          "Simulação em Tempo Real"
+        ],
+        "impact": "Redução de tempo de trabalho em 1.125x (de 45 min manuais para 2.4s automatizados), erradicação de 99.8% do retrabalho e liberação de 2.4 analistas para tarefas estratégicas.",
+        "image": "static/portfolio_screenshots/dash_16_automacao_n8n.jpg",
+        "is_static": false,
+        "live_url": "16_automacao_processos_n8n/index.html",
+        "secondary_url": null,
+        "secondary_label": null,
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 1,
+        "title": "Automação com Agentes de IA & Multi-Agentes (n8n & OpenRouter)",
+        "department": "Automação & Processos (n8n)",
+        "description": "Orquestração avançada de Agentes Autônomos de IA no n8n: integração com OpenRouter para seleção dinâmica de LLMs, memória conversacional PostgreSQL, protocolo MCP (Model Context Protocol), sub-agentes especialistas e geração multimodal com Google Gemini.",
+        "url": "workflow_agente_ia.html",
+        "tech": "n8n / Agente IA / OpenRouter / MCP",
+        "stack": [
+          "n8n Workflow Automation",
+          "Agente de IA Autônomo",
+          "OpenRouter / LLMs",
+          "PostgreSQL Chat Memory",
+          "Cliente MCP",
+          "Google Gemini Vision"
+        ],
+        "impact": "Automação de inteligência analítica recebimento de arquivos em email, Arquivo Retorno Bancario, NFE, Nota Fiscal e Boletos., reduzindo tempo de consulta de 35 minutos para 2.4s.",
+        "image": "static/portfolio_screenshots/n8n_workflow_agente_ia_hd.png",
+        "is_static": false,
+        "live_url": "workflow_agente_ia.html",
+        "secondary_url": null,
+        "secondary_label": null,
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 2,
+        "title": "DRE Gerencial & Controladoria Financeira",
+        "department": "Controladoria & Finanças",
+        "description": "Cockpit executivo de DRE com análise vertical, margem bruta, EBITDA, despesas operacionais e demonstrativo estruturado multicentros.",
+        "url": "01_dre_gerencial/index.html",
+        "tech": "Fullstack Python / Chart.js",
+        "stack": [
+          "Python 3",
+          "Flask",
+          "Chart.js",
+          "Modelagem DRE",
+          "EBITDA Analytics",
+          "Responsive UI"
+        ],
+        "impact": "Governança financeira, análise de variações orçamentárias e acompanhamento de margem de contribuição em tempo real.",
+        "image": "static/portfolio_screenshots/dash_portfolio_01_dre.jpg",
+        "is_static": false,
+        "live_url": "01_dre_gerencial/index.html",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 3,
+        "title": "Gestão de Descarte",
+        "department": "Sustentabilidade & ESG",
+        "description": "Cockpit executivo de Eficiência do Negócio e Sustentabilidade estruturado em OKRs: scorecard corporativo com faturamento de R$ 14.85M, volume peso de 48.720 t, 3.430 viagens de caminhões e guia especializada de Unit Economics, custos de frota (R$ 2.360/viagem), margem por tonelada (R$ 138,40/t) e desvio de aterro de 88.8%.",
+        "url": "dashboard_solucoes_ambientais.html?v=8",
+        "tech": "ESG Analytics / OKRs / Unit Economics",
+        "stack": [
+          "Python 3",
+          "Flask",
+          "Chart.js",
+          "Framework de OKRs de Eficiência"
+        ],
+        "impact": "Alavancagem operacional de +11.4% na carga útil por caminhão, gerando R$ 14.85M de faturamento com 215 viagens a menos e economia de R$ 240.8k em frete.",
+        "image": "static/portfolio_screenshots/dash_solucoes_ambientais.jpg",
+        "is_static": false,
+        "live_url": "dashboard_solucoes_ambientais.html?v=8",
+        "secondary_url": null,
+        "secondary_label": null,
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 5,
+        "title": "Faturamento Hospitalar & Produção Médica",
+        "department": "Gestão Hospitalar & Saúde",
+        "description": "Monitoramento de receita hospitalar bruta e líquida, ticket médio de diárias/procedimentos, produção médica por especialidade e convênios.",
+        "url": "02_faturamento_hospitalar/index.html",
+        "tech": "Fullstack Python / Chart.js",
+        "stack": [
+          "Python 3",
+          "Flask",
+          "Chart.js",
+          "RCM Hospitalar",
+          "Produção Médica",
+          "Analytics Financeiro"
+        ],
+        "impact": "Otimização do ciclo de faturamento hospitalar e acompanhamento de metas de faturamento por unidade clínica.",
+        "image": "static/portfolio_screenshots/dash_portfolio_02_faturamento.jpg",
+        "is_static": false,
+        "live_url": "02_faturamento_hospitalar/index.html",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 6,
+        "title": "Auditoria de Glosas & Recuperação de Receita",
+        "department": "Gestão Hospitalar & Saúde",
+        "description": "Auditoria analítica de glosas administrativas, técnicas e operacionais. Gestão de recursos impetrados, taxa de sucesso de reversão e Pareto de motivos de recusa.",
+        "url": "03_auditoria_glosas/index.html",
+        "tech": "Fullstack Python / Chart.js",
+        "stack": [
+          "Python 3",
+          "Flask",
+          "Chart.js",
+          "Auditoria Hospitalar",
+          "Recuperação de Receita",
+          "Pareto Analysis"
+        ],
+        "impact": "Redução sistemática de glosas iniciais de 12% para menos de 3.2% e recuperação de R$ 4.8M em recursos aceitos.",
+        "image": "static/portfolio_screenshots/dash_portfolio_03_glosas.jpg",
+        "is_static": false,
+        "live_url": "03_auditoria_glosas/index.html",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 7,
+        "title": "Diretoria Estratégica de Contas Médicas & RCM",
+        "department": "Gestão Hospitalar & Saúde",
+        "description": "Painel C-Level do ciclo de receita hospitalar (RCM): DSO (Days Sales Outstanding), aging de contas a receber por convênio e taxa de conversão de faturamento.",
+        "url": "04_contas_medicas_rcm/index.html",
+        "tech": "Fullstack Python / Chart.js",
+        "stack": [
+          "Python 3",
+          "Flask",
+          "Chart.js",
+          "C-Level Executive BI",
+          "DSO & Working Capital"
+        ],
+        "impact": "Visibilidade executiva de capital de giro, redução de 14 dias no DSO médio e previsibilidade de fluxo de caixa.",
+        "image": "static/portfolio_screenshots/dash_portfolio_04_contas_rcm.jpg",
+        "is_static": false,
+        "live_url": "04_contas_medicas_rcm/index.html",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 8,
+        "title": "Operações de Clínica Médica & Recepção",
+        "department": "Gestão Hospitalar & Saúde",
+        "description": "Cockpit operacional ambulatorial: tempo de espera na recepção, fluxo de triagem, taxa de no-show, tempo de consulta e índice de satisfação do paciente (NPS).",
+        "url": "05_atendimento_clinica/index.html",
+        "tech": "Fullstack Python / Chart.js",
+        "stack": [
+          "Python 3",
+          "Flask",
+          "Chart.js",
+          "Operações Clínicas",
+          "Fluxo de Triagem",
+          "NPS & Espera"
+        ],
+        "impact": "Redução do tempo médio de espera de 42 para 18 minutos e aumento da taxa de ocupação dos consultórios.",
+        "image": "static/portfolio_screenshots/dash_portfolio_05_atendimento.jpg",
+        "is_static": false,
+        "live_url": "05_atendimento_clinica/index.html",
+        "secondary_url": "powerbi_clinica/",
+        "secondary_label": "<i class='fa-solid fa-chart-pie'></i> Power BI",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 9,
+        "title": "Gestão de Agendas, Ocupação & Capacidade Médica",
+        "department": "Gestão Hospitalar & Saúde",
+        "description": "Gestão e balanceamento de horários ociosos, agendas livres de médicos, projeção de capacidade por especialidade, dias da semana e taxas de preenchimento.",
+        "url": "06_gestao_agendas/index.html",
+        "tech": "Fullstack Python / Chart.js",
+        "stack": [
+          "Python 3",
+          "Flask",
+          "Chart.js",
+          "Projeção de Capacidade",
+          "Agendas Médicas",
+          "Analytics Preditivo"
+        ],
+        "impact": "Maximização da ocupação médica para 89%, redução de horários ociosos e otimização do agendamento multiespecialidade.",
+        "image": "static/portfolio_screenshots/dash_portfolio_06_agendas.jpg",
+        "is_static": false,
+        "live_url": "06_gestao_agendas/index.html",
+        "secondary_url": "powerbi_agendas/",
+        "secondary_label": "<i class='fa-solid fa-chart-pie'></i> Power BI",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 12,
+        "title": "Power BI - Medicina Diagnóstica, Exames & Demografia (PORTIFOLIO05)",
+        "department": "Microsoft Power BI",
+        "description": "Dashboard em Microsoft Power BI Pro com 3 visões interativas reais: Sumário Gerencial demográfico (gênero e faixa etária), Indicadores Analíticos temporais (hora, dia e semana) e Indicadores Extensivos de SADT, análises clínicas e conversão de orçamentos.",
+        "url": "powerbi_clinica/",
+        "tech": "Microsoft Power BI Pro",
+        "stack": [
+          "Power BI Pro",
+          "DAX Avançado",
+          "Modelagem Star Schema",
+          "Demografia de Pacientes",
+          "SADT & Análises Clínicas"
+        ],
+        "impact": "Consolidação de 2.033.139 atendimentos clínicos, R$ 102.3M faturados e análise de pirâmide demográfica multicentros.",
+        "image": "static/portfolio_screenshots/pbi_05_captured.png",
+        "is_static": false,
+        "live_url": "powerbi_clinica/",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 13,
+        "title": "Power BI - Gestão de Agendas, Ocupação & Capacidade (PORTIFOLIO06)",
+        "department": "Microsoft Power BI",
+        "description": "Painel executivo em Microsoft Power BI Pro para monitoramento de 13.766h de consultórios, taxa de ocupação por especialidade, TME Profissional (26,4 min), TMA e aderência à capacidade instalada ambulatorial.",
+        "url": "powerbi_agendas/",
+        "tech": "Microsoft Power BI Pro",
+        "stack": [
+          "Power BI Pro",
+          "DAX Avançado",
+          "Modelagem Star Schema",
+          "Planejamento de Capacidade",
+          "Ocupação Ambulatorial"
+        ],
+        "impact": "Controle de horários ociosos, acompanhamento de 8.534 consultas atendidas e otimização da taxa de conversão clínica (21,16%).",
+        "image": "static/portfolio_screenshots/pbi_06_captured.png",
+        "is_static": false,
+        "live_url": "powerbi_agendas/",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 14,
+        "title": "Power BI - Gestão de Transporte Urbano & Frota (PORTIFOLIO07)",
+        "department": "Microsoft Power BI",
+        "description": "Dashboard em Microsoft Power BI Pro para gestão de frota de transporte coletivo (Via Metrópole): indicador de passageiros por km (IPK), consumo de diesel, frota ativa e infraestrutura.",
+        "url": "powerbi_transporte/",
+        "tech": "Microsoft Power BI Pro",
+        "stack": [
+          "Power BI Pro",
+          "DAX Avançado",
+          "Modelagem Star Schema",
+          "Gestão de Frotas",
+          "Power BI Service"
+        ],
+        "impact": "Dashboard oficial Power BI para controle operacional de transporte coletivo, itinerários e eficiência energética.",
+        "image": "static/portfolio_screenshots/pbi_07_captured.png",
+        "is_static": false,
+        "live_url": "powerbi_transporte/",
+        "github_repo": "https://github.com/Sracm/portfolio-bi",
+        "powerbi_cloud_url": "https://app.powerbi.com/view?r=eyJrIjoiMGM2MDVkMmEtNmExYi00NzQxLTk5YzEtNzJlNjQ5YmM3MTc5IiwidCI6IjcwM2ZiM2ZjLTI3ZTAtNDEyYS1hZjAxLWZkNWMzY2Q5OWU1MyJ9"
+      },
+      {
+        "id": 15,
+        "title": "Power BI - Logística de Coletas Domiciliares & Móveis (PORTIFOLIO08)",
+        "department": "Microsoft Power BI",
+        "description": "Dashboard em Microsoft Power BI Pro para controle logístico de 13.892 coletas móveis: roteirização domiciliar B2C, coletas corporativas B2B (511 empresas), Prevent Senior, atendimento VIP e escala de 1.223 coletores.",
+        "url": "powerbi_coletas/",
+        "tech": "Microsoft Power BI Pro",
+        "stack": [
+          "Power BI Pro",
+          "DAX Avançado",
+          "Modelagem Star Schema",
+          "Logística & Roteirização",
+          "Dimensionamento de Escalas"
+        ],
+        "impact": "Otimização de rotas de coleta móvel, equilíbrio entre técnicos escalados vs necessários e gestão de convênios corporativos.",
+        "image": "static/portfolio_screenshots/pbi_08_captured.png",
+        "is_static": false,
+        "live_url": "powerbi_coletas/",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 16,
+        "title": "Power BI - Gestão de Ordens de Serviço & Atendimento (PORTIFOLIO09)",
+        "department": "Microsoft Power BI",
+        "description": "Dashboard em Microsoft Power BI Pro para gestão de 1.339.165 ordens de serviço (Particular, Convênio, Beneficência), curva horária de fluxo de guichê e ranking de produtividade da equipe de recepção.",
+        "url": "powerbi_ordens_servico/",
+        "tech": "Microsoft Power BI Pro",
+        "stack": [
+          "Power BI Pro",
+          "DAX Avançado",
+          "Modelagem Star Schema",
+          "Produtividade de Guichê",
+          "Curva de Fluxo Horário"
+        ],
+        "impact": "Redução do tempo de fila, visibilidade de 1.14M de atendimentos particulares e balanceamento de escalas por unidade (VNC, Sto Amaro, Osasco).",
+        "image": "static/portfolio_screenshots/pbi_09_captured.png",
+        "is_static": false,
+        "live_url": "powerbi_ordens_servico/",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 17,
+        "title": "Power BI - Detalhe Operacional & Metas Executivas (PORTIFOLIO10)",
+        "department": "Microsoft Power BI",
+        "description": "Painel executivo oficial desenvolvido na Ac Consultoria BI com comparativo multianual (2024 vs 2025), linhas de referência de 100% de meta e 6 velocímetros executivos de desvio e atingimento.",
+        "url": "powerbi_operacional_metas/",
+        "tech": "Microsoft Power BI Pro",
+        "stack": [
+          "Power BI Pro",
+          "DAX Avançado",
+          "Modelagem Star Schema",
+          "Análise Comparativa YoY",
+          "Velocímetros Executivos"
+        ],
+        "impact": "Cockpit com acompanhamento mensal de metas de processos, desvios absolutos e governança executiva de indicadores.",
+        "image": "static/portfolio_screenshots/pbi_10_captured.png",
+        "is_static": false,
+        "live_url": "powerbi_operacional_metas/",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      },
+      {
+        "id": 18,
+        "title": "Power BI - Acompanhamento Estratégico de OKRs (PORTIFOLIO11)",
+        "department": "Microsoft Power BI",
+        "description": "Cockpit executivo em Microsoft Power BI Pro para gestão de OKRs corporativos: 7 velocímetros para Logística (114,6%), Fábricas 01/02/03, Unidade Têxtil (107,2%), Unidade de Negócios e consolidado Empresa Global (106,9%).",
+        "url": "powerbi_okrs/",
+        "tech": "Microsoft Power BI Pro",
+        "stack": [
+          "Power BI Pro",
+          "DAX Avançado",
+          "Modelagem Star Schema",
+          "Framework de OKRs",
+          "Velocímetros Corporativos"
+        ],
+        "impact": "Acompanhamento em tempo real de metas estratégicas por planta e unidade, com visão consolidada da Empresa Global para Diretoria e C-Level.",
+        "image": "static/portfolio_screenshots/pbi_11_captured.png",
+        "is_static": false,
+        "live_url": "powerbi_okrs/",
+        "github_repo": "https://github.com/Sracm/portfolio-bi"
+      }
+    ];
+    let currentDept = 'ALL';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      buildFilterTabs();
+      renderDashboards();
+    });
+
+    function buildFilterTabs() {
+      const depts = {};
+      DASHBOARDS.forEach(d => {
+        depts[d.department] = (depts[d.department] || 0) + 1;
+      });
+
+      const container = document.getElementById('filterTabs');
+      let html = `<button class="filter-tab active" onclick="setDepartmentFilter('ALL')">Todos (${DASHBOARDS.length})</button>`;
+
+      // Prioridade: 'Diretoria Executiva' logo em 1º lugar ao lado de 'Todos'
+      const deptoPrincipal = 'Diretoria Executiva';
+      if (depts[deptoPrincipal]) {
+        html += `<button class="filter-tab filter-tab-featured" onclick="setDepartmentFilter('${deptoPrincipal}')">⭐ ${deptoPrincipal} (${depts[deptoPrincipal]})</button>`;
+      }
+
+      // Destaque para Automação n8n & IA
+      if (depts['Automação & Processos (n8n)']) {
+        html += `<button class="filter-tab filter-tab-featured" style="border-color: rgba(234, 75, 113, 0.6); color: #ff6d5a;" onclick="setDepartmentFilter('Automação & Processos (n8n)')"><i class="fa-solid fa-network-wired"></i> Automação & n8n (${depts['Automação & Processos (n8n)']})</button>`;
+      }
+
+      // Destaque para Microsoft Power BI
+      if (depts['Microsoft Power BI']) {
+        html += `<button class="filter-tab filter-tab-featured" style="border-color: rgba(242, 200, 17, 0.6); color: #F2C811;" onclick="setDepartmentFilter('Microsoft Power BI')"><i class="fa-solid fa-chart-pie"></i> Microsoft Power BI (${depts['Microsoft Power BI']})</button>`;
+      }
+
+      // Demais departamentos em ordem alfabética
+      Object.keys(depts).sort().forEach(dept => {
+        if (dept !== deptoPrincipal && dept !== 'Microsoft Power BI' && dept !== 'TI & BI' && dept !== 'RH' && dept !== 'Brasil') {
+          html += `<button class="filter-tab" onclick="setDepartmentFilter('${dept}')">${dept} (${depts[dept]})</button>`;
+        }
+      });
+
+      container.innerHTML = html;
+    }
+
+    function setDepartmentFilter(dept) {
+      currentDept = dept;
+      const tabs = document.querySelectorAll('.filter-tab');
+      tabs.forEach(tab => {
+        const text = tab.textContent;
+        if ((dept === 'ALL' && text.includes('Todos')) || text.includes(dept)) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+      renderDashboards();
+    }
+
+    function filterDashboards() {
+      renderDashboards();
+    }
+
+    function renderDashboards() {
+      const grid = document.getElementById('dashboardGrid');
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const qNorm = norm(searchTerm);
+      const filtered = DASHBOARDS.filter(d => {
+        const matchesSearch = !qNorm ||
+          norm(d.title).includes(qNorm) ||
+          norm(d.description).includes(qNorm) ||
+          norm(d.department).includes(qNorm) ||
+          norm(d.tech).includes(qNorm) ||
+          norm((d.stack || []).join(' ')).includes(qNorm) ||
+          norm(d.impact || '').includes(qNorm);
+        // Se houver termo de busca digitado, pesquisa em todos os dashboards
+        const matchesDept = qNorm ? true : (currentDept === 'ALL' || d.department === currentDept);
+        return matchesDept && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: #888;">
+            <i class="fa-solid fa-search" style="font-size: 2.5rem; color: var(--mq-gold); margin-bottom: 1rem; opacity: 0.6;"></i>
+            <h3>Nenhum dashboard encontrado</h3>
+            <p>Tente refinar sua busca ou selecione outro departamento.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(d => {
+        const isPowerBI = d.tech.includes('Power BI');
+        const isN8N = d.tech.includes('n8n');
+        const techBadgeClass = isPowerBI ? 'tech-powerbi' : (isN8N ? 'tech-n8n' : 'tech-fullstack');
+        const techLabel = isPowerBI ? '<i class="fa-solid fa-chart-pie"></i> Microsoft Power BI' : (isN8N ? '<i class="fa-solid fa-network-wired"></i> n8n & IA' : '<i class="fa-brands fa-python"></i> Web Python');
+
+        const stackBadges = (d.stack || []).map(s => `<span class="stack-tag">${s}</span>`).join('');
+        const imgUrl = d.image || 'static/portfolio_screenshots/pbi_sample.jpg';
+        const targetDashUrl = d.live_url;
+        const plainTitle = (d.title || '').replace(/<[^>]+>/g, '').trim();
+
+        return `
+          <div class="dashboard-card">
+            <div class="card-preview-container" onclick="openLightboxById(${d.id})" title="Clique para ampliar tela e inspecionar detalhes dos gráficos">
+              <img src="${imgUrl}" alt="${plainTitle}" class="card-preview-img" loading="lazy">
+              <div class="card-preview-overlay">
+                <div class="btn-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i> Ampliar Detalhes & KPIs</div>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="card-top">
+                <span class="dept-badge"><i class="fa-solid fa-folder-tree"></i> ${d.department}</span>
+                <span class="tech-pill ${techBadgeClass}">${techLabel}</span>
+              </div>
+
+              <h3 class="card-title" ${targetDashUrl ? `onclick="window.open('${targetDashUrl}', '_blank')" style="cursor:pointer;" title="Clique para abrir o dashboard interativo"` : ''}>${d.title}</h3>
+              <p class="card-desc">${d.description || 'Cockpit analítico para monitoramento de KPIs estratégicos, táticos e operacionais.'}</p>
+
+              <div class="card-impact">
+                <strong><i class="fa-solid fa-bullseye"></i> Impacto Estratégico:</strong> ${d.impact}
+              </div>
+
+              <div class="card-stack">
+                ${stackBadges}
+              </div>
+
+              ${targetDashUrl ? `
+              <div class="card-action" style="display: flex; gap: 8px; width: 100%;">
+                <a href="${targetDashUrl}" target="_blank" rel="noopener" class="btn-card btn-card-primary" style="flex: 1; text-decoration: none; border-radius: 6px; padding: 8px 6px; font-weight: 700; font-size: 0.74rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                  ${d.tech.includes('Power BI') ? '<i class="fa-solid fa-chart-pie"></i> Ver no Power BI' : (d.id === 1 ? '<i class="fa-solid fa-images"></i> Ver os 2 Workflows n8n' : (isN8N ? '<i class="fa-solid fa-gauge-high"></i> Abrir Dashboard n8n' : '<i class="fa-solid fa-chart-line"></i> Abrir Dashboard'))}
+                </a>
+                ${d.powerbi_cloud_url ? `
+                <a href="${d.powerbi_cloud_url}" target="_blank" rel="noopener" class="btn-card" style="background: rgba(242, 200, 17, 0.15); color: #f5d372; border: 1px solid rgba(242, 200, 17, 0.5); text-decoration: none; border-radius: 6px; padding: 6px 10px; font-weight: 700; font-size: 0.72rem; display: inline-flex; align-items: center; justify-content: center; gap: 5px; margin-top: 6px; width: 100%; box-sizing: border-box;" title="Abrir Relatório Oficial Power BI na Nuvem Microsoft">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Power BI Cloud Oficial
+                </a>
+                ` : ''}
+                ${d.secondary_url ? `
+                <a href="${d.secondary_url}" ${d.secondary_url.endsWith('.png') || d.secondary_url.endsWith('.jpg') ? `onclick="event.preventDefault(); openLightboxSecondaryById(${d.id})"` : 'target="_blank" rel="noopener"'} class="btn-card" style="flex: 1; background: #182030; color: #f5d372; border: 1px solid rgba(242, 200, 17, 0.4); text-decoration: none; border-radius: 6px; padding: 8px 6px; font-weight: 700; font-size: 0.74rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                  ${d.secondary_label || 'Ver Alternativa'}
+                </a>
+                ` : ''}
+              </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* LIGHTBOX CONTROLLERS */
+    function openLightboxById(id) {
+      const d = DASHBOARDS.find(item => item.id === id);
+      if (!d) return;
+      const imgUrl = d.image || 'static/portfolio_screenshots/pbi_sample.jpg';
+      openLightbox(imgUrl, d.title, d.department, d.live_url || '');
+    }
+
+    function openLightboxSecondaryById(id) {
+      const d = DASHBOARDS.find(item => item.id === id);
+      if (!d || !d.secondary_url) return;
+      openLightbox(d.secondary_url, d.title, d.department, '');
+    }
+
+    function openLightbox(imgSrc, title, dept, liveUrl) {
+      const imgEl = document.getElementById('lightboxImg');
+      const titleEl = document.getElementById('lightboxTitle');
+      const deptEl = document.getElementById('lightboxDept');
+      const actionsEl = document.getElementById('lightboxActions');
+      const modal = document.getElementById('lightboxModal');
+
+      if (imgEl) imgEl.src = imgSrc;
+      if (titleEl) titleEl.innerHTML = title;
+      if (deptEl) deptEl.textContent = dept || 'Demonstração Executiva';
+
+      if (actionsEl) {
+        if (liveUrl) {
+          actionsEl.innerHTML = `
+            <a href="${liveUrl}" target="_blank" rel="noopener" class="btn btn-gold" style="padding: 7px 15px; font-size: 0.78rem; text-decoration: none;">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Painel Interativo
+            </a>
+            <span style="font-size: 0.72rem; color: #aaa; background: rgba(255,255,255,0.06); padding: 5px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">
+              <i class="fa-solid fa-expand"></i> Tela Ampliada
+            </span>
+          `;
+        } else {
+          actionsEl.innerHTML = `
+            <span style="font-size: 0.75rem; color: #999; background: #222; padding: 5px 12px; border-radius: 4px; border: 1px solid #444;">
+              <i class="fa-solid fa-image"></i> Demonstração Visual Estática
+            </span>
+          `;
+        }
+      }
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox(event) {
+      if (event.target.id === 'lightboxModal') {
+        closeLightboxDirect();
+      }
+    }
+
+    function closeLightboxDirect() {
+      const modal = document.getElementById('lightboxModal');
+      if (modal) modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Fechar Lightbox com tecla ESC
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        closeLightboxDirect();
+      }
+    });
+  </script>
+</body>
+
+</html>

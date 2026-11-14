@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel TV - Mapa Brasil por Estado | Cockpit Unidade de Negócios</title>
+    
+    <!-- Google Fonts: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mapa_regionais.css">
+
+    <style>
+        /* ══════════════════════════════════════════════════════════════════════
+           PADRÃO VISUAL COMPACTO E HARMONIOSO - DASHBOARD TV MAPA BRASIL
+           Ajuste de letras, fontes e layout para 100% de aproveitamento de tela
+           ══════════════════════════════════════════════════════════════════════ */
+        html, body {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #080c14;
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .mapa-tv-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* ── Header Top Compacto ── */
+        .header {
+            flex-shrink: 0;
+            background: rgba(10, 14, 22, 0.98);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            z-index: 100;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 14px;
+            background: #080c14;
+            gap: 8px;
+        }
+        .nav-tabs-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .tab-btn {
+            background: #141b28;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.67rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .tab-btn:hover, .tab-btn.active {
+            background: linear-gradient(135deg, #ffd700 0%, #b45309 100%);
+            color: #000;
+            border-color: #ffd700;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.35);
+        }
+        .tab-btn.btn-voltar {
+            background: #252830;
+            color: #f5d372;
+            border-color: rgba(203, 151, 39, 0.5);
+        }
+        .tab-btn.btn-voltar:hover {
+            background: #cb9727;
+            color: #000;
+        }
+
+        .filters-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filters-row select {
+            background: #141b28;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f8fafc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            outline: none;
+        }
+        .btn-refresh-bar {
+            background: linear-gradient(135deg, #ffd700 0%, #d4a700 100%);
+            color: #000;
+            border: none;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 0.67rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .header-bottom-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 14px;
+            background: rgba(13, 18, 30, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.68rem;
+        }
+        .header-meta-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #94a3b8;
+            font-size: 0.66rem;
+            font-weight: 600;
+        }
+        .clock {
+            color: #ffd700;
+            font-weight: 800;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Cockpit Sub-Bar Compacta ── */
+        .cockpit-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 14px !important;
+            background: rgba(10, 14, 22, 0.95);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            flex-shrink: 0;
+            gap: 10px;
+        }
+        .cockpit-title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .brand-badge {
+            font-size: 0.85rem !important;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+        .brand-badge span { color: #ffd700; }
+        .title-separator { color: rgba(255, 255, 255, 0.2); font-size: 0.8rem; }
+        .screen-title {
+            font-size: 0.75rem !important;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+        .ytd-pill {
+            font-size: 0.60rem !important;
+            padding: 1px 6px !important;
+            background: rgba(255, 215, 0, 0.12);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .cockpit-stats-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stat-pill {
+            padding: 2px 7px !important;
+            background: #141b28;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            font-size: 0.65rem !important;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-pill.highlight {
+            border-color: rgba(255, 215, 0, 0.4);
+            background: rgba(255, 215, 0, 0.08);
+        }
+        .stat-pill .label { color: #94a3b8; font-size: 0.60rem !important; }
+        .stat-pill .value { color: #ffd700; font-weight: 800; font-size: 0.68rem !important; }
+
+        .btn-toggle-auto {
+            background: #141b28;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            color: #ffd700;
+            padding: 2px 8px !important;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.64rem !important;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ── Main Arena Split ── */
+        .mapa-main-arena-split {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: row;
+            padding: 6px 14px 8px 14px !important;
+            gap: 10px !important;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* ── Coluna Esquerda: Mapa ── */
+        .arena-left-map {
+            flex: 1.15 !important;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            background: #101522;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px !important;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .map-toolbar {
+            padding: 4px 10px !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(8, 12, 20, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            flex-shrink: 0;
+        }
+        .map-title-text {
+            font-size: 0.70rem !important;
+            font-weight: 800;
+            color: #f5d372;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+        .region-filter-chips {
+            display: flex;
+            align-items: center;
+            gap: 3px !important;
+        }
+        .chip {
+            background: #182030;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 1px 6px !important;
+            border-radius: 3px;
+            font-size: 0.60rem !important;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .chip.active, .chip:hover {
+            background: #cb9727;
+            color: #000;
+            border-color: #cb9727;
+        }
+
+        .map-canvas-wrapper {
+            flex: 1;
+            min-height: 0;
+            position: relative;
+            width: 100%;
+        }
+
+        /* Spotlight Card Compacto (Rodapé do Mapa) */
+        .state-spotlight-card {
+            background: rgba(10, 15, 24, 0.98) !important;
+            border-top: 1px solid rgba(255, 215, 0, 0.25) !important;
+            padding: 5px 10px !important;
+            gap: 4px !important;
+            flex-shrink: 0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5);
+            z-index: 20;
+        }
+        .spotlight-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .spotlight-uf-badge {
+            background: #ffd700 !important;
+            color: #000 !important;
+            font-size: 0.82rem !important;
+            font-weight: 900;
+            padding: 1px 6px !important;
+            border-radius: 4px;
+        }
+        .spot-name {
+            font-size: 0.78rem !important;
+            font-weight: 800;
+            color: #ffffff;
+        }
+        .spot-region {
+            font-size: 0.58rem !important;
+            color: #94a3b8;
+        }
+        .spotlight-status-badge {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.65rem;
+            font-weight: 800;
+        }
+        .spotlight-status-badge.maior { color: #00e676; }
+        .spotlight-status-badge.menor { color: #ff5252; }
+
+        .spotlight-metrics-row {
+            display: flex;
+            align-items: center;
+            gap: 6px !important;
+        }
+        .spot-metric {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            padding: 2px 6px !important;
+            display: flex;
+            flex-direction: column;
+        }
+        .spot-metric .m-lbl {
+            font-size: 0.55rem !important;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .spot-metric .m-val {
+            font-size: 0.76rem !important;
+            font-weight: 800;
+            color: #ffffff;
+        }
+        .spot-metric .m-val.gold { color: #ffd700; }
+        .spot-metric .m-val.highlight { color: #00e5ff; }
+
+        .spotlight-top-cats {
+            display: flex;
+            align-items: center;
+            gap: 4px !important;
+            padding: 2px 0 !important;
+            overflow-x: auto;
+        }
+        .spot-cat-pill {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            padding: 1px 5px !important;
+            font-size: 0.58rem !important;
+            color: #cbd5e1;
+            white-space: nowrap;
+        }
+        .spot-cat-pill b { color: #ffd700; }
+
+        /* ── Coluna Direita: Detalhamento & Rankings ── */
+        .arena-right-details {
+            flex: 1 !important;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            background: #101522;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px !important;
+            overflow: hidden;
+        }
+
+        .details-tab-nav {
+            display: flex;
+            align-items: center;
+            background: rgba(8, 12, 20, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 3px 8px !important;
+            gap: 6px !important;
+            flex-shrink: 0;
+        }
+        .d-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: #94a3b8;
+            padding: 3px 10px !important;
+            border-radius: 4px;
+            font-size: 0.68rem !important;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .d-tab-btn.active {
+            background: rgba(255, 215, 0, 0.12);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+        .d-tab-btn:hover { color: #fff; }
+
+        .detail-panel-content {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Painel 2: Rankings Compactos */
+        .rankings-split-grid {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px !important;
+            padding: 6px !important;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .rank-column {
+            background: rgba(12, 17, 28, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px !important;
+            padding: 6px 8px !important;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .rank-col-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px !important;
+            padding-bottom: 3px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+        .col-title {
+            font-size: 0.65rem !important;
+            font-weight: 800;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .badge-tag {
+            background: rgba(255, 215, 0, 0.12);
+            color: #ffd700;
+            font-size: 0.55rem !important;
+            font-weight: 800;
+            padding: 1px 5px !important;
+            border-radius: 3px;
+        }
+
+        .rank-list {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px !important;
+            padding-right: 2px;
+        }
+
+        /* Card Individual do Ranking Compacto */
+        .rank-item-card {
+            background: rgba(20, 28, 45, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            padding: 4px 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        .rank-item-card:hover {
+            background: rgba(255, 215, 0, 0.12);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+        .r-pos {
+            font-size: 0.68rem;
+            font-weight: 900;
+            color: #ffd700;
+            min-width: 18px;
+        }
+        .r-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .r-title {
+            font-size: 0.67rem;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .r-sub {
+            font-size: 0.58rem;
+            color: #94a3b8;
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .r-diff {
+            font-size: 0.62rem;
+            font-weight: 800;
+            white-space: nowrap;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+        .r-diff.positive { color: #00e676; background: rgba(0, 230, 118, 0.1); }
+        .r-diff.negative { color: #ff5252; background: rgba(255, 82, 82, 0.1); }
+
+        /* Painel 1: Tabela Hierarquia Compacta */
+        .panel-actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            background: rgba(10, 15, 26, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-input-wrapper input {
+            width: 100%;
+            background: #141b28;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #f8fafc;
+            padding: 2px 8px 2px 24px;
+            border-radius: 4px;
+            font-size: 0.66rem;
+            font-family: 'Montserrat', sans-serif;
+            outline: none;
+        }
+        .search-input-wrapper .s-icon {
+            position: absolute;
+            left: 8px;
+            font-size: 0.60rem;
+            color: #94a3b8;
+        }
+        .btn-micro {
+            background: #182030;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 2px 7px;
+            border-radius: 3px;
+            font-size: 0.60rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .btn-micro:hover {
+            background: #cb9727;
+            color: #000;
+        }
+
+        .hierarchy-table-container {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+        .hierarchy-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.68rem;
+        }
+        .hierarchy-table th {
+            background: #0d121c;
+            color: #94a3b8;
+            padding: 4px 6px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .hierarchy-table td {
+            padding: 3px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            white-space: nowrap;
+        }
+
+        /* Tree classes */
+        .row-uf { cursor: pointer; transition: background 0.15s; font-size: 0.70rem; }
+        .row-uf:hover { background: rgba(255, 215, 0, 0.1) !important; }
+        .row-uf.selected { background: rgba(255, 215, 0, 0.18) !important; border-left: 2px solid #ffd700; }
+        .row-cat { background: rgba(18, 26, 42, 0.7); cursor: pointer; font-size: 0.67rem; }
+        .row-cat:hover { background: rgba(255, 215, 0, 0.08) !important; }
+        .row-prod { background: rgba(10, 15, 26, 0.9); font-size: 0.64rem; }
+        .row-prod:hover { background: rgba(255, 255, 255, 0.04); }
+        .cat-indent { padding-left: 20px !important; }
+        .prod-indent { padding-left: 36px !important; }
+        .toggle-icon {
+            display: inline-block;
+            width: 12px;
+            text-align: center;
+            font-size: 0.58rem;
+            color: #ffd700;
+            transition: transform 0.2s;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+        .toggle-icon.expanded { transform: rotate(90deg); }
+        .uf-tag { font-weight: 900; color: #ffd700; margin-right: 4px; }
+        .uf-name-sub { color: #cbd5e1; font-size: 0.68rem; }
+        .val-share { font-weight: 800; font-size: 0.68rem; }
+        .val-share.gold { color: #ffd700; }
+        .val-diff { font-weight: 800; font-size: 0.64rem; }
+        .val-diff.positive { color: #00e676; }
+        .val-diff.negative { color: #ff5252; }
+        .prod-rank-badge {
+            background: #252830;
+            color: #ffd700;
+            font-weight: 800;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 0.58rem;
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mapa-tv-container">
+        <!-- Header Superior Integrado -->
+        <header class="header">
+            <div class="header-top">
+                <div class="nav-tabs-container">
+                    <a href="unidades.html" class="tab-btn"><i class="fa-solid fa-gauge-high"></i> Unidade de Negócios</a>
+                    <a href="trimestre.html" class="tab-btn"><i class="fa-solid fa-chart-pie"></i> Trimestral (Glosas & RCM)</a>
+                    <a href="mapa_brasil.html" class="tab-btn active"><i class="fa-solid fa-map-location-dot"></i> Mapa Brasil</a>
+                    <a href="paises.html" class="tab-btn"><i class="fa-solid fa-earth-americas"></i> Países & Global</a>
+                    <a href="../index.html" class="tab-btn btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar ao Portfólio</a>
+                </div>
+
+                <div class="filters-row">
+                    <select id="filter-month" onchange="atualizarFiltros()">
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9" selected>Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                    <select id="filter-year" onchange="atualizarFiltros()">
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                    </select>
+                    <button id="btn-refresh" onclick="atualizarFiltros(true)" class="btn-refresh-bar" title="Atualizar dados agora">
+                        <i class="fa-solid fa-rotate"></i> Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="header-bottom-bar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="color:#00e676; font-weight:800;"><i class="fa-solid fa-circle-dot"></i> AUTO-TV: ATIVA</span>
+                    <span style="color:rgba(255,255,255,0.2);">|</span>
+                    <span style="color:#94a3b8;">DADOS: CONSOLIDADOS YTD</span>
+                </div>
+                <div class="header-meta-info">
+                    <div class="clock" id="clock">00:00:00</div>
+                    <div class="date" id="date">01/01/2026</div>
+                    <div class="next-update" id="next-update">Atualização em: 10:00</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Barra Cockpit de Topo: 100% Percentual YTD (Zero R$) -->
+        <div class="cockpit-top-bar">
+            <div class="cockpit-title-group">
+                <div class="brand-badge">UNIDADES DE <span>NEGÓCIOS</span></div>
+                <div class="title-separator">|</div>
+                <div class="screen-title">Mapa Brasil — Evolução e Share por Estado</div>
+                <div class="ytd-pill">📅 ACUMULADO ATÉ A DATA (YTD)</div>
+            </div>
+
+            <div class="cockpit-stats-group">
+                <div class="stat-pill highlight">
+                    <span class="label">Líder Nacional:</span>
+                    <span class="value" id="kpi-lider-uf">SP (34.7%)</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="label">Estados Ativos:</span>
+                    <span class="value" id="kpi-total-ufs">27</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="label">Categorias:</span>
+                    <span class="value" id="kpi-total-cats">6</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="label">Comparativo:</span>
+                    <span class="value" id="kpi-comparativo-ano">2026 vs 2025</span>
+                </div>
+            </div>
+
+            <div class="cockpit-actions">
+                <button class="btn-toggle-auto" id="btn-toggle-auto" onclick="toggleAutoRotacao()" title="Pausar/Retomar auto-seleção na TV">
+                    <i class="fa-solid fa-pause"></i> Rotação TV
+                </button>
+            </div>
+        </div>
+
+        <!-- Arena Principal: Split em Grid (Mapa Ampliado à Esquerda + Detalhamento à Direita) -->
+        <main class="mapa-main-arena-split">
+            <!-- ══ COLUNA ESQUERDA: MAPA DO BRASIL AMPLIADO E NITIDO ══ -->
+            <section class="arena-left-map">
+                <div class="map-toolbar">
+                    <div class="map-heading">
+                        <span class="map-icon"><i class="fa-solid fa-map-location-dot" style="color:#ffd700;"></i></span>
+                        <span class="map-title-text">Representatividade Geográfica por Estado (% Share)</span>
+                    </div>
+
+                    <div class="region-filter-chips">
+                        <button class="chip active" data-region="TODAS" onclick="filtrarRegiaoMapa('TODAS')">Todas</button>
+                        <button class="chip" data-region="Sudeste" onclick="filtrarRegiaoMapa('Sudeste')">Sudeste</button>
+                        <button class="chip" data-region="Sul" onclick="filtrarRegiaoMapa('Sul')">Sul</button>
+                        <button class="chip" data-region="Nordeste" onclick="filtrarRegiaoMapa('Nordeste')">Nordeste</button>
+                        <button class="chip" data-region="Centro-Oeste" onclick="filtrarRegiaoMapa('Centro-Oeste')">C-Oeste</button>
+                        <button class="chip" data-region="Norte" onclick="filtrarRegiaoMapa('Norte')">Norte</button>
+                    </div>
+                </div>
+
+                <!-- Canvas ECharts do Mapa do Brasil -->
+                <div class="map-canvas-wrapper">
+                    <div id="echarts-map-container" style="width:100%; height:100%;"></div>
+                </div>
+
+                <!-- Spotlight Card do Estado Focado (Rodapé do Mapa) -->
+                <div class="state-spotlight-card" id="state-spotlight">
+                    <div class="spotlight-header">
+                        <div class="spotlight-uf-badge" id="spot-uf">SP</div>
+                        <div class="spotlight-title-group">
+                            <div class="spot-name" id="spot-nome">São Paulo</div>
+                            <div class="spot-region" id="spot-regiao">Região Sudeste</div>
+                        </div>
+                        <div class="spotlight-status-badge maior" id="spot-status">
+                            <span id="spot-status-txt">▲</span>
+                            <small id="spot-diff-txt">+2.6 p.p.</small>
+                        </div>
+                    </div>
+
+                    <div class="spotlight-metrics-row">
+                        <div class="spot-metric">
+                            <span class="m-lbl">Share Atual (YTD)</span>
+                            <span class="m-val gold" id="spot-share-atual">34.7%</span>
+                        </div>
+                        <div class="spot-metric">
+                            <span class="m-lbl">Share Ano Anterior</span>
+                            <span class="m-val" id="spot-share-ant">32.1%</span>
+                        </div>
+                        <div class="spot-metric">
+                            <span class="m-lbl">Variação p.p.</span>
+                            <span class="m-val" id="spot-var-pp" style="color:var(--green);">+2.6 p.p.</span>
+                        </div>
+                        <div class="spot-metric">
+                            <span class="m-lbl">Posição Ranking</span>
+                            <span class="m-val highlight" id="spot-rank">1º Lugar</span>
+                        </div>
+                    </div>
+
+                    <!-- Mini Top Categorias da UF em Foco -->
+                    <div class="spotlight-top-cats" id="spot-top-cats">
+                        <!-- Gerado dinamicamente via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ══ COLUNA DIREITA: DETALHAMENTO HIERARQUICO & RANKINGS ══ -->
+            <section class="arena-right-details">
+                <!-- Seletor de Painel (Abas) -->
+                <div class="details-tab-nav">
+                    <button class="d-tab-btn active" id="tab-btn-hierarquia" onclick="trocarPainelDetalhe('hierarquia')">
+                        <span class="tab-ico"><i class="fa-solid fa-folder-tree"></i></span>
+                        <span>Hierarquia (Estado ➔ Categoria ➔ Produto)</span>
+                    </button>
+                    <button class="d-tab-btn" id="tab-btn-rankings" onclick="trocarPainelDetalhe('rankings')">
+                        <span class="tab-ico"><i class="fa-solid fa-trophy"></i></span>
+                        <span>Rankings Categorias & Produtos</span>
+                    </button>
+                </div>
+
+                <!-- ── PAINEL 1: HIERARQUIA ESTADO -> CATEGORIA -> PRODUTO ── -->
+                <div class="detail-panel-content active" id="panel-hierarquia">
+                    <div class="panel-actions-bar">
+                        <div class="search-input-wrapper">
+                            <span class="s-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" id="input-search-hierarquia" placeholder="Buscar Estado, Categoria ou Produto..." oninput="filtrarTabelaHierarquia()">
+                        </div>
+                        <div class="action-buttons-group">
+                            <button class="btn-micro" onclick="expandirTodosEstados(true)" title="Expandir todos os estados">Expandir Todos</button>
+                            <button class="btn-micro" onclick="expandirTodosEstados(false)" title="Recolher todos os estados">Recolher</button>
+                        </div>
+                    </div>
+
+                    <div class="hierarchy-table-container">
+                        <table class="hierarchy-table" id="table-hierarquia">
+                            <thead>
+                                <tr>
+                                    <th style="width: 44px; text-align:center;">#</th>
+                                    <th>Estado / Categoria / Produto</th>
+                                    <th style="text-align:right; width: 110px;">Share Atual</th>
+                                    <th style="text-align:right; width: 110px;">Ano Anterior</th>
+                                    <th style="text-align:right; width: 100px;">Dif. p.p.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hierarchy-table-body">
+                                <!-- Gerado via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ── PAINEL 2: RANKINGS DE CATEGORIAS E PRODUTOS MAIS VENDIDOS ── -->
+                <div class="detail-panel-content" id="panel-rankings" style="display:none;">
+                    <div class="rankings-split-grid">
+                        <!-- Ranking de Categorias Mais Vendidas -->
+                        <div class="rank-column">
+                            <div class="rank-col-header">
+                                <div class="col-title"><i class="fa-solid fa-boxes-stacked" style="color:#ffd700;"></i> Ranking de Categorias (% Share Brasil)</div>
+                                <span class="badge-tag">Acumulado YTD</span>
+                            </div>
+                            <div class="rank-list" id="rank-categorias-list">
+                                <!-- Gerado via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Ranking dos Produtos Mais Vendidos -->
+                        <div class="rank-column">
+                            <div class="rank-col-header">
+                                <div class="col-title"><i class="fa-solid fa-star" style="color:#ffd700;"></i> Top Produtos Líderes (% Share Brasil)</div>
+                                <span class="badge-tag">Geral Brasil</span>
+                            </div>
+                            <div class="rank-list" id="rank-produtos-list">
+                                <!-- Gerado via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts: ECharts, GeoJSON e Base Fictícia de Dados -->
+    <script src="js/echarts.min.js"></script>
+    <script src="js/brazil_geo.js"></script>
+    <script src="js/mapa_dados_ficticios.js"></script>
+
+    <script>
+        let myChart = null;
+        let currentData = window.MAPA_DATA_FICTICIA;
+        let activeRegionFilter = 'TODAS';
+        let selectedUf = 'SP';
+        let autoRotateTimer = null;
+        let isAutoRotateActive = true;
+        let nextRefreshSeconds = 600;
+        let expandedUfs = new Set(['SP']);
+        let expandedCats = new Set(['SP_Cimento & Argamassa']);
+        let isGeoJsonLoaded = false;
+
+        const COORDENADAS_ESTADOS = {
+            'AC': [-70.55, -9.02], 'AL': [-36.27, -9.57], 'AM': [-64.68, -4.15],
+            'AP': [-51.77, 1.41], 'BA': [-41.71, -12.58], 'CE': [-39.63, -5.09],
+            'DF': [-47.88, -15.79], 'ES': [-40.34, -19.18], 'GO': [-49.84, -15.83],
+            'MA': [-45.27, -5.42], 'MG': [-44.55, -18.51], 'MS': [-54.54, -20.51],
+            'MT': [-55.92, -12.68], 'PA': [-52.29, -3.79], 'PB': [-36.78, -7.24],
+            'PE': [-37.99, -8.36], 'PI': [-42.80, -7.71], 'PR': [-51.49, -24.89],
+            'RJ': [-42.87, -22.28], 'RN': [-36.56, -5.81], 'RO': [-62.82, -10.83],
+            'RR': [-61.40, 2.09], 'RS': [-53.50, -29.75], 'SC': [-50.45, -27.24],
+            'SE': [-37.38, -10.57], 'SP': [-48.50, -22.18], 'TO': [-48.29, -10.25]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initClock();
+            initChart();
+            carregarGeoJson();
+            renderizarTabelaHierarquia(currentData);
+            renderizarRankings(currentData);
+            selecionarEstado('SP', false);
+            iniciarAutoRotacao();
+        });
+
+        function initClock() {
+            function update() {
+                const now = new Date();
+                const clockEl = document.getElementById('clock');
+                const dateEl = document.getElementById('date');
+                if (clockEl) clockEl.innerText = now.toLocaleTimeString('pt-BR');
+                if (dateEl) dateEl.innerText = now.toLocaleDateString('pt-BR');
+
+                nextRefreshSeconds--;
+                if (nextRefreshSeconds <= 0) nextRefreshSeconds = 600;
+                const nextEl = document.getElementById('next-update');
+                if (nextEl) {
+                    const m = Math.floor(nextRefreshSeconds / 60);
+                    const s = nextRefreshSeconds % 60;
+                    nextEl.innerText = `Atualização em: ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                }
+            }
+            update();
+            setInterval(update, 1000);
+        }
+
+        function initChart() {
+            const chartDom = document.getElementById('echarts-map-container');
+            if (!chartDom) return;
+            myChart = echarts.init(chartDom, 'dark', { renderer: 'canvas' });
+
+            myChart.on('click', function (params) {
+                let targetUf = null;
+                if (params.data && params.data.uf) {
+                    targetUf = params.data.uf;
+                } else if (params.name) {
+                    if (currentData.ufs_map && currentData.ufs_map[params.name]) {
+                        targetUf = params.name;
+                    } else {
+                        const m = params.name.match(/\(([A-Z]{2})\)/);
+                        if (m && currentData.ufs_map && currentData.ufs_map[m[1]]) {
+                            targetUf = m[1];
+                        } else {
+                            const found = (currentData.estados || []).find(e => 
+                                e.nome.toLowerCase() === params.name.toLowerCase() || e.uf === params.name
+                            );
+                            if (found) targetUf = found.uf;
+                        }
+                    }
+                }
+                if (targetUf) {
+                    selecionarEstado(targetUf, true);
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (myChart) myChart.resize();
+            });
+        }
+
+        function carregarGeoJson() {
+            if (window.BRAZIL_GEO_JSON && typeof echarts !== 'undefined') {
+                echarts.registerMap('brazil', window.BRAZIL_GEO_JSON);
+                isGeoJsonLoaded = true;
+                renderizarMapa(currentData);
+            }
+        }
+
+        function renderizarMapa(data) {
+            if (!myChart || !isGeoJsonLoaded) return;
+
+            const ufsMap = data.ufs_map || {};
+            const regionsConfig = [];
+            const activeScatter = [];
+
+            const selU = ufsMap[selectedUf];
+            const coordSel = COORDENADAS_ESTADOS[selectedUf];
+            if (coordSel && selU) {
+                activeScatter.push({
+                    name: `${selU.nome || selectedUf} (${selectedUf})`,
+                    value: [...coordSel, selU.share_atual],
+                    uf: selectedUf,
+                    nome: selU.nome || selectedUf,
+                    share: selU.share_atual,
+                    status: selU.status,
+                    diff: selU.diff_pp
+                });
+            }
+
+            Object.keys(ufsMap).forEach(uf => {
+                const u = ufsMap[uf];
+                const isFilteredRegion = (activeRegionFilter === 'TODAS' || u.regiao === activeRegionFilter);
+                const isSelected = (uf === selectedUf);
+
+                let areaColor = '#182234';
+                if (u.share_atual >= 30) {
+                    areaColor = '#b45309';
+                } else if (u.share_atual >= 8) {
+                    areaColor = '#0369a1';
+                } else if (u.share_atual >= 2) {
+                    areaColor = '#0f766e';
+                } else if (u.share_atual >= 0.5) {
+                    areaColor = '#334155';
+                }
+
+                if (!isFilteredRegion) {
+                    areaColor = 'rgba(15, 23, 42, 0.3)';
+                }
+
+                let borderColor = 'rgba(255, 215, 0, 0.22)';
+                let borderWidth = 1;
+                let shadowColor = 'rgba(0, 0, 0, 0.4)';
+                let shadowBlur = 4;
+                let customLabel = undefined;
+
+                if (isSelected) {
+                    areaColor = '#ffd700';
+                    borderColor = '#ffffff';
+                    borderWidth = 3;
+                    shadowColor = 'rgba(255, 215, 0, 1)';
+                    shadowBlur = 32;
+                    customLabel = {
+                        show: true,
+                        color: '#000000',
+                        fontWeight: 900,
+                        fontSize: 12.5,
+                        textBorderWidth: 0,
+                        formatter: function () {
+                            return `${uf}\n${u.share_atual}%`;
+                        }
+                    };
+                }
+
+                regionsConfig.push({
+                    name: uf,
+                    itemStyle: {
+                        areaColor: areaColor,
+                        borderColor: borderColor,
+                        borderWidth: borderWidth,
+                        shadowColor: shadowColor,
+                        shadowBlur: shadowBlur
+                    },
+                    label: customLabel,
+                    emphasis: {
+                        itemStyle: {
+                            areaColor: '#ffd700',
+                            borderColor: '#ffffff',
+                            borderWidth: 2.5,
+                            shadowBlur: 25,
+                            shadowColor: 'rgba(255, 215, 0, 0.95)'
+                        },
+                        label: {
+                            show: true,
+                            color: '#000000',
+                            fontWeight: 900,
+                            fontSize: 13,
+                            textBorderWidth: 0
+                        }
+                    }
+                });
+            });
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(9, 14, 22, 0.95)',
+                    borderColor: 'rgba(255, 215, 0, 0.6)',
+                    borderWidth: 1.5,
+                    padding: [10, 14],
+                    textStyle: { color: '#f8fafc', fontFamily: 'Montserrat' },
+                    formatter: function (params) {
+                        const uf = params.name;
+                        const u = ufsMap[uf];
+                        if (!u) return params.name;
+                        const stColor = u.status === 'MAIOR' ? '#00e676' : '#ff5252';
+                        const stIcon = u.status === 'MAIOR' ? '▲' : '▼';
+                        return `
+                            <div style="font-weight:900; font-size:1.05rem; color:#ffd700; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px; margin-bottom:6px;">
+                                ${u.nome || uf} (${uf}) • ${u.regiao || 'Brasil'}
+                            </div>
+                            <div style="font-size:0.8rem; line-height:1.6;">
+                                <div>Posição Ranking: <b style="color:#fff;">#${u.rank || '-'}</b></div>
+                                <div>Share Atual (YTD): <b style="color:#ffd700; font-size:0.95rem;">${u.share_atual}%</b></div>
+                                <div>Share Ano Anterior: <b style="color:#cbd5e1;">${u.share_ant}%</b></div>
+                                <div>Variação: <b style="color:${stColor};">${stIcon} ${(u.diff_pp >= 0 ? '+' : '') + u.diff_pp} p.p.</b></div>
+                            </div>
+                        `;
+                    }
+                },
+                geo: {
+                    map: 'brazil',
+                    roam: false,
+                    zoom: 1.25,
+                    center: [-54, -14.5],
+                    aspectScale: 0.88,
+                    nameProperty: 'sigla',
+                    label: {
+                        show: true,
+                        color: '#ffffff',
+                        fontSize: 9.5,
+                        fontWeight: 800,
+                        lineHeight: 11,
+                        textBorderColor: '#000000',
+                        textBorderWidth: 2.5,
+                        formatter: function (params) {
+                            const uf = params.name;
+                            const u = ufsMap[uf];
+                            if (u && u.share_atual >= 0.5) {
+                                return `${uf}\n${u.share_atual}%`;
+                            }
+                            return uf;
+                        }
+                    },
+                    itemStyle: {
+                        areaColor: '#101726',
+                        borderColor: 'rgba(255, 255, 255, 0.12)',
+                        borderWidth: 1
+                    },
+                    regions: regionsConfig
+                },
+                series: [
+                    {
+                        name: 'Estado em Evidência',
+                        type: 'effectScatter',
+                        coordinateSystem: 'geo',
+                        data: activeScatter,
+                        symbolSize: 14,
+                        showEffectOn: 'render',
+                        rippleEffect: {
+                            brushType: 'stroke',
+                            scale: 4,
+                            period: 2
+                        },
+                        itemStyle: {
+                            color: '#ffd700',
+                            shadowBlur: 20,
+                            shadowColor: '#ffffff'
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            distance: 12,
+                            formatter: function (params) {
+                                return `{badge|📍 ${params.data.uf}: ${params.data.share}%}`;
+                            },
+                            rich: {
+                                badge: {
+                                    backgroundColor: 'rgba(10, 15, 24, 0.95)',
+                                    borderColor: '#ffd700',
+                                    borderWidth: 1.5,
+                                    color: '#ffd700',
+                                    fontWeight: 900,
+                                    fontSize: 12,
+                                    padding: [4, 8],
+                                    borderRadius: 6,
+                                    shadowBlur: 14,
+                                    shadowColor: 'rgba(0, 0, 0, 0.85)'
+                                }
+                            }
+                        },
+                        zlevel: 10
+                    }
+                ]
+            };
+
+            myChart.setOption(option, true);
+        }
+
+        function selecionarEstado(uf, autoScroll = true) {
+            selectedUf = uf;
+            const ufsMap = currentData.ufs_map || {};
+            const u = ufsMap[uf];
+            if (!u) return;
+
+            document.getElementById('spot-uf').innerText = uf;
+            document.getElementById('spot-nome').innerText = u.nome || uf;
+            document.getElementById('spot-regiao').innerText = `Região ${u.regiao || 'Brasil'}`;
+
+            const isMaior = u.status === 'MAIOR';
+            const statusBox = document.getElementById('spot-status');
+            statusBox.className = `spotlight-status-badge ${isMaior ? 'maior' : 'menor'}`;
+            document.getElementById('spot-status-txt').innerText = isMaior ? '▲' : '▼';
+            const diffTxt = document.getElementById('spot-diff-txt');
+            diffTxt.innerText = `${u.diff_pp >= 0 ? '+' : ''}${u.diff_pp} p.p.`;
+            diffTxt.style.color = isMaior ? 'var(--green)' : 'var(--red)';
+
+            document.getElementById('spot-share-atual').innerText = `${u.share_atual}%`;
+            document.getElementById('spot-share-ant').innerText = `${u.share_ant}%`;
+            const varPpEl = document.getElementById('spot-var-pp');
+            varPpEl.innerText = `${u.diff_pp >= 0 ? '+' : ''}${u.diff_pp} p.p.`;
+            varPpEl.style.color = isMaior ? 'var(--green)' : 'var(--red)';
+            document.getElementById('spot-rank').innerText = `${u.rank || 1}º Lugar`;
+
+            const estadoObj = (currentData.estados || []).find(e => e.uf === uf);
+            const topCatsEl = document.getElementById('spot-top-cats');
+            if (topCatsEl && estadoObj && estadoObj.categorias) {
+                topCatsEl.innerHTML = '<span style="color:#94a3b8; font-weight:700;">Top Categorias na UF:</span> ' +
+                    estadoObj.categorias.slice(0, 4).map(c => `
+                        <div class="spot-cat-pill">
+                            <span>${c.categoria}:</span>
+                            <b>${c.share_atual}%</b>
+                            <small style="color:${c.status === 'MAIOR' ? 'var(--green)' : 'var(--red)'};">${c.diff_pp >= 0 ? '+' : ''}${c.diff_pp}</small>
+                        </div>
+                    `).join('');
+            }
+
+            // Regra do Usuário: ao trocar de estado no lado esquerdo, a tabela à direita expande exatamente 1 nível no estado mostrado
+            expandedUfs.clear();
+            expandedCats.clear();
+            expandedUfs.add(uf);
+            renderizarTabelaHierarquia(currentData);
+
+            if (autoScroll) {
+                setTimeout(() => {
+                    const targetRow = document.querySelector(`.row-uf[data-uf="${uf}"]`);
+                    if (targetRow) {
+                        targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 60);
+            }
+
+            renderizarMapa(currentData);
+        }
+
+        function renderizarTabelaHierarquia(data) {
+            const tbody = document.getElementById('hierarchy-table-body');
+            if (!tbody || !data || !data.estados) return;
+
+            const q = (document.getElementById('input-search-hierarquia').value || '').toLowerCase().trim();
+            let html = '';
+
+            data.estados.forEach(est => {
+                const isUfExpanded = expandedUfs.has(est.uf);
+                const isMaior = est.status === 'MAIOR';
+                const diffStr = (isMaior ? '▲ ' : '▼ ') + (est.diff_pp >= 0 ? '+' : '') + est.diff_pp + ' p.p.';
+
+                const matchUf = !q || est.nome.toLowerCase().includes(q) || est.uf.toLowerCase().includes(q);
+
+                if (matchUf || q) {
+                    html += `
+                        <tr class="row-uf ${est.uf === selectedUf ? 'selected' : ''}" data-uf="${est.uf}" onclick="onRowUfClick('${est.uf}', event)">
+                            <td style="text-align:center; font-weight:800; color:var(--gold);">${est.rank}</td>
+                            <td>
+                                <span class="toggle-icon ${isUfExpanded ? 'expanded' : ''}" onclick="toggleUfExpand('${est.uf}', event)">▶</span>
+                                <span class="uf-tag">${est.uf}</span>
+                                <span class="uf-name-sub">${est.nome}</span>
+                            </td>
+                            <td style="text-align:right;" class="val-share gold">${est.share_atual}%</td>
+                            <td style="text-align:right;" class="val-share">${est.share_ant}%</td>
+                            <td style="text-align:right;" class="val-diff ${isMaior ? 'positive' : 'negative'}">${diffStr}</td>
+                        </tr>
+                    `;
+                }
+
+                if ((isUfExpanded || q) && est.categorias) {
+                    est.categorias.forEach(cat => {
+                        const catKey = `${est.uf}_${cat.categoria}`;
+                        const isCatExpanded = expandedCats.has(catKey);
+                        const isCatMaior = cat.status === 'MAIOR';
+                        const catDiffStr = (isCatMaior ? '▲ ' : '▼ ') + (cat.diff_pp >= 0 ? '+' : '') + cat.diff_pp + ' p.p.';
+
+                        const matchCat = matchUf || !q || cat.categoria.toLowerCase().includes(q);
+
+                        if (matchCat || q) {
+                            html += `
+                                <tr class="row-cat" data-cat-key="${catKey}" onclick="toggleCatExpand('${catKey}', event)">
+                                    <td style="text-align:center; color:#94a3b8; font-size:0.68rem;">${cat.rank}</td>
+                                    <td class="cat-indent">
+                                        <span class="toggle-icon ${isCatExpanded ? 'expanded' : ''}">▶</span>
+                                        <span class="cat-name-txt">📦 ${cat.categoria}</span>
+                                    </td>
+                                    <td style="text-align:right;" class="val-share">${cat.share_atual}%</td>
+                                    <td style="text-align:right; color:#94a3b8;">${cat.share_ant}%</td>
+                                    <td style="text-align:right;" class="val-diff ${isCatMaior ? 'positive' : 'negative'}">${catDiffStr}</td>
+                                </tr>
+                            `;
+                        }
+
+                        if ((isCatExpanded || q) && cat.produtos) {
+                            cat.produtos.forEach(prod => {
+                                const isProdMaior = prod.status === 'MAIOR';
+                                const prodDiffStr = (isProdMaior ? '▲ ' : '▼ ') + (prod.diff_pp >= 0 ? '+' : '') + prod.diff_pp + ' p.p.';
+                                const matchProd = matchCat || !q || prod.produto.toLowerCase().includes(q);
+
+                                if (matchProd) {
+                                    html += `
+                                        <tr class="row-prod">
+                                            <td style="text-align:center; font-size:0.65rem; color:#64748b;">${prod.rank}º</td>
+                                            <td class="prod-indent" title="${prod.produto}">
+                                                <span class="prod-rank-badge">#${prod.rank}</span>
+                                                <span>${prod.produto}</span>
+                                            </td>
+                                            <td style="text-align:right; font-weight:700; color:#e2e8f0;">${prod.share_atual}%</td>
+                                            <td style="text-align:right; color:#64748b;">${prod.share_ant}%</td>
+                                            <td style="text-align:right;" class="val-diff ${isProdMaior ? 'positive' : 'negative'}">${prodDiffStr}</td>
+                                        </tr>
+                                    `;
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function onRowUfClick(uf, event) {
+            selecionarEstado(uf, false);
+        }
+
+        function toggleUfExpand(uf, event) {
+            if (event) event.stopPropagation();
+            if (expandedUfs.has(uf)) {
+                expandedUfs.delete(uf);
+                renderizarTabelaHierarquia(currentData);
+            } else {
+                selecionarEstado(uf, false);
+            }
+        }
+
+        function toggleCatExpand(catKey, event) {
+            if (event) event.stopPropagation();
+            if (expandedCats.has(catKey)) {
+                expandedCats.delete(catKey);
+            } else {
+                expandedCats.add(catKey);
+            }
+            renderizarTabelaHierarquia(currentData);
+        }
+
+        function expandirTodosEstados(expand) {
+            if (expand) {
+                (currentData.estados || []).forEach(est => {
+                    expandedUfs.add(est.uf);
+                    (est.categorias || []).forEach(cat => expandedCats.add(`${est.uf}_${cat.categoria}`));
+                });
+            } else {
+                expandedUfs.clear();
+                expandedCats.clear();
+            }
+            renderizarTabelaHierarquia(currentData);
+        }
+
+        function filtrarTabelaHierarquia() {
+            renderizarTabelaHierarquia(currentData);
+        }
+
+        function filtrarRegiaoMapa(regiao) {
+            activeRegionFilter = regiao;
+            document.querySelectorAll('.region-filter-chips .chip').forEach(c => {
+                c.classList.toggle('active', c.getAttribute('data-region') === regiao);
+            });
+            renderizarMapa(currentData);
+        }
+
+        function trocarPainelDetalhe(painel) {
+            const btnHier = document.getElementById('tab-btn-hierarquia');
+            const btnRank = document.getElementById('tab-btn-rankings');
+            const pnlHier = document.getElementById('panel-hierarquia');
+            const pnlRank = document.getElementById('panel-rankings');
+
+            if (painel === 'hierarquia') {
+                btnHier.classList.add('active');
+                btnRank.classList.remove('active');
+                pnlHier.style.display = 'block';
+                pnlRank.style.display = 'none';
+            } else {
+                btnHier.classList.remove('active');
+                btnRank.classList.add('active');
+                pnlHier.style.display = 'none';
+                pnlRank.style.display = 'block';
+            }
+        }
+
+        function renderizarRankings(data) {
+            const catListEl = document.getElementById('rank-categorias-list');
+            const prodListEl = document.getElementById('rank-produtos-list');
+
+            if (catListEl && data.ranking_categorias) {
+                catListEl.innerHTML = data.ranking_categorias.map((c, i) => `
+                    <div class="rank-item-card">
+                        <div class="r-pos">#${i + 1}</div>
+                        <div class="r-info">
+                            <div class="r-title">${c.categoria}</div>
+                            <div class="r-sub">Share Brasil: <b style="color:#ffd700;">${c.share_atual}%</b> &bull; Ano Ant: ${c.share_ant}%</div>
+                        </div>
+                        <div class="r-diff ${c.status === 'MAIOR' ? 'positive' : 'negative'}">
+                            ${c.diff_pp >= 0 ? '▲ +' : '▼ '}${c.diff_pp} p.p.
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            if (prodListEl && data.top_produtos) {
+                prodListEl.innerHTML = data.top_produtos.map((p, i) => `
+                    <div class="rank-item-card">
+                        <div class="r-pos" style="color:#00e5ff;">#${i + 1}</div>
+                        <div class="r-info">
+                            <div class="r-title">${p.produto}</div>
+                            <div class="r-sub">${p.categoria} &bull; <b style="color:#ffd700;">${p.share_atual}%</b></div>
+                        </div>
+                        <div class="r-diff ${p.status === 'MAIOR' ? 'positive' : 'negative'}">
+                            ${p.diff_pp >= 0 ? '▲ +' : '▼ '}${p.diff_pp} p.p.
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function iniciarAutoRotacao() {
+            const ufs = (currentData.estados || []).map(e => e.uf).slice(0, 10);
+            let idx = ufs.indexOf(selectedUf);
+            if (idx === -1) idx = 0;
+            if (autoRotateTimer) clearInterval(autoRotateTimer);
+
+            autoRotateTimer = setInterval(() => {
+                if (!isAutoRotateActive) return;
+                idx = (idx + 1) % ufs.length;
+                selecionarEstado(ufs[idx], true);
+            }, 6000);
+        }
+
+        function toggleAutoRotacao() {
+            isAutoRotateActive = !isAutoRotateActive;
+            const btn = document.getElementById('btn-toggle-auto');
+            if (isAutoRotateActive) {
+                btn.classList.remove('paused');
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i> Rotação TV';
+            } else {
+                btn.classList.add('paused');
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> Rotação Pausada';
+            }
+        }
+
+        function atualizarFiltros(manual = false) {
+            console.log('Filtros atualizados.');
+        }
+    </script>
+</body>
+</html>

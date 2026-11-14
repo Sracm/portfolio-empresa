@@ -1,0 +1,2232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Diretoria de Contas Médicas & RCM | Rede Hospitalar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#0f172a',
+                            900: '#0b1120',
+                            950: '#060a12',
+                        },
+                        medical: {
+                            blue: '#0284c7',
+                            cyan: '#06b6d4',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b',
+                            indigo: '#6366f1'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #060a12;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.25s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(14, 165, 233, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.15);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.4);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(14, 165, 233, 0.6);
+        }
+    
+        /* ADAPTATIVO MOBILE TAILWIND */
+        @media (max-width: 900px) {
+            body {
+                overflow-x: hidden !important;
+            }
+            header.glass-panel {
+                padding: 12px 14px !important;
+            }
+            main {
+                padding: 12px 8px !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+            .grid-cols-6, .grid-cols-5, .grid-cols-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 8px !important;
+            }
+            .grid-cols-3, .grid-cols-2 {
+                grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+                gap: 12px !important;
+            }
+            .header-actions-mobile {
+                width: 100% !important;
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+            .header-actions-mobile button {
+                flex: 1 1 calc(50% - 4px) !important;
+                justify-content: center !important;
+            }
+            .overflow-x-auto {
+                -webkit-overflow-scrolling: touch !important;
+            }
+            table {
+                min-width: 620px !important;
+            }
+            .text-xl {
+                font-size: 1.1rem !important;
+                line-height: 1.35 !important;
+            }
+            .text-2xl {
+                font-size: 1.35rem !important;
+            }
+            .text-3xl {
+                font-size: 1.6rem !important;
+            }
+            .h-\[320px\], .h-\[300px\], .h-\[350px\] {
+                height: 260px !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .grid-cols-6, .grid-cols-5, .grid-cols-4 {
+                grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+            }
+            .header-actions-mobile button {
+                flex: 1 1 100% !important;
+            }
+        }
+</style>
+
+<script>
+  window.FALLBACK_FILTROS = {
+  "convenios": [
+    "Amil Assist\u00eancia M\u00e9dica",
+    "Bradesco Sa\u00fade",
+    "NotreDame Interm\u00e9dica",
+    "Porto Seguro Sa\u00fade",
+    "SulAm\u00e9rica Sa\u00fade",
+    "Unimed Nacional"
+  ],
+  "hospitais": [
+    "Centro de Diagn\u00f3stico por Imagem (CDI)",
+    "Centro de Oncologia Avan\u00e7ada",
+    "Hospital Geral Central",
+    "Hospital Materno-Infantil & UTI"
+  ],
+  "meses": [
+    {
+      "mes": 1,
+      "mes_nome": "Jan"
+    },
+    {
+      "mes": 2,
+      "mes_nome": "Fev"
+    },
+    {
+      "mes": 3,
+      "mes_nome": "Mar"
+    },
+    {
+      "mes": 4,
+      "mes_nome": "Abr"
+    },
+    {
+      "mes": 5,
+      "mes_nome": "Mai"
+    },
+    {
+      "mes": 6,
+      "mes_nome": "Jun"
+    },
+    {
+      "mes": 7,
+      "mes_nome": "Jul"
+    },
+    {
+      "mes": 8,
+      "mes_nome": "Ago"
+    },
+    {
+      "mes": 9,
+      "mes_nome": "Set"
+    },
+    {
+      "mes": 10,
+      "mes_nome": "Out"
+    },
+    {
+      "mes": 11,
+      "mes_nome": "Nov"
+    },
+    {
+      "mes": 12,
+      "mes_nome": "Dez"
+    }
+  ],
+  "modelos": [
+    "Di\u00e1ria Global com Medicamentos Inclusos",
+    "Fee-for-Service (Conta Aberta)",
+    "Pacote Cir\u00fargico Fechado"
+  ],
+  "tipos": [
+    "Cirurgia de Alta Complexidade",
+    "Interna\u00e7\u00e3o Cl\u00ednica / UTI",
+    "Maternidade / Parto Cir\u00fargico",
+    "Procedimento Ambulatorial / SADT",
+    "Tratamento Oncol\u00f3gico / Infus\u00e3o"
+  ]
+}
+;
+  window.FALLBACK_DADOS = {
+  "aging_faturar": [
+    {
+      "faixa": "8 a 15 dias (Alerta Leve)",
+      "qtd": 826,
+      "valor": 19041479.32
+    },
+    {
+      "faixa": "Mais de 30 dias (Cr\u00edtico)",
+      "qtd": 815,
+      "valor": 19035158.57
+    },
+    {
+      "faixa": "0 a 7 dias (Dentro da Meta)",
+      "qtd": 440,
+      "valor": 10301082.39
+    },
+    {
+      "faixa": "16 a 30 dias (Gargalo OPME)",
+      "qtd": 419,
+      "valor": 10097048.06
+    }
+  ],
+  "gargalos_represamento": [
+    {
+      "lead_time": 4.0,
+      "motivo": "Sem Represamento (Fluxo Regular)",
+      "qtd": 440,
+      "valor": 10301082.39
+    },
+    {
+      "lead_time": 25.6,
+      "motivo": "Pendente Nota Fiscal / Rastreabilidade OPME",
+      "qtd": 419,
+      "valor": 10097048.06
+    },
+    {
+      "lead_time": 47.3,
+      "motivo": "Pendente Libera\u00e7\u00e3o de Senha pela Operadora",
+      "qtd": 412,
+      "valor": 9579777.38
+    },
+    {
+      "lead_time": 12.5,
+      "motivo": "Aguardando Laudo / Descri\u00e7\u00e3o Cir\u00fargica",
+      "qtd": 420,
+      "valor": 9521002.69
+    },
+    {
+      "lead_time": 12.5,
+      "motivo": "Prontu\u00e1rio em Auditoria Beira-Leito",
+      "qtd": 406,
+      "valor": 9520476.63
+    },
+    {
+      "lead_time": 48.4,
+      "motivo": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "qtd": 403,
+      "valor": 9455381.19
+    }
+  ],
+  "kpis": {
+    "ccr_pct": 86.1,
+    "fat_total": 58474768.34,
+    "glosa_total": 1798484.73,
+    "lead_time_medio": 24.7,
+    "liq_total": 56676283.61,
+    "permanencia_media": 3.3,
+    "pmr_medio": 38.5,
+    "receber_vencido": 8175305.34,
+    "taxa_glosa_pct": 3.1,
+    "ticket_medio": 23389.91,
+    "total_contas": 2500,
+    "wip_represado": 48173685.95
+  },
+  "modelos_remuneracao": [
+    {
+      "faturado": 20994986.73,
+      "glosado": 656591.05,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "qtd": 883,
+      "taxa_glosa": 3.1
+    },
+    {
+      "faturado": 18894215.69,
+      "glosado": 552631.15,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "qtd": 811,
+      "taxa_glosa": 2.9
+    },
+    {
+      "faturado": 18585565.92,
+      "glosado": 589262.53,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "qtd": 806,
+      "taxa_glosa": 3.2
+    }
+  ],
+  "scorecard_convenios": [
+    {
+      "ccr_pct": 86.0,
+      "convenio": "NotreDame Interm\u00e9dica",
+      "faturado": 10642705.12,
+      "pmr_dias": 39,
+      "qtd_contas": 443,
+      "rating": "Tier 2 - Regular / Monitorar",
+      "taxa_glosa": 3.1,
+      "ticket_medio": 24024.17
+    },
+    {
+      "ccr_pct": 85.0,
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "faturado": 10523600.07,
+      "pmr_dias": 39,
+      "qtd_contas": 448,
+      "rating": "Tier 2 - Regular / Monitorar",
+      "taxa_glosa": 3.3,
+      "ticket_medio": 23490.18
+    },
+    {
+      "ccr_pct": 84.8,
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "faturado": 9966047.96,
+      "pmr_dias": 38,
+      "qtd_contas": 420,
+      "rating": "Tier 2 - Regular / Monitorar",
+      "taxa_glosa": 3.9,
+      "ticket_medio": 23728.69
+    },
+    {
+      "ccr_pct": 87.6,
+      "convenio": "Unimed Nacional",
+      "faturado": 9209839.08,
+      "pmr_dias": 39,
+      "qtd_contas": 387,
+      "rating": "Tier 2 - Regular / Monitorar",
+      "taxa_glosa": 2.3,
+      "ticket_medio": 23798.03
+    },
+    {
+      "ccr_pct": 87.6,
+      "convenio": "Porto Seguro Sa\u00fade",
+      "faturado": 9168594.8,
+      "pmr_dias": 38,
+      "qtd_contas": 410,
+      "rating": "Tier 2 - Regular / Monitorar",
+      "taxa_glosa": 2.4,
+      "ticket_medio": 22362.43
+    },
+    {
+      "ccr_pct": 86.0,
+      "convenio": "Bradesco Sa\u00fade",
+      "faturado": 8963981.31,
+      "pmr_dias": 39,
+      "qtd_contas": 392,
+      "rating": "Tier 2 - Regular / Monitorar",
+      "taxa_glosa": 3.3,
+      "ticket_medio": 22867.3
+    }
+  ],
+  "tipos_atendimento": [
+    {
+      "faturado": 21070908.06,
+      "permanencia_media": 4.7,
+      "qtd": 516,
+      "ticket_medio": 40835.09,
+      "tipo": "Cirurgia de Alta Complexidade"
+    },
+    {
+      "faturado": 15325364.26,
+      "permanencia_media": 7.1,
+      "qtd": 489,
+      "ticket_medio": 31340.21,
+      "tipo": "Interna\u00e7\u00e3o Cl\u00ednica / UTI"
+    },
+    {
+      "faturado": 12436791.91,
+      "permanencia_media": 1.3,
+      "qtd": 485,
+      "ticket_medio": 25642.87,
+      "tipo": "Tratamento Oncol\u00f3gico / Infus\u00e3o"
+    },
+    {
+      "faturado": 7359262.74,
+      "permanencia_media": 2.6,
+      "qtd": 495,
+      "ticket_medio": 14867.2,
+      "tipo": "Maternidade / Parto Cir\u00fargico"
+    },
+    {
+      "faturado": 2282441.37,
+      "permanencia_media": 1.0,
+      "qtd": 515,
+      "ticket_medio": 4431.92,
+      "tipo": "Procedimento Ambulatorial / SADT"
+    }
+  ],
+  "ultimas_contas": [
+    {
+      "aging_faturar": "0 a 7 dias (Dentro da Meta)",
+      "convenio": "Unimed Nacional",
+      "data_alta": "2026-06-04",
+      "data_faturamento": "2026-06-08",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802500,
+      "is_clean_claim": 0,
+      "lead_time": 4,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Sem Represamento (Fluxo Regular)",
+      "status_recebimento": "Vencido > 60 dias",
+      "tipo_atendimento": "Maternidade / Parto Cir\u00fargico",
+      "valor_bruto": 14223.77,
+      "valor_glosa": 1627.16,
+      "valor_liquido": 12596.61
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Unimed Nacional",
+      "data_alta": "2026-10-13",
+      "data_faturamento": "2026-11-13",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802499,
+      "is_clean_claim": 1,
+      "lead_time": 31,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Pendente Libera\u00e7\u00e3o de Senha pela Operadora",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Tratamento Oncol\u00f3gico / Infus\u00e3o",
+      "valor_bruto": 23436.2,
+      "valor_glosa": 0.0,
+      "valor_liquido": 23436.2
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "Porto Seguro Sa\u00fade",
+      "data_alta": "2026-02-02",
+      "data_faturamento": "2026-02-17",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802498,
+      "is_clean_claim": 1,
+      "lead_time": 15,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Prontu\u00e1rio em Auditoria Beira-Leito",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Maternidade / Parto Cir\u00fargico",
+      "valor_bruto": 11978.86,
+      "valor_glosa": 0.0,
+      "valor_liquido": 11978.86
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data_alta": "2026-01-28",
+      "data_faturamento": "2026-03-23",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802497,
+      "is_clean_claim": 1,
+      "lead_time": 54,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Pendente Libera\u00e7\u00e3o de Senha pela Operadora",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Interna\u00e7\u00e3o Cl\u00ednica / UTI",
+      "valor_bruto": 29987.69,
+      "valor_glosa": 0.0,
+      "valor_liquido": 29987.69
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data_alta": "2026-07-16",
+      "data_faturamento": "2026-07-27",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802496,
+      "is_clean_claim": 1,
+      "lead_time": 11,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Prontu\u00e1rio em Auditoria Beira-Leito",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Cirurgia de Alta Complexidade",
+      "valor_bruto": 46866.4,
+      "valor_glosa": 0.0,
+      "valor_liquido": 46866.4
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "Bradesco Sa\u00fade",
+      "data_alta": "2026-12-09",
+      "data_faturamento": "2026-12-16",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802495,
+      "is_clean_claim": 1,
+      "lead_time": 7,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Aguardando Laudo / Descri\u00e7\u00e3o Cir\u00fargica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Cirurgia de Alta Complexidade",
+      "valor_bruto": 33741.25,
+      "valor_glosa": 0.0,
+      "valor_liquido": 33741.25
+    },
+    {
+      "aging_faturar": "0 a 7 dias (Dentro da Meta)",
+      "convenio": "Unimed Nacional",
+      "data_alta": "2026-02-20",
+      "data_faturamento": "2026-02-24",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802494,
+      "is_clean_claim": 1,
+      "lead_time": 4,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Sem Represamento (Fluxo Regular)",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Procedimento Ambulatorial / SADT",
+      "valor_bruto": 5351.73,
+      "valor_glosa": 0.0,
+      "valor_liquido": 5351.73
+    },
+    {
+      "aging_faturar": "16 a 30 dias (Gargalo OPME)",
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data_alta": "2026-08-19",
+      "data_faturamento": "2026-09-19",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802493,
+      "is_clean_claim": 1,
+      "lead_time": 31,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Pendente Nota Fiscal / Rastreabilidade OPME",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Cirurgia de Alta Complexidade",
+      "valor_bruto": 32940.78,
+      "valor_glosa": 0.0,
+      "valor_liquido": 32940.78
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "Bradesco Sa\u00fade",
+      "data_alta": "2026-08-20",
+      "data_faturamento": "2026-08-28",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802492,
+      "is_clean_claim": 1,
+      "lead_time": 8,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Prontu\u00e1rio em Auditoria Beira-Leito",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Procedimento Ambulatorial / SADT",
+      "valor_bruto": 3856.96,
+      "valor_glosa": 0.0,
+      "valor_liquido": 3856.96
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data_alta": "2026-08-27",
+      "data_faturamento": "2026-10-01",
+      "hospital": "Centro de Diagn\u00f3stico por Imagem (CDI)",
+      "id_conta": 802491,
+      "is_clean_claim": 0,
+      "lead_time": 35,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "status_recebimento": "Atrasado / Em Recurso",
+      "tipo_atendimento": "Interna\u00e7\u00e3o Cl\u00ednica / UTI",
+      "valor_bruto": 26250.68,
+      "valor_glosa": 2804.47,
+      "valor_liquido": 23446.21
+    },
+    {
+      "aging_faturar": "16 a 30 dias (Gargalo OPME)",
+      "convenio": "Porto Seguro Sa\u00fade",
+      "data_alta": "2026-05-17",
+      "data_faturamento": "2026-06-04",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802490,
+      "is_clean_claim": 1,
+      "lead_time": 18,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Pendente Nota Fiscal / Rastreabilidade OPME",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Cirurgia de Alta Complexidade",
+      "valor_bruto": 35746.07,
+      "valor_glosa": 0.0,
+      "valor_liquido": 35746.07
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Unimed Nacional",
+      "data_alta": "2026-07-17",
+      "data_faturamento": "2026-08-24",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802489,
+      "is_clean_claim": 1,
+      "lead_time": 38,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Pendente Libera\u00e7\u00e3o de Senha pela Operadora",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Procedimento Ambulatorial / SADT",
+      "valor_bruto": 4799.4,
+      "valor_glosa": 0.0,
+      "valor_liquido": 4799.4
+    },
+    {
+      "aging_faturar": "16 a 30 dias (Gargalo OPME)",
+      "convenio": "Unimed Nacional",
+      "data_alta": "2026-03-20",
+      "data_faturamento": "2026-04-23",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802488,
+      "is_clean_claim": 1,
+      "lead_time": 34,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Pendente Nota Fiscal / Rastreabilidade OPME",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Maternidade / Parto Cir\u00fargico",
+      "valor_bruto": 16005.62,
+      "valor_glosa": 0.0,
+      "valor_liquido": 16005.62
+    },
+    {
+      "aging_faturar": "0 a 7 dias (Dentro da Meta)",
+      "convenio": "Porto Seguro Sa\u00fade",
+      "data_alta": "2026-07-05",
+      "data_faturamento": "2026-07-07",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802487,
+      "is_clean_claim": 1,
+      "lead_time": 2,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Sem Represamento (Fluxo Regular)",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Interna\u00e7\u00e3o Cl\u00ednica / UTI",
+      "valor_bruto": 36686.87,
+      "valor_glosa": 0.0,
+      "valor_liquido": 36686.87
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "Unimed Nacional",
+      "data_alta": "2026-07-31",
+      "data_faturamento": "2026-08-17",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802486,
+      "is_clean_claim": 1,
+      "lead_time": 17,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Aguardando Laudo / Descri\u00e7\u00e3o Cir\u00fargica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Interna\u00e7\u00e3o Cl\u00ednica / UTI",
+      "valor_bruto": 25203.61,
+      "valor_glosa": 0.0,
+      "valor_liquido": 25203.61
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Bradesco Sa\u00fade",
+      "data_alta": "2026-05-16",
+      "data_faturamento": "2026-07-03",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802485,
+      "is_clean_claim": 1,
+      "lead_time": 48,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Pendente Libera\u00e7\u00e3o de Senha pela Operadora",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Procedimento Ambulatorial / SADT",
+      "valor_bruto": 4488.42,
+      "valor_glosa": 0.0,
+      "valor_liquido": 4488.42
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data_alta": "2026-04-09",
+      "data_faturamento": "2026-04-24",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802484,
+      "is_clean_claim": 0,
+      "lead_time": 15,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Prontu\u00e1rio em Auditoria Beira-Leito",
+      "status_recebimento": "Recebido Parcial c/ Glosa",
+      "tipo_atendimento": "Procedimento Ambulatorial / SADT",
+      "valor_bruto": 5187.08,
+      "valor_glosa": 1474.31,
+      "valor_liquido": 3712.77
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "Bradesco Sa\u00fade",
+      "data_alta": "2026-04-21",
+      "data_faturamento": "2026-04-29",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802483,
+      "is_clean_claim": 1,
+      "lead_time": 8,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Aguardando Laudo / Descri\u00e7\u00e3o Cir\u00fargica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Interna\u00e7\u00e3o Cl\u00ednica / UTI",
+      "valor_bruto": 36801.17,
+      "valor_glosa": 0.0,
+      "valor_liquido": 36801.17
+    },
+    {
+      "aging_faturar": "0 a 7 dias (Dentro da Meta)",
+      "convenio": "Unimed Nacional",
+      "data_alta": "2026-07-30",
+      "data_faturamento": "2026-08-04",
+      "hospital": "Centro de Diagn\u00f3stico por Imagem (CDI)",
+      "id_conta": 802482,
+      "is_clean_claim": 1,
+      "lead_time": 5,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Sem Represamento (Fluxo Regular)",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Tratamento Oncol\u00f3gico / Infus\u00e3o",
+      "valor_bruto": 25336.53,
+      "valor_glosa": 0.0,
+      "valor_liquido": 25336.53
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data_alta": "2026-01-09",
+      "data_faturamento": "2026-03-14",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802481,
+      "is_clean_claim": 0,
+      "lead_time": 64,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "status_recebimento": "Vencido > 60 dias",
+      "tipo_atendimento": "Cirurgia de Alta Complexidade",
+      "valor_bruto": 46302.43,
+      "valor_glosa": 5440.25,
+      "valor_liquido": 40862.18
+    },
+    {
+      "aging_faturar": "16 a 30 dias (Gargalo OPME)",
+      "convenio": "Porto Seguro Sa\u00fade",
+      "data_alta": "2026-04-20",
+      "data_faturamento": "2026-05-11",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802480,
+      "is_clean_claim": 1,
+      "lead_time": 21,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Pendente Nota Fiscal / Rastreabilidade OPME",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Maternidade / Parto Cir\u00fargico",
+      "valor_bruto": 13204.73,
+      "valor_glosa": 0.0,
+      "valor_liquido": 13204.73
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Unimed Nacional",
+      "data_alta": "2026-09-17",
+      "data_faturamento": "2026-10-24",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802479,
+      "is_clean_claim": 0,
+      "lead_time": 37,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "status_recebimento": "Atrasado / Em Recurso",
+      "tipo_atendimento": "Cirurgia de Alta Complexidade",
+      "valor_bruto": 46522.91,
+      "valor_glosa": 5355.93,
+      "valor_liquido": 41166.98
+    },
+    {
+      "aging_faturar": "0 a 7 dias (Dentro da Meta)",
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data_alta": "2026-09-16",
+      "data_faturamento": "2026-09-18",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802478,
+      "is_clean_claim": 0,
+      "lead_time": 2,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Sem Represamento (Fluxo Regular)",
+      "status_recebimento": "Recebido Parcial c/ Glosa",
+      "tipo_atendimento": "Maternidade / Parto Cir\u00fargico",
+      "valor_bruto": 12075.95,
+      "valor_glosa": 2303.17,
+      "valor_liquido": 9772.78
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "Unimed Nacional",
+      "data_alta": "2026-03-25",
+      "data_faturamento": "2026-04-05",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802477,
+      "is_clean_claim": 1,
+      "lead_time": 11,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Prontu\u00e1rio em Auditoria Beira-Leito",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Cirurgia de Alta Complexidade",
+      "valor_bruto": 44042.69,
+      "valor_glosa": 0.0,
+      "valor_liquido": 44042.69
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data_alta": "2026-11-06",
+      "data_faturamento": "2026-12-30",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802476,
+      "is_clean_claim": 1,
+      "lead_time": 54,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Pendente Libera\u00e7\u00e3o de Senha pela Operadora",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Cirurgia de Alta Complexidade",
+      "valor_bruto": 33810.39,
+      "valor_glosa": 0.0,
+      "valor_liquido": 33810.39
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Porto Seguro Sa\u00fade",
+      "data_alta": "2026-02-18",
+      "data_faturamento": "2026-04-22",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802475,
+      "is_clean_claim": 1,
+      "lead_time": 63,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Interna\u00e7\u00e3o Cl\u00ednica / UTI",
+      "valor_bruto": 28307.02,
+      "valor_glosa": 0.0,
+      "valor_liquido": 28307.02
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data_alta": "2026-09-04",
+      "data_faturamento": "2026-10-21",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802474,
+      "is_clean_claim": 1,
+      "lead_time": 47,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Procedimento Ambulatorial / SADT",
+      "valor_bruto": 3717.33,
+      "valor_glosa": 0.0,
+      "valor_liquido": 3717.33
+    },
+    {
+      "aging_faturar": "0 a 7 dias (Dentro da Meta)",
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data_alta": "2026-06-04",
+      "data_faturamento": "2026-06-08",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802473,
+      "is_clean_claim": 0,
+      "lead_time": 4,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Sem Represamento (Fluxo Regular)",
+      "status_recebimento": "Atrasado / Em Recurso",
+      "tipo_atendimento": "Maternidade / Parto Cir\u00fargico",
+      "valor_bruto": 17424.31,
+      "valor_glosa": 2978.69,
+      "valor_liquido": 14445.62
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data_alta": "2026-01-11",
+      "data_faturamento": "2026-03-16",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802472,
+      "is_clean_claim": 1,
+      "lead_time": 64,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Pendente Libera\u00e7\u00e3o de Senha pela Operadora",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Tratamento Oncol\u00f3gico / Infus\u00e3o",
+      "valor_bruto": 29970.61,
+      "valor_glosa": 0.0,
+      "valor_liquido": 29970.61
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data_alta": "2026-08-15",
+      "data_faturamento": "2026-10-07",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802471,
+      "is_clean_claim": 1,
+      "lead_time": 53,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Pendente Libera\u00e7\u00e3o de Senha pela Operadora",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Interna\u00e7\u00e3o Cl\u00ednica / UTI",
+      "valor_bruto": 30503.49,
+      "valor_glosa": 0.0,
+      "valor_liquido": 30503.49
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data_alta": "2026-08-08",
+      "data_faturamento": "2026-08-17",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802470,
+      "is_clean_claim": 1,
+      "lead_time": 9,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Aguardando Laudo / Descri\u00e7\u00e3o Cir\u00fargica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Tratamento Oncol\u00f3gico / Infus\u00e3o",
+      "valor_bruto": 27354.49,
+      "valor_glosa": 0.0,
+      "valor_liquido": 27354.49
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Bradesco Sa\u00fade",
+      "data_alta": "2026-01-13",
+      "data_faturamento": "2026-03-10",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802469,
+      "is_clean_claim": 0,
+      "lead_time": 56,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "status_recebimento": "Vencido > 60 dias",
+      "tipo_atendimento": "Procedimento Ambulatorial / SADT",
+      "valor_bruto": 3941.94,
+      "valor_glosa": 1322.96,
+      "valor_liquido": 2618.98
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Bradesco Sa\u00fade",
+      "data_alta": "2026-01-03",
+      "data_faturamento": "2026-02-26",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802468,
+      "is_clean_claim": 1,
+      "lead_time": 54,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Pendente Libera\u00e7\u00e3o de Senha pela Operadora",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Procedimento Ambulatorial / SADT",
+      "valor_bruto": 4228.3,
+      "valor_glosa": 0.0,
+      "valor_liquido": 4228.3
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "Porto Seguro Sa\u00fade",
+      "data_alta": "2026-02-25",
+      "data_faturamento": "2026-03-11",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802467,
+      "is_clean_claim": 1,
+      "lead_time": 14,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Aguardando Laudo / Descri\u00e7\u00e3o Cir\u00fargica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Interna\u00e7\u00e3o Cl\u00ednica / UTI",
+      "valor_bruto": 27801.78,
+      "valor_glosa": 0.0,
+      "valor_liquido": 27801.78
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data_alta": "2026-02-11",
+      "data_faturamento": "2026-04-13",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802466,
+      "is_clean_claim": 0,
+      "lead_time": 61,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Pendente Libera\u00e7\u00e3o de Senha pela Operadora",
+      "status_recebimento": "Vencido > 60 dias",
+      "tipo_atendimento": "Cirurgia de Alta Complexidade",
+      "valor_bruto": 31678.03,
+      "valor_glosa": 5343.88,
+      "valor_liquido": 26334.15
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data_alta": "2026-01-11",
+      "data_faturamento": "2026-01-26",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802465,
+      "is_clean_claim": 1,
+      "lead_time": 15,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Prontu\u00e1rio em Auditoria Beira-Leito",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Procedimento Ambulatorial / SADT",
+      "valor_bruto": 5279.99,
+      "valor_glosa": 0.0,
+      "valor_liquido": 5279.99
+    },
+    {
+      "aging_faturar": "16 a 30 dias (Gargalo OPME)",
+      "convenio": "Unimed Nacional",
+      "data_alta": "2026-02-07",
+      "data_faturamento": "2026-02-23",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802464,
+      "is_clean_claim": 1,
+      "lead_time": 16,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Pendente Nota Fiscal / Rastreabilidade OPME",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Maternidade / Parto Cir\u00fargico",
+      "valor_bruto": 11779.56,
+      "valor_glosa": 0.0,
+      "valor_liquido": 11779.56
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Porto Seguro Sa\u00fade",
+      "data_alta": "2026-09-22",
+      "data_faturamento": "2026-11-01",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802463,
+      "is_clean_claim": 1,
+      "lead_time": 40,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Cirurgia de Alta Complexidade",
+      "valor_bruto": 49065.13,
+      "valor_glosa": 0.0,
+      "valor_liquido": 49065.13
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Porto Seguro Sa\u00fade",
+      "data_alta": "2026-08-09",
+      "data_faturamento": "2026-09-23",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802462,
+      "is_clean_claim": 1,
+      "lead_time": 45,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Procedimento Ambulatorial / SADT",
+      "valor_bruto": 4662.63,
+      "valor_glosa": 0.0,
+      "valor_liquido": 4662.63
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data_alta": "2026-12-19",
+      "data_faturamento": "2027-01-31",
+      "hospital": "Centro de Diagn\u00f3stico por Imagem (CDI)",
+      "id_conta": 802461,
+      "is_clean_claim": 1,
+      "lead_time": 43,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Pendente Libera\u00e7\u00e3o de Senha pela Operadora",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Maternidade / Parto Cir\u00fargico",
+      "valor_bruto": 13836.28,
+      "valor_glosa": 0.0,
+      "valor_liquido": 13836.28
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data_alta": "2026-02-20",
+      "data_faturamento": "2026-03-04",
+      "hospital": "Centro de Diagn\u00f3stico por Imagem (CDI)",
+      "id_conta": 802460,
+      "is_clean_claim": 1,
+      "lead_time": 12,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Prontu\u00e1rio em Auditoria Beira-Leito",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Interna\u00e7\u00e3o Cl\u00ednica / UTI",
+      "valor_bruto": 25951.06,
+      "valor_glosa": 0.0,
+      "valor_liquido": 25951.06
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Porto Seguro Sa\u00fade",
+      "data_alta": "2026-09-07",
+      "data_faturamento": "2026-10-24",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802459,
+      "is_clean_claim": 1,
+      "lead_time": 47,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Cirurgia de Alta Complexidade",
+      "valor_bruto": 47836.22,
+      "valor_glosa": 0.0,
+      "valor_liquido": 47836.22
+    },
+    {
+      "aging_faturar": "16 a 30 dias (Gargalo OPME)",
+      "convenio": "Bradesco Sa\u00fade",
+      "data_alta": "2026-09-15",
+      "data_faturamento": "2026-10-13",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802458,
+      "is_clean_claim": 1,
+      "lead_time": 28,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Pendente Nota Fiscal / Rastreabilidade OPME",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Maternidade / Parto Cir\u00fargico",
+      "valor_bruto": 15300.08,
+      "valor_glosa": 0.0,
+      "valor_liquido": 15300.08
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "Amil Assist\u00eancia M\u00e9dica",
+      "data_alta": "2026-07-16",
+      "data_faturamento": "2026-07-23",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802457,
+      "is_clean_claim": 1,
+      "lead_time": 7,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Prontu\u00e1rio em Auditoria Beira-Leito",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Tratamento Oncol\u00f3gico / Infus\u00e3o",
+      "valor_bruto": 20518.13,
+      "valor_glosa": 0.0,
+      "valor_liquido": 20518.13
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Bradesco Sa\u00fade",
+      "data_alta": "2026-11-09",
+      "data_faturamento": "2026-12-28",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802456,
+      "is_clean_claim": 1,
+      "lead_time": 49,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Procedimento Ambulatorial / SADT",
+      "valor_bruto": 3837.12,
+      "valor_glosa": 0.0,
+      "valor_liquido": 3837.12
+    },
+    {
+      "aging_faturar": "16 a 30 dias (Gargalo OPME)",
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data_alta": "2026-12-21",
+      "data_faturamento": "2027-01-10",
+      "hospital": "Centro de Oncologia Avan\u00e7ada",
+      "id_conta": 802455,
+      "is_clean_claim": 1,
+      "lead_time": 20,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Pendente Nota Fiscal / Rastreabilidade OPME",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Tratamento Oncol\u00f3gico / Infus\u00e3o",
+      "valor_bruto": 23924.77,
+      "valor_glosa": 0.0,
+      "valor_liquido": 23924.77
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data_alta": "2026-02-05",
+      "data_faturamento": "2026-02-14",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802454,
+      "is_clean_claim": 1,
+      "lead_time": 9,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Prontu\u00e1rio em Auditoria Beira-Leito",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Tratamento Oncol\u00f3gico / Infus\u00e3o",
+      "valor_bruto": 21793.93,
+      "valor_glosa": 0.0,
+      "valor_liquido": 21793.93
+    },
+    {
+      "aging_faturar": "Mais de 30 dias (Cr\u00edtico)",
+      "convenio": "Unimed Nacional",
+      "data_alta": "2026-06-03",
+      "data_faturamento": "2026-07-17",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802453,
+      "is_clean_claim": 1,
+      "lead_time": 44,
+      "modelo": "Pacote Cir\u00fargico Fechado",
+      "motivo_represamento": "Aguardando Assinatura / Valida\u00e7\u00e3o M\u00e9dica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Tratamento Oncol\u00f3gico / Infus\u00e3o",
+      "valor_bruto": 30089.14,
+      "valor_glosa": 0.0,
+      "valor_liquido": 30089.14
+    },
+    {
+      "aging_faturar": "8 a 15 dias (Alerta Leve)",
+      "convenio": "SulAm\u00e9rica Sa\u00fade",
+      "data_alta": "2026-05-07",
+      "data_faturamento": "2026-05-21",
+      "hospital": "Hospital Geral Central",
+      "id_conta": 802452,
+      "is_clean_claim": 1,
+      "lead_time": 14,
+      "modelo": "Di\u00e1ria Global com Medicamentos Inclusos",
+      "motivo_represamento": "Aguardando Laudo / Descri\u00e7\u00e3o Cir\u00fargica",
+      "status_recebimento": "Liquidado Integralmente",
+      "tipo_atendimento": "Tratamento Oncol\u00f3gico / Infus\u00e3o",
+      "valor_bruto": 29345.56,
+      "valor_glosa": 0.0,
+      "valor_liquido": 29345.56
+    },
+    {
+      "aging_faturar": "16 a 30 dias (Gargalo OPME)",
+      "convenio": "NotreDame Interm\u00e9dica",
+      "data_alta": "2026-08-23",
+      "data_faturamento": "2026-09-25",
+      "hospital": "Hospital Materno-Infantil & UTI",
+      "id_conta": 802451,
+      "is_clean_claim": 0,
+      "lead_time": 33,
+      "modelo": "Fee-for-Service (Conta Aberta)",
+      "motivo_represamento": "Pendente Nota Fiscal / Rastreabilidade OPME",
+      "status_recebimento": "Recebido Parcial c/ Glosa",
+      "tipo_atendimento": "Maternidade / Parto Cir\u00fargico",
+      "valor_bruto": 17706.52,
+      "valor_glosa": 3826.93,
+      "valor_liquido": 13879.59
+    }
+  ]
+}
+;
+  
+  // Interceptador inteligente de fetch para funcionar perfeitamente tanto no GitHub Pages quanto no Flask
+  const _origFetch = window.fetch;
+  window.fetch = async function(url, options) {
+    try {
+      const res = await _origFetch(url, options);
+      if (res.ok) return res;
+      throw new Error('API indisponivel');
+    } catch (err) {
+      if (typeof url === 'string') {
+        if (url.includes('/api/filtros')) {
+          return new Response(JSON.stringify(window.FALLBACK_FILTROS), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        if (url.includes('/api/dados')) {
+          return new Response(JSON.stringify(window.FALLBACK_DADOS), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+      }
+      throw err;
+    }
+  };
+</script>
+
+</head>
+<body class="min-h-screen flex flex-col custom-scrollbar">
+
+    <!-- Top Navigation Bar -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-slate-800 px-6 py-3.5">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Brand & Hospital Info -->
+            <div class="flex items-center space-x-4">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-cyan-600 via-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+                    <i class="fa-solid fa-hospital-user text-white text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-sky-400 bg-sky-950/70 border border-sky-800/50 px-2.5 py-0.5 rounded-full">
+                            REDE HOSPITALAR & DIAGNÓSTICOS
+                        </span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
+                            <i class="fa-solid fa-circle text-[8px] mr-1 text-emerald-400 animate-pulse"></i>RCM Executivo
+                        </span>
+                    </div>
+                    <h1 class="text-xl font-heading font-extrabold text-white tracking-tight flex items-center gap-2 mt-0.5">
+                        Diretoria de Contas Médicas & Ciclo de Receita
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
+                <a href="../index.html" class="px-3.5 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/40 flex items-center gap-2 transition" title="Voltar ao Portfólio Principal">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Voltar ao Portfólio</span>
+                </a>
+                                <button id="btn-fullscreen" onclick="toggleFullscreen()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-2 transition" title="Modo Tela Cheia (F11 ou tecla F)">
+                    <i class="fa-solid fa-expand" id="icon-fullscreen"></i>
+                    <span id="label-fullscreen">Tela Cheia</span>
+                </button>
+                <button onclick="carregarDados()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Atualizar</span>
+                </button>
+                <button onclick="exportarExcel()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold shadow-lg shadow-emerald-900/30 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>Exportar Relatório Executivo</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-6 space-y-6">
+
+        <!-- Executive Banner / Subtitle -->
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-gradient-to-r from-sky-950/40 via-slate-900/60 to-indigo-950/40 p-4 rounded-2xl border border-sky-900/30">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-sky-400"></i>
+                    <h2 class="text-sm font-heading font-bold text-sky-200 uppercase tracking-wider">
+                        Painel de Controle e Governança do Faturamento & Recebíveis Médicos
+                    </h2>
+                </div>
+                <p class="text-xs text-slate-400">
+                    Monitoramento estratégico de WIP (contas represadas no hospital), Lead Time de fechamento, Clean Claims Rate (CCR) e performance por operadora.
+                </p>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-400 bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800">
+                <i class="fa-regular fa-calendar-check text-sky-400"></i>
+                <span>Competência: <strong class="text-white" id="comp-label">Ano Consolidado 2026</strong></span>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <section class="glass-panel p-4 rounded-2xl">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+                <!-- Filtro Hospital -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-building-circle-check text-sky-400 mr-1"></i>Unidade Hospitalar
+                    </label>
+                    <select id="filtro-hospital" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="TODOS">Todos os Hospitais</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Convênio -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-handshake-angle text-sky-400 mr-1"></i>Operadora / Convênio
+                    </label>
+                    <select id="filtro-convenio" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="TODOS">Todas as Operadoras</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Tipo de Atendimento -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-procedures text-sky-400 mr-1"></i>Tipo de Atendimento
+                    </label>
+                    <select id="filtro-tipo" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="TODOS">Todos os Atendimentos</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Modelo de Remuneração -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-file-invoice-dollar text-sky-400 mr-1"></i>Modelo Contratual
+                    </label>
+                    <select id="filtro-modelo" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="TODOS">Todos os Modelos</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Mês -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-regular fa-calendar text-sky-400 mr-1"></i>Mês de Competência
+                    </label>
+                    <select id="filtro-mes" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="ANO_TODO">Ano Completo 2026</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- KPI Cards Grid -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            
+            <!-- KPI 1: Faturamento Bruto -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Faturamento Total</span>
+                    <i class="fa-solid fa-sack-dollar text-sky-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-white" id="kpi-faturamento">R$ 0,00</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Qtd Contas:</span>
+                    <strong class="text-slate-200" id="kpi-qtd-contas">0</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 to-indigo-500"></div>
+            </div>
+
+            <!-- KPI 2: Clean Claims Rate (CCR) -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Clean Claims (CCR)</span>
+                    <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-emerald-400" id="kpi-ccr">0.0%</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Meta Hospitalar:</span>
+                    <strong class="text-emerald-300">&gt; 85%</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-400"></div>
+            </div>
+
+            <!-- KPI 3: WIP Represado (>7d) -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">WIP Represado (>7d)</span>
+                    <i class="fa-solid fa-hourglass-half text-amber-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-amber-400" id="kpi-wip">R$ 0,00</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Faturamento pendente</span>
+                    <span class="text-[10px] text-amber-300 font-medium">Interno</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+            </div>
+
+            <!-- KPI 4: Glosas & Taxa -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Glosa Total</span>
+                    <i class="fa-solid fa-ban text-rose-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-rose-400" id="kpi-glosa">R$ 0,00</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Taxa de Glosa:</span>
+                    <strong class="text-rose-300" id="kpi-taxa-glosa">0.0%</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-red-600"></div>
+            </div>
+
+            <!-- KPI 5: Lead Time de Fechamento -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Lead Time Fechamento</span>
+                    <i class="fa-solid fa-stopwatch text-indigo-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-indigo-300" id="kpi-lead-time">0.0 dias</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Alta até Remessa:</span>
+                    <strong class="text-indigo-200">Meta ≤ 7d</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-violet-500"></div>
+            </div>
+
+            <!-- KPI 6: Prazo Médio Recebimento (PMR) -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">PMR Médio (Ciclo)</span>
+                    <i class="fa-solid fa-calendar-days text-cyan-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-cyan-300" id="kpi-pmr">0 dias</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Permanência (ALOS):</span>
+                    <strong class="text-slate-200" id="kpi-alos">0.0d</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
+            </div>
+
+        </section>
+
+        <!-- Charts Grid 1: WIP Aging & Gargalos de Represamento -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Gráfico 1: Aging de Contas a Faturar (WIP) -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-simple text-sky-400"></i>
+                            Aging de Contas a Faturar (WIP / Contas Represadas)
+                        </h3>
+                        <p class="text-xs text-slate-400">Tempo decorrido entre a alta do paciente e a liberação do lote de faturamento</p>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded bg-sky-950/70 border border-sky-800 text-sky-300 font-mono">
+                        Pré-Faturamento
+                    </span>
+                </div>
+                <div class="relative flex-grow min-h-[280px]">
+                    <canvas id="chart-aging-faturar"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 2: Gargalos Operacionais de Fechamento -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                            Gargalos Operacionais de Fechamento de Contas
+                        </h3>
+                        <p class="text-xs text-slate-400">Volume financeiro retido por motivo de pendência interna hospitalar</p>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded bg-amber-950/70 border border-amber-800 text-amber-300 font-mono">
+                        Auditoria & Pendências
+                    </span>
+                </div>
+                <div class="relative flex-grow min-h-[280px]">
+                    <canvas id="chart-gargalos"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Strategic Block: Payer Scorecard (Matriz de Operadoras de Saúde) -->
+        <section class="glass-panel p-5 rounded-2xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2">
+                <div>
+                    <h3 class="text-base font-heading font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-address-card text-sky-400"></i>
+                        Payer Scorecard — Matriz de Governança das Operadoras de Saúde
+                    </h3>
+                    <p class="text-xs text-slate-400">
+                        Classificação de risco e eficiência operacional: Clean Claims Rate (CCR %), Taxa de Glosa %, Ticket Médio e PMR de liquidação.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800">Tier 1: Baixo Risco</span>
+                    <span class="px-2 py-0.5 rounded bg-amber-950/80 text-amber-400 border border-amber-800">Tier 2: Moderado</span>
+                    <span class="px-2 py-0.5 rounded bg-rose-950/80 text-rose-400 border border-rose-800">Tier 3: Crítico</span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-700/80 text-slate-400 uppercase tracking-wider font-semibold bg-slate-900/50">
+                            <th class="py-3 px-4">Operadora / Convênio</th>
+                            <th class="py-3 px-3 text-right">Volume Contas</th>
+                            <th class="py-3 px-3 text-right">Faturamento Total (R$)</th>
+                            <th class="py-3 px-3 text-right">Ticket Médio (R$)</th>
+                            <th class="py-3 px-3 text-center">Clean Claims (CCR %)</th>
+                            <th class="py-3 px-3 text-center">Taxa de Glosa (%)</th>
+                            <th class="py-3 px-3 text-center">PMR (Dias)</th>
+                            <th class="py-3 px-4 text-center">Rating Estratégico</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-scorecard" class="divide-y divide-slate-800 text-slate-200">
+                        <tr>
+                            <td colspan="8" class="text-center py-6 text-slate-500">Carregando métricas das operadoras...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Charts Grid 2: Modelos Contratuais & Eficiência por Atendimento -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Gráfico 3: Modelos de Remuneração Contratual -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i>
+                            Faturamento por Modelo de Remuneração Contratual
+                        </h3>
+                        <p class="text-xs text-slate-400">Fee-for-Service vs Pacotes Fechados vs Diária Global vs Bundle Ortopédico</p>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded bg-emerald-950/70 border border-emerald-800 text-emerald-300 font-mono">
+                        Contratos TISS
+                    </span>
+                </div>
+                <div class="relative flex-grow min-h-[280px]">
+                    <canvas id="chart-modelos"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 4: Tipos de Atendimento & Permanência Média -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-bed-pulse text-indigo-400"></i>
+                            Faturamento & Ticket Médio por Tipo de Atendimento
+                        </h3>
+                        <p class="text-xs text-slate-400">Internações Cirúrgicas, Clínicas, UTI, Pronto Socorro e Exames</p>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded bg-indigo-950/70 border border-indigo-800 text-indigo-300 font-mono">
+                        Linhas de Cuidado
+                    </span>
+                </div>
+                <div class="relative flex-grow min-h-[280px]">
+                    <canvas id="chart-atendimentos"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Operational Sample Table: Contas Médicas Recentes -->
+        <section class="glass-panel p-5 rounded-2xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
+                <div>
+                    <h3 class="text-base font-heading font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-sky-400"></i>
+                        Amostra de Contas Hospitalares Auditadas (Últimos Registros Filtrados)
+                    </h3>
+                    <p class="text-xs text-slate-400">Rastreabilidade individual de lotes, lead time de fechamento, pendências e situação de glosa</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="filtro-pesquisa-tabela" onkeyup="filtrarTabelaContas()" placeholder="Buscar conta, convênio ou hospital..." class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-sky-500 focus:outline-none w-64">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto max-h-[380px] custom-scrollbar">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="sticky top-0 bg-slate-900 z-10">
+                        <tr class="border-b border-slate-700/80 text-slate-400 uppercase tracking-wider font-semibold">
+                            <th class="py-2.5 px-3">Conta</th>
+                            <th class="py-2.5 px-3">Data Alta</th>
+                            <th class="py-2.5 px-3">Hospital</th>
+                            <th class="py-2.5 px-3">Convênio</th>
+                            <th class="py-2.5 px-3">Atendimento</th>
+                            <th class="py-2.5 px-3">Modelo</th>
+                            <th class="py-2.5 px-2 text-center">Lead Time</th>
+                            <th class="py-2.5 px-3">Faixa WIP / Fechamento</th>
+                            <th class="py-2.5 px-2 text-center">Clean Claim</th>
+                            <th class="py-2.5 px-3 text-right">Valor Bruto</th>
+                            <th class="py-2.5 px-3 text-right">Glosa</th>
+                            <th class="py-2.5 px-3 text-center">Status Recebimento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-contas-body" class="divide-y divide-slate-800 text-slate-200">
+                        <tr>
+                            <td colspan="12" class="text-center py-6 text-slate-500">Carregando contas...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-slate-800 mt-12 py-5 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-xs text-slate-400 gap-3">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-code text-sky-400"></i>
+                <span>Desenvolvido para Demonstração Executiva de BI &amp; Analytics em Saúde Hospitalar</span>
+            </div>
+            <div>
+                <span>Especialista Responsável: <strong class="text-slate-200">Antonio Carlos de Mello</strong> | Portfólio de Business Intelligence</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // Global Chart Instances
+        let chartAging = null;
+        let chartGargalos = null;
+        let chartModelos = null;
+        let chartAtendimentos = null;
+        let dadosContasCache = [];
+
+        // Formatting Helpers
+        function formatMoney(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                maximumFractionDigits: 2
+            }).format(value || 0);
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('pt-BR').format(value || 0);
+        }
+
+        // Initialize Filter Options
+        async function carregarFiltros() {
+            try {
+                const res = await fetch('/api/filtros');
+                const data = await res.json();
+
+                const selHosp = document.getElementById('filtro-hospital');
+                data.hospitais.forEach(h => {
+                    const opt = document.createElement('option');
+                    opt.value = h;
+                    opt.textContent = h;
+                    selHosp.appendChild(opt);
+                });
+
+                const selConv = document.getElementById('filtro-convenio');
+                data.convenios.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    selConv.appendChild(opt);
+                });
+
+                const selTipo = document.getElementById('filtro-tipo');
+                data.tipos.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t;
+                    opt.textContent = t;
+                    selTipo.appendChild(opt);
+                });
+
+                const selMod = document.getElementById('filtro-modelo');
+                data.modelos.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m;
+                    opt.textContent = m;
+                    selMod.appendChild(opt);
+                });
+
+                const selMes = document.getElementById('filtro-mes');
+                data.meses.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.mes;
+                    opt.textContent = m.mes_nome;
+                    selMes.appendChild(opt);
+                });
+
+            } catch (err) {
+                console.error("Erro ao carregar filtros:", err);
+            }
+        }
+
+        function getQueryParams() {
+            const hosp = document.getElementById('filtro-hospital').value;
+            const conv = document.getElementById('filtro-convenio').value;
+            const tipo = document.getElementById('filtro-tipo').value;
+            const mod = document.getElementById('filtro-modelo').value;
+            const mes = document.getElementById('filtro-mes').value;
+
+            const params = new URLSearchParams();
+            if (hosp !== "TODOS") params.append("hospital", hosp);
+            if (conv !== "TODOS") params.append("convenio", conv);
+            if (tipo !== "TODOS") params.append("tipo", tipo);
+            if (mod !== "TODOS") params.append("modelo", mod);
+            if (mes !== "ANO_TODO") params.append("mes", mes);
+
+            return params.toString();
+        }
+
+        function aplicarFiltros() {
+            const mesSel = document.getElementById('filtro-mes');
+            const mesText = mesSel.options[mesSel.selectedIndex].text;
+            document.getElementById('comp-label').textContent = mesText === "Ano Completo 2026" ? "Ano Consolidado 2026" : `${mesText} / 2026`;
+            carregarDados();
+        }
+
+        async function carregarDados() {
+            const qs = getQueryParams();
+            const url = `/api/dados${qs ? '?' + qs : ''}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+
+                renderKPIs(data.kpis);
+                renderChartAging(data.aging_faturar);
+                renderChartGargalos(data.gargalos_represamento);
+                renderScorecard(data.scorecard_convenios);
+                renderChartModelos(data.modelos_remuneracao);
+                renderChartAtendimentos(data.tipos_atendimento);
+                
+                dadosContasCache = data.ultimas_contas || [];
+                renderTabelaContas(dadosContasCache);
+
+            } catch (err) {
+                console.error("Erro ao carregar dados da API:", err);
+            }
+        }
+
+        function renderKPIs(kpis) {
+            document.getElementById('kpi-faturamento').textContent = formatMoney(kpis.fat_total);
+            document.getElementById('kpi-qtd-contas').textContent = formatNumber(kpis.total_contas);
+            document.getElementById('kpi-ccr').textContent = `${kpis.ccr_pct.toFixed(1)}%`;
+            document.getElementById('kpi-wip').textContent = formatMoney(kpis.wip_represado);
+            document.getElementById('kpi-glosa').textContent = formatMoney(kpis.glosa_total);
+            document.getElementById('kpi-taxa-glosa').textContent = `${kpis.taxa_glosa_pct.toFixed(1)}%`;
+            document.getElementById('kpi-lead-time').textContent = `${kpis.lead_time_medio.toFixed(1)} dias`;
+            document.getElementById('kpi-pmr').textContent = `${Math.round(kpis.pmr_medio)} dias`;
+            document.getElementById('kpi-alos').textContent = `${kpis.permanencia_media.toFixed(1)}d`;
+        }
+
+        function renderChartAging(agingList) {
+            const ctx = document.getElementById('chart-aging-faturar').getContext('2d');
+            
+            // Palette based on risk
+            const labels = agingList.map(item => item.faixa);
+            const values = agingList.map(item => item.valor);
+            const qtds = agingList.map(item => item.qtd);
+
+            const colors = labels.map(label => {
+                if (label.includes("0 a 7")) return 'rgba(16, 185, 129, 0.85)'; // Green
+                if (label.includes("8 a 15")) return 'rgba(14, 165, 233, 0.85)'; // Sky
+                if (label.includes("16 a 30")) return 'rgba(245, 158, 11, 0.85)'; // Amber
+                return 'rgba(239, 68, 68, 0.85)'; // Red >30d
+            });
+
+            if (chartAging) chartAging.destroy();
+
+            chartAging = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Valor Represado (R$)',
+                        data: values,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return ` Total: ${formatMoney(context.raw)} (${qtds[idx]} contas)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: val => 'R$ ' + (val >= 1000000 ? (val / 1000000).toFixed(1) + 'M' : (val / 1000).toFixed(0) + 'k')
+                            }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 11, weight: '500' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderChartGargalos(gargalos) {
+            const ctx = document.getElementById('chart-gargalos').getContext('2d');
+            
+            const labels = gargalos.map(g => g.motivo);
+            const values = gargalos.map(g => g.valor);
+            const leadTimes = gargalos.map(g => g.lead_time);
+
+            if (chartGargalos) chartGargalos.destroy();
+
+            chartGargalos = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: [
+                            'rgba(14, 165, 233, 0.85)',
+                            'rgba(99, 102, 241, 0.85)',
+                            'rgba(245, 158, 11, 0.85)',
+                            'rgba(244, 63, 94, 0.85)',
+                            'rgba(16, 185, 129, 0.85)'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#0f172a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#cbd5e1',
+                                font: { size: 11 },
+                                boxWidth: 12
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return ` ${context.label}: ${formatMoney(context.raw)} (Lead: ${leadTimes[idx]}d)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '62%'
+                }
+            });
+        }
+
+        function renderScorecard(scorecard) {
+            const tbody = document.getElementById('tabela-scorecard');
+            tbody.innerHTML = '';
+
+            if (!scorecard || scorecard.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-slate-500">Nenhum dado encontrado para os filtros selecionados.</td></tr>';
+                return;
+            }
+
+            scorecard.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+
+                // Badge CCR
+                let ccrBadge = 'text-emerald-400 bg-emerald-950/60 border border-emerald-800/40';
+                if (item.ccr_pct < 80) ccrBadge = 'text-rose-400 bg-rose-950/60 border border-rose-800/40';
+                else if (item.ccr_pct < 85) ccrBadge = 'text-amber-400 bg-amber-950/60 border border-amber-800/40';
+
+                // Badge Glosa
+                let glosaClass = 'text-emerald-400';
+                if (item.taxa_glosa > 5) glosaClass = 'text-rose-400 font-bold';
+                else if (item.taxa_glosa > 3.5) glosaClass = 'text-amber-400';
+
+                // Rating Badge
+                let ratingHtml = '';
+                if (item.rating.includes('Tier 1')) {
+                    ratingHtml = `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-800 flex items-center justify-center gap-1.5"><i class="fa-solid fa-circle-check text-[10px]"></i> Tier 1 (Excelente)</span>`;
+                } else if (item.rating.includes('Tier 2')) {
+                    ratingHtml = `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-950/80 text-amber-300 border border-amber-800 flex items-center justify-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-[10px]"></i> Tier 2 (Atenção)</span>`;
+                } else {
+                    ratingHtml = `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-950/80 text-rose-300 border border-rose-800 flex items-center justify-center gap-1.5"><i class="fa-solid fa-circle-xmark text-[10px]"></i> Tier 3 (Crítico)</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-semibold text-white flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full ${item.rating.includes('Tier 1') ? 'bg-emerald-400' : (item.rating.includes('Tier 2') ? 'bg-amber-400' : 'bg-rose-400')}"></div>
+                        ${item.convenio}
+                    </td>
+                    <td class="py-3 px-3 text-right font-mono">${formatNumber(item.qtd_contas)}</td>
+                    <td class="py-3 px-3 text-right font-mono font-medium">${formatMoney(item.faturado)}</td>
+                    <td class="py-3 px-3 text-right font-mono text-slate-300">${formatMoney(item.ticket_medio)}</td>
+                    <td class="py-3 px-3 text-center">
+                        <span class="px-2 py-0.5 rounded text-xs font-mono font-semibold ${ccrBadge}">
+                            ${item.ccr_pct.toFixed(1)}%
+                        </span>
+                    </td>
+                    <td class="py-3 px-3 text-center font-mono ${glosaClass}">
+                        ${item.taxa_glosa.toFixed(1)}%
+                    </td>
+                    <td class="py-3 px-3 text-center font-mono text-slate-300">
+                        ${item.pmr_dias} dias
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        ${ratingHtml}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderChartModelos(modelos) {
+            const ctx = document.getElementById('chart-modelos').getContext('2d');
+            
+            const labels = modelos.map(m => m.modelo);
+            const faturados = modelos.map(m => m.faturado);
+            const taxasGlosa = modelos.map(m => m.taxa_glosa);
+
+            if (chartModelos) chartModelos.destroy();
+
+            chartModelos = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Faturamento Total (R$)',
+                        data: faturados,
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#10b981',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return ` Faturamento: ${formatMoney(context.raw)} | Glosa: ${taxasGlosa[idx]}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: val => 'R$ ' + (val >= 1000000 ? (val / 1000000).toFixed(1) + 'M' : (val / 1000).toFixed(0) + 'k')
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderChartAtendimentos(atendimentos) {
+            const ctx = document.getElementById('chart-atendimentos').getContext('2d');
+            
+            const labels = atendimentos.map(a => a.tipo);
+            const faturados = atendimentos.map(a => a.faturado);
+            const tickets = atendimentos.map(a => a.ticket_medio);
+
+            if (chartAtendimentos) chartAtendimentos.destroy();
+
+            chartAtendimentos = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Faturamento Bruto (R$)',
+                            data: faturados,
+                            backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                            borderColor: '#6366f1',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return ` Faturamento: ${formatMoney(context.raw)} | Ticket Médio: ${formatMoney(tickets[idx])}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: val => 'R$ ' + (val >= 1000000 ? (val / 1000000).toFixed(1) + 'M' : (val / 1000).toFixed(0) + 'k')
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTabelaContas(contas) {
+            const tbody = document.getElementById('tabela-contas-body');
+            tbody.innerHTML = '';
+
+            if (!contas || contas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="12" class="text-center py-6 text-slate-500">Nenhuma conta encontrada.</td></tr>';
+                return;
+            }
+
+            contas.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+
+                const isClean = c.is_clean_claim === 1;
+                const cleanBadge = isClean 
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/70 text-emerald-400 border border-emerald-800">Limpa</span>`
+                    : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950/70 text-rose-400 border border-rose-800">Glosada</span>`;
+
+                let faixaClass = "text-slate-300";
+                if (c.aging_faturar.includes("> 30")) faixaClass = "text-rose-400 font-bold";
+                else if (c.aging_faturar.includes("16 a 30")) faixaClass = "text-amber-400";
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 font-mono text-sky-400 font-semibold">#${c.id_conta}</td>
+                    <td class="py-2.5 px-3 font-mono text-slate-400">${c.data_alta}</td>
+                    <td class="py-2.5 px-3 font-medium text-slate-200">${c.hospital}</td>
+                    <td class="py-2.5 px-3 text-slate-300">${c.convenio}</td>
+                    <td class="py-2.5 px-3 text-slate-300">${c.tipo_atendimento}</td>
+                    <td class="py-2.5 px-3 text-slate-400 text-[11px]">${c.modelo}</td>
+                    <td class="py-2.5 px-2 text-center font-mono">${c.lead_time}d</td>
+                    <td class="py-2.5 px-3 text-[11px] ${faixaClass}">${c.aging_faturar}</td>
+                    <td class="py-2.5 px-2 text-center">${cleanBadge}</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-medium">${formatMoney(c.valor_bruto)}</td>
+                    <td class="py-2.5 px-3 text-right font-mono ${c.valor_glosa > 0 ? 'text-rose-400 font-semibold' : 'text-slate-500'}">${formatMoney(c.valor_glosa)}</td>
+                    <td class="py-2.5 px-3 text-center">
+                        <span class="px-2 py-0.5 rounded text-[10px] ${c.status_recebimento === 'Liquidado' ? 'bg-emerald-950/60 text-emerald-400' : 'bg-slate-800 text-slate-400'}">
+                            ${c.status_recebimento}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filtrarTabelaContas() {
+            const termo = document.getElementById('filtro-pesquisa-tabela').value.toLowerCase();
+            if (!termo) {
+                renderTabelaContas(dadosContasCache);
+                return;
+            }
+
+            const filtrados = dadosContasCache.filter(c => {
+                return (
+                    String(c.id_conta).includes(termo) ||
+                    c.hospital.toLowerCase().includes(termo) ||
+                    c.convenio.toLowerCase().includes(termo) ||
+                    c.tipo_atendimento.toLowerCase().includes(termo) ||
+                    c.modelo.toLowerCase().includes(termo) ||
+                    c.aging_faturar.toLowerCase().includes(termo)
+                );
+            });
+            renderTabelaContas(filtrados);
+        }
+
+        function exportarExcel() {
+            const qs = getQueryParams();
+            const url = `/api/exportar/excel${qs ? '?' + qs : ''}`;
+            window.location.href = url;
+        }
+
+        // Initialize on Load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await carregarFiltros();
+            await carregarDados();
+        });
+    
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                const docEl = document.documentElement;
+                if (docEl.requestFullscreen) docEl.requestFullscreen();
+                else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+                else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        }
+
+        function updateFullscreenUI() {
+            const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+            const icon = document.getElementById('icon-fullscreen');
+            const label = document.getElementById('label-fullscreen');
+            const btn = document.getElementById('btn-fullscreen');
+            if (!btn) return;
+            if (isFS) {
+                if (icon) icon.className = 'fa-solid fa-compress';
+                if (label) label.textContent = 'Sair Tela Cheia';
+                btn.classList.add('bg-cyan-700', 'text-white');
+            } else {
+                if (icon) icon.className = 'fa-solid fa-expand';
+                if (label) label.textContent = 'Tela Cheia';
+                btn.classList.remove('bg-cyan-700', 'text-white');
+            }
+        }
+
+        document.addEventListener('fullscreenchange', updateFullscreenUI);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+        document.addEventListener('msfullscreenchange', updateFullscreenUI);
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'f' || e.key === 'F') && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+                toggleFullscreen();
+            }
+        });
+</script>
+</body>
+</html>

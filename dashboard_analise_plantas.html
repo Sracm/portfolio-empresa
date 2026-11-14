@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Time Unidades de Negocios • Cockpit Executivo</title>
+    
+    <!-- Google Fonts: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js CDN (com fallback local se offline) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="ecommerce/static/js/chart.umd.min.js"><\/script>');
+        }
+    </script>
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        if (typeof lucide === 'undefined') {
+            document.write('<script src="ecommerce/static/js/lucide.min.js"><\/script>');
+        }
+    </script>
+
+    <style>
+        /* ==========================================================================
+           NEXUS INDUSTRIAL • EXECUTIVE ANALYTICS DARK THEME
+           100% Descaracterizado, Agnóstico e Focado em Performance de Plantas
+           ========================================================================== */
+        :root {
+            --bg-body: #0a0b0e;
+            --bg-navbar: #0f1015;
+            --bg-card: #13141a;
+            --bg-card-inner: rgba(255, 255, 255, 0.02);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(203, 151, 39, 0.35);
+
+            --accent-green: #00E676;
+            --accent-red: #FF5252;
+            --accent-gold: #FFB300;
+            --accent-gold-dark: #CB9727;
+            --accent-blue: #2979FF;
+            --accent-cyan: #00E5FF;
+            --accent-purple: #B388FF;
+
+            --text-primary: #FFFFFF;
+            --text-secondary: #9E9EA7;
+            --text-muted: #62626C;
+
+            --font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Scrollbar Moderna */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0b0e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232530;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #343746;
+        }
+
+        /* ── Top Header Navbar ────────────────────────────────────────────── */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(15, 16, 21, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-card);
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .header-brand-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .brand-logo-icon {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #FFB300, #CB9727);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 900;
+            color: #0B0B0E;
+            box-shadow: 0 0 16px rgba(255, 179, 0, 0.3);
+        }
+
+        .brand-title {
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            color: #fff;
+        }
+
+        .brand-title span {
+            color: var(--accent-gold);
+        }
+
+        .brand-separator {
+            width: 1px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .header-subtitle {
+            font-size: 13px;
+            color: #C0C0C8;
+            font-weight: 500;
+        }
+
+        /* Filtros Executivos */
+        .header-filters {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-card);
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+        }
+
+        .filter-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .filter-select {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .filter-select option {
+            background: #181920;
+            color: #fff;
+        }
+
+        /* Slider de Dias */
+        .slider-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-card);
+            padding: 5px 12px;
+            border-radius: var(--radius-sm);
+        }
+
+        .slider-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .slider-label strong {
+            color: var(--accent-gold);
+            font-size: 12px;
+        }
+
+        .filter-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 90px;
+            height: 4px;
+            background: #2e303d;
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .filter-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255, 179, 0, 0.6);
+        }
+
+        /* Meta Info e Ações */
+        .header-meta {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.25;
+        }
+
+        .header-meta .next-timer {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-card);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .header-btn.btn-portfolio {
+            background: #1b1c24;
+            color: var(--accent-gold);
+            border-color: var(--border-highlight);
+        }
+        .header-btn.btn-portfolio:hover {
+            background: #252834;
+            box-shadow: 0 0 12px rgba(203, 151, 39, 0.25);
+        }
+
+        /* ── Layout Principal ────────────────────────────────────────────── */
+        .main-container {
+            max-width: 1720px;
+            margin: 0 auto;
+            padding: 20px 24px 60px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ── Card Principal de Seção ───────────────────────────────────────── */
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+        }
+
+        .section-title-group h2 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+            letter-spacing: 0.2px;
+        }
+
+        .section-title-group p {
+            font-size: 0.78rem;
+            color: #E2E2E8;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* Legenda Executiva */
+        .executive-legend {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.meta {
+            background: var(--accent-green);
+            box-shadow: 0 0 8px rgba(0, 230, 118, 0.7);
+        }
+
+        .legend-dot.fat {
+            background: var(--accent-red);
+            box-shadow: 0 0 8px rgba(255, 82, 82, 0.7);
+        }
+
+        .legend-dot.ant {
+            background: #00D2FF;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.9);
+        }
+
+        /* ── Grid dos 6 Cards de Plantas (2 colunas x 3 linhas) ───────────── */
+        .plants-charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        @media (max-width: 1200px) {
+            .plants-charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Card Individual da Planta ────────────────────────────────────── */
+        .plant-chart-card {
+            background: #111217;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .plant-chart-card:hover {
+            border-color: rgba(255, 255, 255, 0.16);
+            transform: translateY(-2px);
+        }
+
+        .plant-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .plant-title-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .plant-title {
+            font-size: 0.95rem;
+            font-weight: 900;
+            letter-spacing: 0.4px;
+            color: #FFFFFF;
+            text-transform: uppercase;
+        }
+
+        /* Status Pills */
+        .status-pill {
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .status-pill.dentro {
+            background: rgba(0, 230, 118, 0.12);
+            color: var(--accent-green);
+            border: 1px solid rgba(0, 230, 118, 0.35);
+        }
+
+        .status-pill.fora {
+            background: rgba(255, 82, 82, 0.12);
+            color: var(--accent-red);
+            border: 1px solid rgba(255, 82, 82, 0.35);
+        }
+
+        .btn-card-zoom {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: color 0.15s ease;
+        }
+
+        .btn-card-zoom:hover {
+            color: #fff;
+        }
+
+        /* Faixa de KPIs (3 Colunas: Faturamento | Meta Acum | Projeção) */
+        .plant-perf-strip {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            padding: 10px 14px;
+        }
+
+        .perf-col {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .perf-col:nth-child(1),
+        .perf-col:nth-child(2) {
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            padding-right: 12px;
+        }
+
+        .perf-tag {
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #8E8E98;
+            white-space: nowrap;
+        }
+
+        /* Valores Principais */
+        .val-main-fat {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--accent-red);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .val-main-meta {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--accent-green);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .val-main-proj {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--accent-gold);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        /* Linhas Secundárias */
+        .perf-sub-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-top: 2px;
+        }
+
+        .sub-metric-item {
+            font-size: 0.70rem;
+            color: #8E8E98;
+            white-space: nowrap;
+        }
+
+        .sub-metric-item strong {
+            font-weight: 700;
+        }
+
+        .sub-metric-item.val-red strong {
+            color: var(--accent-red);
+        }
+
+        .sub-metric-item.val-green strong {
+            color: var(--accent-green);
+        }
+
+        .sub-metric-item.val-gold strong {
+            color: var(--accent-gold);
+        }
+
+        /* Faixa de Destaque: Maior Dia */
+        .record-strip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 179, 0, 0.05);
+            border: 1px solid rgba(255, 179, 0, 0.2);
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.72rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        .record-badge-date {
+            background: rgba(255, 179, 0, 0.15);
+            padding: 1px 6px;
+            border-radius: 3px;
+            color: #fff;
+            font-weight: 800;
+        }
+
+        /* Container do Gráfico */
+        .chart-box {
+            height: 170px;
+            position: relative;
+            margin-top: 4px;
+        }
+
+        /* ── Seção 2: Tabela de Quadro de Resultados ──────────────────────── */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .modern-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.80rem;
+            text-align: left;
+        }
+
+        .modern-table thead tr th {
+            background: #181920;
+            color: #A0A0AA;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.68rem;
+            letter-spacing: 0.5px;
+            padding: 10px 14px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modern-table tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        .modern-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .modern-table tbody tr td {
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #E2E2E8;
+            font-weight: 600;
+        }
+
+        .modern-table tfoot tr td {
+            background: #16171E;
+            color: #fff;
+            font-weight: 800;
+            padding: 12px 14px;
+            border-top: 2px solid var(--accent-gold-dark);
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* ── Seção 3: Grid de Histórico e Financeiro ──────────────────────── */
+        .dual-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .dual-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mini-chart-card {
+            background: #111217;
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mini-card-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* ── Modal de Zoom do Gráfico ─────────────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: #13141b;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-md);
+            width: 100%;
+            max-width: 1100px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+
+        .modal-close-btn:hover {
+            color: #fff;
+        }
+
+        .modal-chart-box {
+            height: 380px;
+            position: relative;
+        }
+
+        /* Footer */
+        .app-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .footer-brand {
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Executive Header Navbar -->
+    <header class="app-header">
+        <div class="header-brand-box">
+            <a href="index.html" class="brand-badge" title="Voltar ao Portfólio Principal">
+                <div class="brand-logo-icon">N</div>
+                <div class="brand-title">NEXUS <span>INDUSTRIAL</span></div>
+            </a>
+            <div class="brand-separator"></div>
+            <span class="header-subtitle">Real Time Unidades de Negocios &bull; Cockpit Executivo</span>
+        </div>
+
+        <div class="header-filters">
+            <!-- Filtro Ano -->
+            <div class="filter-item">
+                <span class="filter-label">Ano</span>
+                <select id="sel-ano" class="filter-select" onchange="atualizarDashboard()">
+                    <option value="2026" selected>2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+
+            <!-- Filtro Mês -->
+            <div class="filter-item">
+                <span class="filter-label">Mês</span>
+                <select id="sel-mes" class="filter-select" onchange="atualizarDashboard()">
+                    <option value="1">Jan</option>
+                    <option value="2">Fev</option>
+                    <option value="3">Mar</option>
+                    <option value="4">Abr</option>
+                    <option value="5">Mai</option>
+                    <option value="6">Jun</option>
+                    <option value="7">Jul</option>
+                    <option value="8">Ago</option>
+                    <option value="9">Set</option>
+                    <option value="10">Out</option>
+                    <option value="11" selected>Nov</option>
+                    <option value="12">Dez</option>
+                </select>
+            </div>
+
+            <!-- Slider Período: Dias -->
+            <div class="slider-box">
+                <span class="slider-label">Período: Dia 1 até <strong id="lbl-dia-fim">9</strong></span>
+                <input type="range" id="slider-dias" min="1" max="30" value="9" class="filter-slider" oninput="onSliderChange(this.value)">
+            </div>
+
+            <!-- Divisão / Linha Industrial -->
+            <div class="filter-item">
+                <span class="filter-label">Divisão</span>
+                <select id="sel-divisao" class="filter-select" onchange="atualizarDashboard()">
+                    <option value="Todas" selected>Todas as Divisões</option>
+                    <option value="Manufatura">Divisão Manufatura</option>
+                    <option value="Montagem">Divisão Montagem</option>
+                    <option value="Componentes">Divisão Componentes</option>
+                    <option value="Logistica">Divisão Logística & Supply</option>
+                </select>
+            </div>
+
+            <!-- Timer / Meta Info -->
+            <div class="header-meta">
+                <div>Atualizado: <strong id="lbl-hora-atual">10:39:38</strong></div>
+                <div class="next-timer">Próxima atualização em: <span id="lbl-timer-regressivo">28:45</span></div>
+            </div>
+
+            <!-- Ações -->
+            <button type="button" class="header-btn" onclick="simularRefresh()" title="Atualizar dados em tempo real">
+                <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i>
+                <span>Atualizar Dados</span>
+            </button>
+
+            <button type="button" class="header-btn" onclick="toggleFullscreen()" title="Modo Tela Cheia">
+                <i class="fa-solid fa-expand"></i>
+                <span>Modo Tela Cheia</span>
+            </button>
+
+            <a href="index.html" class="header-btn btn-portfolio" title="Retornar ao Portfólio de Dashboards">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Voltar ao Portfólio</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-container">
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             SEÇÃO 1: EVOLUÇÃO DIÁRIA ACUMULADA: META VS REALIZADO (6 CARDS)
+             ══════════════════════════════════════════════════════════════════ -->
+        <section class="section-card">
+            <div class="section-header">
+                <div class="section-title-group">
+                    <h2>Evolução Diária Acumulada: Meta vs Realizado</h2>
+                    <p>Curvas acumuladas dia a dia comparando o ritmo planejado por unidade de negócios</p>
+                </div>
+                <div class="executive-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot meta"></span>
+                        <span>Meta Acumulada</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot fat"></span>
+                        <span>Faturamento Atual</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot ant"></span>
+                        <span style="color: #00D2FF; font-weight: 700;">Fat. Mês Anterior (M-1)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid 2 Colunas x 3 Linhas com os 6 Cards de Gráficos -->
+            <div class="plants-charts-grid">
+
+                <!-- 1. TODAS AS UNIDADES DE NEGÓCIOS (CONSOLIDADO) -->
+                <div class="plant-chart-card">
+                    <div class="plant-card-header">
+                        <div class="plant-title-box">
+                            <span class="plant-title">TODAS AS UNIDADES DE NEGÓCIOS</span>
+                            <span id="badge-total" class="status-pill dentro">DENTRO DA META</span>
+                        </div>
+                        <button class="btn-card-zoom" onclick="abrirZoom('total')" title="Ampliar gráfico">
+                            <i class="fa-solid fa-expand"></i>
+                        </button>
+                    </div>
+
+                    <div class="plant-perf-strip">
+                        <div class="perf-col">
+                            <span class="perf-tag">FATURAMENTO ATUAL</span>
+                            <span class="val-main-fat" id="val-fat-total">R$ 1.082.797</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-red">Faturamento/dia: <strong id="dia-fat-total">R$ 120.311</strong></span>
+                                <span class="sub-metric-item" style="color: #00D2FF; font-weight: 600;">Mês Ant. (M-1): <strong id="val-ant-total" style="color: #00D2FF;">R$ 868.000</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">META DO PERÍODO ACUM.</span>
+                            <span class="val-main-meta" id="val-meta-total">R$ 971.402</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-green">Diferença: <strong id="diff-meta-total">+R$ 111.396</strong></span>
+                                <span class="sub-metric-item val-green">Evolução: <strong id="pct-meta-total">+11.5%</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">PROJEÇÃO FECHAMENTO</span>
+                            <span class="val-main-proj" id="val-proj-total">R$ 3.609.324</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-gold">Meta Mês: <strong id="mes-meta-total">R$ 3.238.005</strong></span>
+                                <span class="sub-metric-item val-gold">Gap: <strong id="gap-proj-total">+R$ 371.319</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="record-strip">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <span>MAIOR DIA:</span>
+                        <span class="record-badge-date" id="record-dia-total">03/11</span>
+                        <span id="record-val-total">(R$ 169.728)</span>
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="chart-total"></canvas>
+                    </div>
+                </div>
+
+                <!-- 2. LOGISTICA -->
+                <div class="plant-chart-card">
+                    <div class="plant-card-header">
+                        <div class="plant-title-box">
+                            <span class="plant-title">LOGISTICA</span>
+                            <span id="badge-p1" class="status-pill dentro">DENTRO DA META</span>
+                        </div>
+                        <button class="btn-card-zoom" onclick="abrirZoom('p1')" title="Ampliar gráfico">
+                            <i class="fa-solid fa-expand"></i>
+                        </button>
+                    </div>
+
+                    <div class="plant-perf-strip">
+                        <div class="perf-col">
+                            <span class="perf-tag">FATURAMENTO ATUAL</span>
+                            <span class="val-main-fat" id="val-fat-p1">R$ 711.731</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-red">Faturamento/dia: <strong id="dia-fat-p1">R$ 79.081</strong></span>
+                                <span class="sub-metric-item" style="color: #00D2FF; font-weight: 600;">Mês Ant. (M-1): <strong id="val-ant-p1" style="color: #00D2FF;">R$ 485.000</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">META DO PERÍODO ACUM.</span>
+                            <span class="val-main-meta" id="val-meta-p1">R$ 600.902</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-green">Diferença: <strong id="diff-meta-p1">+R$ 110.829</strong></span>
+                                <span class="sub-metric-item val-green">Evolução: <strong id="pct-meta-p1">+18.4%</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">PROJEÇÃO FECHAMENTO</span>
+                            <span class="val-main-proj" id="val-proj-p1">R$ 2.372.435</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-gold">Meta Mês: <strong id="mes-meta-p1">R$ 2.003.005</strong></span>
+                                <span class="sub-metric-item val-gold">Gap: <strong id="gap-proj-p1">+R$ 369.430</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="record-strip">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <span>MAIOR DIA:</span>
+                        <span class="record-badge-date" id="record-dia-p1">07/11</span>
+                        <span id="record-val-p1">(R$ 137.498)</span>
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="chart-p1"></canvas>
+                    </div>
+                </div>
+
+                <!-- 3. BRASIL -->
+                <div class="plant-chart-card">
+                    <div class="plant-card-header">
+                        <div class="plant-title-box">
+                            <span class="plant-title">BRASIL</span>
+                            <span id="badge-p2" class="status-pill fora">FORA DA META</span>
+                        </div>
+                        <button class="btn-card-zoom" onclick="abrirZoom('p2')" title="Ampliar gráfico">
+                            <i class="fa-solid fa-expand"></i>
+                        </button>
+                    </div>
+
+                    <div class="plant-perf-strip">
+                        <div class="perf-col">
+                            <span class="perf-tag">FATURAMENTO ATUAL</span>
+                            <span class="val-main-fat" id="val-fat-p2">R$ 171.136</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-red">Faturamento/dia: <strong id="dia-fat-p2">R$ 19.015</strong></span>
+                                <span class="sub-metric-item" style="color: #00D2FF; font-weight: 600;">Mês Ant. (M-1): <strong id="val-ant-p2" style="color: #00D2FF;">R$ 123.500</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">META DO PERÍODO ACUM.</span>
+                            <span class="val-main-meta" id="val-meta-p2">R$ 224.250</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-red">Diferença: <strong id="diff-meta-p2">-R$ 53.114</strong></span>
+                                <span class="sub-metric-item val-red">Evolução: <strong id="pct-meta-p2">-23.7%</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">PROJEÇÃO FECHAMENTO</span>
+                            <span class="val-main-proj" id="val-proj-p2">R$ 570.453</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-gold">Meta Mês: <strong id="mes-meta-p2">R$ 747.500</strong></span>
+                                <span class="sub-metric-item val-gold">Gap: <strong id="gap-proj-p2">-R$ 177.047</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="record-strip">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <span>MAIOR DIA:</span>
+                        <span class="record-badge-date" id="record-dia-p2">03/11</span>
+                        <span id="record-val-p2">(R$ 33.905)</span>
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="chart-p2"></canvas>
+                    </div>
+                </div>
+
+                <!-- 4. ASIA -->
+                <div class="plant-chart-card">
+                    <div class="plant-card-header">
+                        <div class="plant-title-box">
+                            <span class="plant-title">ASIA</span>
+                            <span id="badge-p3" class="status-pill dentro">DENTRO DA META</span>
+                        </div>
+                        <button class="btn-card-zoom" onclick="abrirZoom('p3')" title="Ampliar gráfico">
+                            <i class="fa-solid fa-expand"></i>
+                        </button>
+                    </div>
+
+                    <div class="plant-perf-strip">
+                        <div class="perf-col">
+                            <span class="perf-tag">FATURAMENTO ATUAL</span>
+                            <span class="val-main-fat" id="val-fat-p3">R$ 191.749</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-red">Faturamento/dia: <strong id="dia-fat-p3">R$ 21.305</strong></span>
+                                <span class="sub-metric-item" style="color: #00D2FF; font-weight: 600;">Mês Ant. (M-1): <strong id="val-ant-p3" style="color: #00D2FF;">R$ 111.500</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">META DO PERÍODO ACUM.</span>
+                            <span class="val-main-meta" id="val-meta-p3">R$ 107.250</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-green">Diferença: <strong id="diff-meta-p3">+R$ 84.499</strong></span>
+                                <span class="sub-metric-item val-green">Evolução: <strong id="pct-meta-p3">+78.8%</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">PROJEÇÃO FECHAMENTO</span>
+                            <span class="val-main-proj" id="val-proj-p3">R$ 639.162</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-gold">Meta Mês: <strong id="mes-meta-p3">R$ 357.500</strong></span>
+                                <span class="sub-metric-item val-gold">Gap: <strong id="gap-proj-p3">+R$ 281.662</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="record-strip">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <span>MAIOR DIA:</span>
+                        <span class="record-badge-date" id="record-dia-p3">03/11</span>
+                        <span id="record-val-p3">(R$ 65.062)</span>
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="chart-p3"></canvas>
+                    </div>
+                </div>
+
+                <!-- 5. LATIM AMERICA -->
+                <div class="plant-chart-card">
+                    <div class="plant-card-header">
+                        <div class="plant-title-box">
+                            <span class="plant-title">LATIM AMERICA</span>
+                            <span id="badge-p4" class="status-pill dentro">DENTRO DA META</span>
+                        </div>
+                        <button class="btn-card-zoom" onclick="abrirZoom('p4')" title="Ampliar gráfico">
+                            <i class="fa-solid fa-expand"></i>
+                        </button>
+                    </div>
+
+                    <div class="plant-perf-strip">
+                        <div class="perf-col">
+                            <span class="perf-tag">FATURAMENTO ATUAL</span>
+                            <span class="val-main-fat" id="val-fat-p4">R$ 124.800</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-red">Faturamento/dia: <strong id="dia-fat-p4">R$ 13.866</strong></span>
+                                <span class="sub-metric-item" style="color: #00D2FF; font-weight: 600;">Mês Ant. (M-1): <strong id="val-ant-p4" style="color: #00D2FF;">R$ 88.200</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">META DO PERÍODO ACUM.</span>
+                            <span class="val-main-meta" id="val-meta-p4">R$ 112.000</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-green">Diferença: <strong id="diff-meta-p4">+R$ 12.800</strong></span>
+                                <span class="sub-metric-item val-green">Evolução: <strong id="pct-meta-p4">+11.4%</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">PROJEÇÃO FECHAMENTO</span>
+                            <span class="val-main-proj" id="val-proj-p4">R$ 416.000</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-gold">Meta Mês: <strong id="mes-meta-p4">R$ 373.330</strong></span>
+                                <span class="sub-metric-item val-gold">Gap: <strong id="gap-proj-p4">+R$ 42.670</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="record-strip">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <span>MAIOR DIA:</span>
+                        <span class="record-badge-date" id="record-dia-p4">05/11</span>
+                        <span id="record-val-p4">(R$ 28.400)</span>
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="chart-p4"></canvas>
+                    </div>
+                </div>
+
+                <!-- 6. EUROPA -->
+                <div class="plant-chart-card">
+                    <div class="plant-card-header">
+                        <div class="plant-title-box">
+                            <span class="plant-title">EUROPA</span>
+                            <span id="badge-p5" class="status-pill dentro">DENTRO DA META</span>
+                        </div>
+                        <button class="btn-card-zoom" onclick="abrirZoom('p5')" title="Ampliar gráfico">
+                            <i class="fa-solid fa-expand"></i>
+                        </button>
+                    </div>
+
+                    <div class="plant-perf-strip">
+                        <div class="perf-col">
+                            <span class="perf-tag">FATURAMENTO ATUAL</span>
+                            <span class="val-main-fat" id="val-fat-p5">R$ 83.381</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-red">Faturamento/dia: <strong id="dia-fat-p5">R$ 9.264</strong></span>
+                                <span class="sub-metric-item" style="color: #00D2FF; font-weight: 600;">Mês Ant. (M-1): <strong id="val-ant-p5" style="color: #00D2FF;">R$ 59.800</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">META DO PERÍODO ACUM.</span>
+                            <span class="val-main-meta" id="val-meta-p5">R$ 76.000</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-green">Diferença: <strong id="diff-meta-p5">+R$ 7.381</strong></span>
+                                <span class="sub-metric-item val-green">Evolução: <strong id="pct-meta-p5">+9.7%</strong></span>
+                            </div>
+                        </div>
+                        <div class="perf-col">
+                            <span class="perf-tag">PROJEÇÃO FECHAMENTO</span>
+                            <span class="val-main-proj" id="val-proj-p5">R$ 277.936</span>
+                            <div class="perf-sub-metrics">
+                                <span class="sub-metric-item val-gold">Meta Mês: <strong id="mes-meta-p5">R$ 253.330</strong></span>
+                                <span class="sub-metric-item val-gold">Gap: <strong id="gap-proj-p5">+R$ 24.606</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="record-strip">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <span>MAIOR DIA:</span>
+                        <span class="record-badge-date" id="record-dia-p5">06/11</span>
+                        <span id="record-val-p5">(R$ 18.900)</span>
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="chart-p5"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             SEÇÃO 2: QUADRO DE RESULTADOS COMPARATIVO POR PLANTA
+             ══════════════════════════════════════════════════════════════════ -->
+        <section class="section-card">
+            <div class="section-header">
+                <div class="section-title-group">
+                    <h2>Quadro Consolidado de Resultados por Unidade de Negócios</h2>
+                    <p>Demonstrativo tabular de faturamento realizado, metas operacionais e projeção linear</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="modern-table" id="tabela-plantas">
+                    <thead>
+                        <tr>
+                            <th>UNIDADE OPERACIONAL</th>
+                            <th class="text-right">FATURAMENTO ATUAL</th>
+                            <th class="text-right">META DO PERÍODO</th>
+                            <th class="text-right">ATINGIMENTO (%)</th>
+                            <th class="text-right">PROJEÇÃO FECHAMENTO</th>
+                            <th class="text-right">META MÊS</th>
+                            <th class="text-right">GAP PROJEÇÃO</th>
+                            <th class="text-center">STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-plantas">
+                        <!-- Preenchido dinamicamente via JS -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td>TOTAL CONSOLIDADO</td>
+                            <td class="text-right" id="tf-fat-total">R$ 1.082.797</td>
+                            <td class="text-right" id="tf-meta-total">R$ 971.402</td>
+                            <td class="text-right" id="tf-ating-total">111.5%</td>
+                            <td class="text-right" id="tf-proj-total">R$ 3.609.324</td>
+                            <td class="text-right" id="tf-metames-total">R$ 3.238.005</td>
+                            <td class="text-right" id="tf-gap-total">+R$ 371.319</td>
+                            <td class="text-center"><span class="status-pill dentro">DENTRO DA META</span></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             SEÇÃO 3: DISTRIBUIÇÃO FINANCEIRA & HISTÓRICO MENSAL
+             ══════════════════════════════════════════════════════════════════ -->
+        <div class="dual-grid">
+            <!-- Modalidades Financeiras / Formas de Faturamento -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-group">
+                        <h2>Formas de Faturamento & Liquidação</h2>
+                        <p>Distribuição de receita por modalidade financeira industrial</p>
+                    </div>
+                </div>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="chart-financeiro"></canvas>
+                </div>
+            </div>
+
+            <!-- Evolução Mensal Consolidada (12 Meses) -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-group">
+                        <h2>Evolução Mensal — Histórico Consolidado</h2>
+                        <p>Faturamento Realizado vs Meta Planejada ao longo do ano</p>
+                    </div>
+                </div>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="chart-mensal-hist"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             SEÇÃO 4: MATRIZ DE LINHAS INDUSTRIAIS & PRODUTIVIDADE
+             ══════════════════════════════════════════════════════════════════ -->
+        <section class="section-card">
+            <div class="section-header">
+                <div class="section-title-group">
+                    <h2>Matriz: Linhas de Produção & Componentes</h2>
+                    <p>Desempenho por linha industrial, volume de lotes expedidos e preço médio unitário</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th class="text-center">RANK</th>
+                            <th>LINHA DE PRODUÇÃO / FAMÍLIA DE ITENS</th>
+                            <th class="text-right">VOLUME EXPEDIDO</th>
+                            <th class="text-right">VALOR FATURADO</th>
+                            <th class="text-right">SHARE (%)</th>
+                            <th class="text-right">PREÇO MÉDIO UNIT.</th>
+                            <th class="text-center">EVOLUÇÃO M-1</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">#1</td>
+                            <td><strong>Módulos de Potência e Automação Industrial</strong></td>
+                            <td class="text-right">1.420 un</td>
+                            <td class="text-right" style="color:var(--accent-red); font-weight:800;">R$ 412.300</td>
+                            <td class="text-right">38.1%</td>
+                            <td class="text-right">R$ 290,35</td>
+                            <td class="text-center" style="color:var(--accent-green); font-weight:700;">+14.2%</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">#2</td>
+                            <td><strong>Sistemas de Acionamento Hidráulico & Pneumático</strong></td>
+                            <td class="text-right">980 un</td>
+                            <td class="text-right" style="color:var(--accent-red); font-weight:800;">R$ 268.450</td>
+                            <td class="text-right">24.8%</td>
+                            <td class="text-right">R$ 273,92</td>
+                            <td class="text-center" style="color:var(--accent-green); font-weight:700;">+8.9%</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">#3</td>
+                            <td><strong>Sensores Ópticos & Controladores Lógicos (CLP)</strong></td>
+                            <td class="text-right">840 un</td>
+                            <td class="text-right" style="color:var(--accent-red); font-weight:800;">R$ 184.220</td>
+                            <td class="text-right">17.0%</td>
+                            <td class="text-right">R$ 219,30</td>
+                            <td class="text-center" style="color:var(--accent-green); font-weight:700;">+5.4%</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">#4</td>
+                            <td><strong>Componentes de Fixação e Estruturas Metálicas</strong></td>
+                            <td class="text-right">1.650 un</td>
+                            <td class="text-right" style="color:var(--accent-red); font-weight:800;">R$ 126.400</td>
+                            <td class="text-right">11.7%</td>
+                            <td class="text-right">R$ 76,60</td>
+                            <td class="text-center" style="color:var(--accent-red); font-weight:700;">-3.1%</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">#5</td>
+                            <td><strong>Kits de Sobressalentes e Manutenção Preditiva</strong></td>
+                            <td class="text-right">510 un</td>
+                            <td class="text-right" style="color:var(--accent-red); font-weight:800;">R$ 91.427</td>
+                            <td class="text-right">8.4%</td>
+                            <td class="text-right">R$ 179,26</td>
+                            <td class="text-center" style="color:var(--accent-green); font-weight:700;">+19.8%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div>
+                <i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:9px; margin-right:6px;"></i>
+                <span>Sistema Ativo &bull; Governança de Dados Corporativa</span>
+            </div>
+            <div>
+                <span>Ambiente Fictício de Demonstração &bull; <strong class="footer-brand">NEXUS INDUSTRIAL BI</strong></span>
+            </div>
+            <div>
+                <span>Desenvolvido por <strong>Antonio Mello | Especialista em BI & Analytics</strong></span>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         MODAL DE ZOOM INDIVIDUAL DA PLANTA
+         ══════════════════════════════════════════════════════════════════ -->
+    <div id="modal-zoom" class="modal-overlay" onclick="fecharModalZoom(event)">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="modal-zoom-title">LOGISTICA</h3>
+                    <p style="font-size:0.75rem; color:#A0A0AA; margin-top:2px;">Detalhamento analítico da curva diária acumulada de meta vs faturamento</p>
+                </div>
+                <button class="modal-close-btn" onclick="fecharModalZoomDirect()">&times;</button>
+            </div>
+            <div class="modal-chart-box">
+                <canvas id="chart-modal"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         LÓGICA JAVASCRIPT: MODELO DE DADOS FICTÍCIOS & ENGINE CHART.JS
+         ══════════════════════════════════════════════════════════════════ -->
+    <script>
+        // ── Base de Dados Fictícia de Demonstração para as 5 Unidades ──
+        const DADOS_PLANTAS = {
+            p1: {
+                nome: "Logística",
+                sigla: "LOG",
+                peso: 0.657,
+                metaMes: 2003005,
+                maiorDia: { dia: "07/11", val: 137498 },
+                curvaDiariaReal: [58200, 119400, 192800, 269100, 361400, 478200, 615698, 672100, 711731],
+                curvaMesAnterior: [38500, 81200, 131000, 185400, 248000, 319500, 395000, 442000, 485000]
+            },
+            p2: {
+                nome: "Brasil",
+                sigla: "BRA",
+                peso: 0.158,
+                metaMes: 747500,
+                maiorDia: { dia: "03/11", val: 33905 },
+                curvaDiariaReal: [14200, 31800, 65705, 84200, 102500, 121800, 139400, 155200, 171136],
+                curvaMesAnterior: [9500, 21000, 38500, 52100, 68000, 83500, 99000, 112000, 123500]
+            },
+            p3: {
+                nome: "Ásia",
+                sigla: "ASI",
+                peso: 0.177,
+                metaMes: 357500,
+                maiorDia: { dia: "03/11", val: 65062 },
+                curvaDiariaReal: [16800, 35400, 100462, 118200, 134100, 151200, 166400, 179800, 191749],
+                curvaMesAnterior: [11200, 24000, 46500, 59800, 71200, 82500, 93000, 103000, 111500]
+            },
+            p4: {
+                nome: "Latin America",
+                sigla: "LAT",
+                peso: 0.115,
+                metaMes: 373330,
+                maiorDia: { dia: "05/11", val: 28400 },
+                curvaDiariaReal: [11500, 24100, 39800, 56200, 84600, 96800, 107200, 116500, 124800],
+                curvaMesAnterior: [7800, 16500, 27400, 39100, 51200, 62400, 72500, 81000, 88200]
+            },
+            p5: {
+                nome: "Europa",
+                sigla: "EUR",
+                peso: 0.077,
+                metaMes: 253330,
+                maiorDia: { dia: "06/11", val: 18900 },
+                curvaDiariaReal: [7200, 15800, 26400, 38100, 51200, 70100, 75400, 79200, 83381],
+                curvaMesAnterior: [4800, 10500, 17800, 25600, 33500, 42100, 49200, 54500, 59800]
+            }
+        };
+
+        // Instâncias ativas do Chart.js
+        const charts = {};
+        let modalChartInstance = null;
+
+        // Formatação de Moeda Brasileira
+        function formatBRL(val) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(val);
+        }
+
+        // Gera as curvas diárias até o dia selecionado no slider
+        function gerarCurvas(key, diaMax, diasMes = 30) {
+            const labels = [];
+            for (let d = 1; d <= diaMax; d++) {
+                labels.push(d);
+            }
+
+            let metaDia, realSerie, antSerie;
+
+            if (key === 'total') {
+                const metaMesTotal = 3238005;
+                metaDia = metaMesTotal / diasMes;
+                
+                realSerie = [];
+                antSerie = [];
+                for (let d = 1; d <= diaMax; d++) {
+                    let somaReal = 0;
+                    let somaAnt = 0;
+                    ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(pKey => {
+                        const p = DADOS_PLANTAS[pKey];
+                        const idx = Math.min(d - 1, p.curvaDiariaReal.length - 1);
+                        somaReal += p.curvaDiariaReal[idx] * (d > p.curvaDiariaReal.length ? (d / p.curvaDiariaReal.length) : 1);
+                        const idxAnt = Math.min(d - 1, p.curvaMesAnterior.length - 1);
+                        somaAnt += p.curvaMesAnterior[idxAnt] * (d > p.curvaMesAnterior.length ? (d / p.curvaMesAnterior.length) : 1);
+                    });
+                    realSerie.push(Math.round(somaReal));
+                    antSerie.push(Math.round(somaAnt));
+                }
+            } else {
+                const p = DADOS_PLANTAS[key];
+                metaDia = p.metaMes / diasMes;
+                realSerie = [];
+                antSerie = [];
+                for (let d = 1; d <= diaMax; d++) {
+                    const idx = Math.min(d - 1, p.curvaDiariaReal.length - 1);
+                    const baseReal = p.curvaDiariaReal[idx];
+                    const valReal = d <= p.curvaDiariaReal.length ? baseReal : Math.round(baseReal + (d - p.curvaDiariaReal.length) * (baseReal / p.curvaDiariaReal.length));
+                    realSerie.push(valReal);
+
+                    const idxAnt = Math.min(d - 1, p.curvaMesAnterior.length - 1);
+                    const baseAnt = p.curvaMesAnterior[idxAnt];
+                    const valAnt = d <= p.curvaMesAnterior.length ? baseAnt : Math.round(baseAnt + (d - p.curvaMesAnterior.length) * (baseAnt / p.curvaMesAnterior.length));
+                    antSerie.push(valAnt);
+                }
+            }
+
+            const metaSerie = labels.map(d => Math.round(metaDia * d));
+
+            return { labels, metaSerie, realSerie, antSerie };
+        }
+
+        // Configuração padrão dos gráficos de linha
+        function criarConfigLinha(labels, metaSerie, realSerie, antSerie) {
+            return {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Meta Acumulada',
+                            data: metaSerie,
+                            borderColor: '#00E676',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            tension: 0.15,
+                            pointRadius: labels.map((_, i) => i === labels.length - 1 ? 5 : (i % 2 === 0 ? 3 : 0)),
+                            pointBackgroundColor: '#00E676',
+                            pointBorderColor: '#13141a',
+                            pointBorderWidth: 1.5,
+                            order: 2
+                        },
+                        {
+                            label: 'Faturamento Atual',
+                            data: realSerie,
+                            borderColor: '#FF5252',
+                            backgroundColor: 'rgba(255, 82, 82, 0.08)',
+                            borderWidth: 2.2,
+                            fill: true,
+                            tension: 0.15,
+                            pointRadius: labels.map((_, i) => i === labels.length - 1 ? 6 : (i % 2 === 0 ? 3.5 : 0)),
+                            pointBackgroundColor: '#FF5252',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 1.5,
+                            order: 1
+                        },
+                        {
+                            label: 'Fat. Mês Anterior (M-1)',
+                            data: antSerie,
+                            borderColor: '#00D2FF',
+                            borderDash: [6, 4],
+                            backgroundColor: 'rgba(0, 210, 255, 0.03)',
+                            borderWidth: 2.5,
+                            tension: 0.15,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#00D2FF',
+                            pointBorderColor: '#0B0D14',
+                            pointBorderWidth: 1.5,
+                            order: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1b1c24',
+                            titleColor: '#FFB300',
+                            bodyColor: '#FFFFFF',
+                            borderColor: 'rgba(255, 255, 255, 0.15)',
+                            borderWidth: 1,
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatBRL(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                            ticks: {
+                                color: '#7E7E8A',
+                                font: { size: 10, family: 'Montserrat', weight: 600 }
+                            }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: {
+                                color: '#7E7E8A',
+                                font: { size: 9, family: 'Montserrat' },
+                                callback: function(val) {
+                                    if (val >= 1000000) return 'R$ ' + (val / 1000000).toFixed(1) + 'M';
+                                    if (val >= 1000) return 'R$ ' + (val / 1000).toFixed(0) + 'k';
+                                    return 'R$ ' + val;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        // Renderização Inicial dos Gráficos das 6 Plantas
+        function inicializarGraficos(diaFim = 9) {
+            const keys = ['total', 'p1', 'p2', 'p3', 'p4', 'p5'];
+            keys.forEach(k => {
+                const ctx = document.getElementById('chart-' + k).getContext('2d');
+                const { labels, metaSerie, realSerie, antSerie } = gerarCurvas(k, diaFim);
+                if (charts[k]) charts[k].destroy();
+                charts[k] = new Chart(ctx, criarConfigLinha(labels, metaSerie, realSerie, antSerie));
+            });
+
+            // Gráfico 7: Distribuição Financeira (Rosca)
+            const ctxFin = document.getElementById('chart-financeiro').getContext('2d');
+            charts['fin'] = new Chart(ctxFin, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Boleto Faturado (B2B)', 'PIX Corporativo', 'Financiamento BNDES', 'Carta de Crédito (Export)', 'TED / Transferência'],
+                    datasets: [{
+                        data: [48.5, 24.2, 12.8, 8.5, 6.0],
+                        backgroundColor: ['#CB9727', '#00E676', '#2979FF', '#FF5252', '#B388FF'],
+                        borderWidth: 2,
+                        borderColor: '#13141a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#E2E2E8',
+                                font: { family: 'Montserrat', size: 11, weight: 600 },
+                                padding: 12
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ctx.label + ': ' + ctx.raw + '% da receita'
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // Gráfico 8: Evolução Mensal Histórica (Barras vs Linha)
+            const ctxHist = document.getElementById('chart-mensal-hist').getContext('2d');
+            charts['hist'] = new Chart(ctxHist, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: 'Meta Planejada (R$)',
+                            data: [2.8, 2.9, 3.1, 3.0, 3.2, 3.1, 3.3, 3.4, 3.3, 3.5, 3.6, 3.8].map(v => v * 1000000),
+                            borderColor: '#00E676',
+                            borderWidth: 2,
+                            tension: 0.2,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#00E676'
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Faturamento Realizado (R$)',
+                            data: [2.95, 2.85, 3.25, 3.12, 3.40, 3.28, 3.52, 3.61, 3.48, 3.75, 3.61, 0].map(v => v * 1000000),
+                            backgroundColor: function(ctx) {
+                                return ctx.dataIndex === 10 ? '#FFB300' : 'rgba(203, 151, 39, 0.7)';
+                            },
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#E2E2E8', font: { family: 'Montserrat', size: 10, weight: 600 } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                            ticks: { color: '#8E8E98', font: { family: 'Montserrat', size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: {
+                                color: '#8E8E98',
+                                font: { family: 'Montserrat', size: 9 },
+                                callback: val => 'R$ ' + (val / 1000000).toFixed(1) + 'M'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Atualiza tabela
+            renderizarTabela(diaFim);
+        }
+
+        // Renderiza as linhas da tabela de resultados
+        function renderizarTabela(diaFim) {
+            const tbody = document.getElementById('tbody-plantas');
+            let html = '';
+
+            const lista = [
+                { key: 'p1', dados: DADOS_PLANTAS.p1 },
+                { key: 'p2', dados: DADOS_PLANTAS.p2 },
+                { key: 'p3', dados: DADOS_PLANTAS.p3 },
+                { key: 'p4', dados: DADOS_PLANTAS.p4 },
+                { key: 'p5', dados: DADOS_PLANTAS.p5 }
+            ];
+
+            lista.forEach(item => {
+                const p = item.dados;
+                const { metaSerie, realSerie } = gerarCurvas(item.key, diaFim);
+                const fatAtual = realSerie[realSerie.length - 1];
+                const metaPeriodo = metaSerie[metaSerie.length - 1];
+                const ating = (fatAtual / metaPeriodo) * 100;
+                const proj = Math.round((fatAtual / diaFim) * 30);
+                const gap = proj - p.metaMes;
+                const isDentro = ating >= 100;
+
+                html += `
+                    <tr>
+                        <td><strong>${p.nome}</strong></td>
+                        <td class="text-right" style="color:var(--accent-red); font-weight:800;">${formatBRL(fatAtual)}</td>
+                        <td class="text-right" style="color:var(--accent-green); font-weight:700;">${formatBRL(metaPeriodo)}</td>
+                        <td class="text-right" style="color:${isDentro ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight:800;">${ating.toFixed(1)}%</td>
+                        <td class="text-right" style="color:var(--accent-gold); font-weight:800;">${formatBRL(proj)}</td>
+                        <td class="text-right">${formatBRL(p.metaMes)}</td>
+                        <td class="text-right" style="color:${gap >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight:700;">${gap >= 0 ? '+' : ''}${formatBRL(gap)}</td>
+                        <td class="text-center">
+                            <span class="status-pill ${isDentro ? 'dentro' : 'fora'}">${isDentro ? 'DENTRO DA META' : 'FORA DA META'}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // Evento de alteração do Slider de Dias (Interatividade em Tempo Real)
+        function onSliderChange(val) {
+            document.getElementById('lbl-dia-fim').innerText = val;
+            const diaNum = parseInt(val, 10);
+
+            const keys = ['total', 'p1', 'p2', 'p3', 'p4', 'p5'];
+            keys.forEach(k => {
+                const { labels, metaSerie, realSerie, antSerie } = gerarCurvas(k, diaNum);
+                const chart = charts[k];
+                if (chart) {
+                    chart.data.labels = labels;
+                    chart.data.datasets[0].data = metaSerie;
+                    chart.data.datasets[1].data = realSerie;
+                    chart.data.datasets[2].data = antSerie;
+                    chart.update('none'); // Update suave sem flicking
+                }
+
+                // Recalcular métricas do card
+                const fatAtual = realSerie[realSerie.length - 1];
+                const metaAcum = metaSerie[metaSerie.length - 1];
+                const diff = fatAtual - metaAcum;
+                const pct = ((fatAtual - metaAcum) / metaAcum) * 100;
+                const vDia = Math.round(fatAtual / diaNum);
+                const proj = Math.round((fatAtual / diaNum) * 30);
+                
+                let metaMesRef = k === 'total' ? 3238005 : DADOS_PLANTAS[k].metaMes;
+                const gap = proj - metaMesRef;
+
+                document.getElementById('val-fat-' + k).innerText = formatBRL(fatAtual);
+                document.getElementById('dia-fat-' + k).innerText = formatBRL(vDia);
+                const elAnt = document.getElementById('val-ant-' + k);
+                if (elAnt) elAnt.innerText = formatBRL(antSerie[antSerie.length - 1]);
+                document.getElementById('val-meta-' + k).innerText = formatBRL(metaAcum);
+                document.getElementById('diff-meta-' + k).innerText = (diff >= 0 ? '+' : '') + formatBRL(diff);
+                document.getElementById('pct-meta-' + k).innerText = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+                document.getElementById('val-proj-' + k).innerText = formatBRL(proj);
+                document.getElementById('gap-proj-' + k).innerText = (gap >= 0 ? '+' : '') + formatBRL(gap);
+
+                // Status Badge
+                const badge = document.getElementById('badge-' + k);
+                if (fatAtual >= metaAcum) {
+                    badge.className = 'status-pill dentro';
+                    badge.innerText = 'DENTRO DA META';
+                } else {
+                    badge.className = 'status-pill fora';
+                    badge.innerText = 'FORA DA META';
+                }
+            });
+
+            renderizarTabela(diaNum);
+        }
+
+        // Simulação de Refresh Dinâmico
+        function simularRefresh() {
+            const icon = document.getElementById('refresh-icon');
+            icon.classList.add('fa-spin');
+            
+            setTimeout(() => {
+                const now = new Date();
+                const horaFormatada = now.toTimeString().split(' ')[0];
+                document.getElementById('lbl-hora-atual').innerText = horaFormatada;
+                icon.classList.remove('fa-spin');
+            }, 800);
+        }
+
+        function atualizarDashboard() {
+            simularRefresh();
+            const diaAtual = document.getElementById('slider-dias').value;
+            onSliderChange(diaAtual);
+        }
+
+        // Toggle Fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+            } else {
+                document.exitFullscreen().catch(err => console.log(err));
+            }
+        }
+
+        // Modal de Zoom do Gráfico
+        function abrirZoom(key) {
+            const modal = document.getElementById('modal-zoom');
+            const title = document.getElementById('modal-zoom-title');
+            const diaNum = parseInt(document.getElementById('slider-dias').value, 10);
+
+            const nome = key === 'total' ? 'TODAS AS UNIDADES DE NEGÓCIOS' : DADOS_PLANTAS[key].nome.toUpperCase();
+            title.innerText = nome;
+
+            modal.classList.add('active');
+
+            const ctxModal = document.getElementById('chart-modal').getContext('2d');
+            const { labels, metaSerie, realSerie, antSerie } = gerarCurvas(key, diaNum);
+
+            if (modalChartInstance) modalChartInstance.destroy();
+            modalChartInstance = new Chart(ctxModal, criarConfigLinha(labels, metaSerie, realSerie, antSerie));
+        }
+
+        function fecharModalZoom(event) {
+            if (event.target === document.getElementById('modal-zoom')) {
+                fecharModalZoomDirect();
+            }
+        }
+
+        function fecharModalZoomDirect() {
+            document.getElementById('modal-zoom').classList.remove('active');
+            if (modalChartInstance) {
+                modalChartInstance.destroy();
+                modalChartInstance = null;
+            }
+        }
+
+        // Inicialização ao carregar a página
+        window.addEventListener('DOMContentLoaded', () => {
+            inicializarGraficos(9);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
+

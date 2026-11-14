@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel TV - Unidades de Negócios (Cockpit Executivo)</title>
+    
+    <!-- Google Fonts: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/canais.css">
+    <script src="js/echarts.min.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --card-dark: #121826;
+            --gold: #cb9727;
+            --gold-light: #f5d372;
+            --green-neon: #00d26a;
+            --red-neon: #ff2424;
+            --yellow-neon: #ffd600;
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .header {
+            background: rgba(18, 24, 38, 0.95);
+            border-bottom: 2px solid rgba(203, 151, 39, 0.3);
+            padding: 8px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .nav-tabs-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        .tab-btn {
+            background: #182030;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .tab-btn:hover, .tab-btn.active {
+            background: linear-gradient(135deg, #cb9727 0%, #a6781b 100%);
+            color: #000;
+            border-color: #cb9727;
+            box-shadow: 0 0 10px rgba(203, 151, 39, 0.4);
+        }
+        .tab-btn.btn-voltar {
+            background: #252830;
+            color: #f5d372;
+            border-color: rgba(203, 151, 39, 0.5);
+        }
+        .tab-btn.btn-voltar:hover {
+            background: #cb9727;
+            color: #000;
+        }
+        .header-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .filters-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        select, .btn-action {
+            background: #182030;
+            border: 1px solid rgba(203, 151, 39, 0.4);
+            color: #f5d372;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            outline: none;
+            cursor: pointer;
+        }
+        .btn-action {
+            background: linear-gradient(135deg, #cb9727 0%, #a6781b 100%);
+            color: #000;
+            border: none;
+        }
+        .header-meta-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.72rem;
+            color: #94a3b8;
+        }
+        .clock {
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .sub-nav-canais {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(10, 14, 23, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            flex-wrap: wrap;
+        }
+        .sub-tab-btn {
+            background: #182030;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sub-tab-btn.active, .sub-tab-btn:hover {
+            background: #cb9727;
+            color: #000;
+            border-color: #cb9727;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+        }
+        .dashboard-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (min-width: 960px) {
+            body {
+                overflow: hidden;
+            }
+            .dashboard-container {
+                height: 100vh;
+                overflow: hidden;
+            }
+            .canais-main-container {
+                flex: 1;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                padding: 6px 16px 10px;
+                box-sizing: border-box;
+                overflow: hidden;
+            }
+            .grid-canais-6 {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+                gap: 12px;
+                flex: 1;
+                min-height: 0;
+                height: 100%;
+                max-width: 1800px;
+                width: 100%;
+                margin: 0 auto;
+                padding: 0;
+                box-sizing: border-box;
+            }
+        }
+        @media (max-width: 959px) {
+            .grid-canais-6 {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                padding: 12px;
+            }
+        }
+        @media (max-width: 600px) {
+            .grid-canais-6 {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 8px;
+            }
+        }
+        .canal-card {
+            background: linear-gradient(180deg, #131722 0%, #0d1017 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 8px 12px 6px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            height: 100%;
+            min-height: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .canal-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(203, 151, 39, 0.5);
+        }
+        .canal-card.meta-batida {
+            border: 2px solid #00d26a;
+            box-shadow: 0 0 16px rgba(0, 210, 106, 0.35);
+        }
+        .canal-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            flex-shrink: 0;
+            margin-bottom: 2px;
+        }
+        .canal-title {
+            text-align: left;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #f5d372;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .badge-objetivo-alcancado {
+            display: none;
+            background: rgba(0, 210, 106, 0.15);
+            border: 1px solid #00d26a;
+            color: #00d26a;
+            font-size: 0.62rem;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 10px;
+            text-align: center;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            animation: pulse-green 2s infinite;
+        }
+        .canal-card.meta-batida .badge-objetivo-alcancado {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.03); }
+        }
+        .canal-chart {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            min-height: 110px;
+        }
+        .canal-info-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.68rem;
+            padding: 3px 6px;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 4px;
+            margin-bottom: 4px;
+            flex-shrink: 0;
+        }
+        .canal-info-bottom span strong {
+            color: #f5d372;
+        }
+        .canal-quarter-badges {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .quarter-pill {
+            background: #182030;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            padding: 3px 2px;
+            text-align: center;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .quarter-pill:hover, .quarter-pill.selected {
+            border-color: #cb9727;
+            background: #222b40;
+        }
+        .quarter-pill .label {
+            font-size: 0.6rem;
+            color: #94a3b8;
+            font-weight: 600;
+            display: block;
+        }
+        .quarter-pill .val {
+            font-weight: 800;
+            font-size: 0.72rem;
+            display: block;
+        }
+        .val-success { color: #00d26a; }
+        .val-warning { color: #ffd600; }
+        .val-danger { color: #ff2424; }
+        .auto-tv-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(0, 210, 106, 0.15);
+            border: 1px solid #00d26a;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #00d26a;
+            font-weight: 700;
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00d26a;
+            box-shadow: 0 0 8px #00d26a;
+            animation: pulse-dot 1.5s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-top">
+                <div class="nav-tabs-container">
+                    <a href="unidades.html" class="tab-btn active"><i class="fa-solid fa-gauge-high"></i> Unidade de Negócios</a>
+                    <a href="trimestre.html" class="tab-btn"><i class="fa-solid fa-chart-pie"></i> Trimestral (Glosas & RCM)</a>
+                    <a href="mapa_brasil.html" class="tab-btn" style="color:#ffd700;"><i class="fa-solid fa-map-location-dot"></i> Mapa Brasil</a>
+                    <a href="paises.html" class="tab-btn"><i class="fa-solid fa-earth-americas"></i> Países & Global</a>
+                    <a href="../index.html" class="tab-btn btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar ao Portfólio</a>
+                </div>
+                <div class="header-actions-right" style="display:flex; align-items:center; gap:8px;">
+                    <div class="auto-tv-indicator" id="auto-tv-badge" onclick="toggleAutoTV()" style="cursor:pointer;" title="Clique para pausar/retomar alternância automática">
+                        <div class="pulse-dot"></div>
+                        <span id="auto-tv-text">AUTO-TV: ATIVA (25s)</span>
+                    </div>
+                    <button class="btn-action" onclick="toggleFullScreen()"><i class="fa-solid fa-expand"></i> Tela Cheia</button>
+                </div>
+            </div>
+
+            <div class="header-bottom">
+                <div class="filters-row">
+                    <select id="filter-month" onchange="updateAllData()">
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11" selected>Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                    <select id="filter-year" onchange="updateAllData()">
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                    </select>
+                    <button class="btn-action" onclick="updateAllData()"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+                </div>
+                <div class="header-meta-info">
+                    <div class="clock" id="clock">11:45:00</div>
+                    <div class="date" id="date">05/11/2026</div>
+                    <div class="last-update" id="last-update">Última atualização: 11:42:00</div>
+                    <div class="next-update" id="next-update">Próxima em: 08:30</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sub-navegação interna de Período -->
+        <div class="sub-nav-canais">
+            <button id="btn-periodo-mes" class="sub-tab-btn active" onclick="setPeriodo('mes')">MÊS SELECIONADO</button>
+            <button id="btn-periodo-t1" class="sub-tab-btn" onclick="setPeriodo('T1')">1º TRI (JAN-MAR)</button>
+            <button id="btn-periodo-t2" class="sub-tab-btn" onclick="setPeriodo('T2')">2º TRI (ABR-JUN)</button>
+            <button id="btn-periodo-t3" class="sub-tab-btn" onclick="setPeriodo('T3')">3º TRI (JUL-SET)</button>
+            <button id="btn-periodo-t4" class="sub-tab-btn" onclick="setPeriodo('T4')">4º TRI (OUT-DEZ)</button>
+        </div>
+
+        <!-- Main Container para os 6 Canais juntos na mesma tela (2x3) -->
+        <main class="canais-main-container">
+            <div id="canais-container" class="grid-canais-6"></div>
+        </main>
+    </div>
+
+    <script>
+        // DATASET 100% FICTÍCIO SEGURO PARA PORTFÓLIO PÚBLICO
+        const UNIDADES = [
+            {
+                id: 1,
+                name: "UNIDADE DE NEGÓCIOS 01",
+                metaMes: 3800000,
+                realMes: 3950000,
+                percentMes: 103.9,
+                quarters: { T1: 104.5, T2: 101.2, T3: 98.6, T4: 103.9 }
+            },
+            {
+                id: 2,
+                name: "UNIDADE DE NEGÓCIOS 02",
+                metaMes: 2500000,
+                realMes: 2270000,
+                percentMes: 90.8,
+                quarters: { T1: 92.4, T2: 89.1, T3: 94.0, T4: 90.8 }
+            },
+            {
+                id: 3,
+                name: "UNIDADE DE NEGÓCIOS 03",
+                metaMes: 5200000,
+                realMes: 5580000,
+                percentMes: 107.3,
+                quarters: { T1: 102.8, T2: 105.4, T3: 108.1, T4: 107.3 }
+            },
+            {
+                id: 4,
+                name: "UNIDADE DE NEGÓCIOS 04",
+                metaMes: 1900000,
+                realMes: 1650000,
+                percentMes: 86.8,
+                quarters: { T1: 85.0, T2: 88.2, T3: 87.5, T4: 86.8 }
+            },
+            {
+                id: 5,
+                name: "UNIDADE DE NEGÓCIOS 05",
+                metaMes: 4300000,
+                realMes: 4420000,
+                percentMes: 102.8,
+                quarters: { T1: 99.4, T2: 101.8, T3: 103.5, T4: 102.8 }
+            },
+            {
+                id: 6,
+                name: "UNIDADE DE NEGÓCIOS 06",
+                metaMes: 3100000,
+                realMes: 2940000,
+                percentMes: 94.8,
+                quarters: { T1: 93.1, T2: 95.6, T3: 96.2, T4: 94.8 }
+            }
+        ];
+
+        let chartInstances = {};
+        let currentPeriod = 'mes';
+        let autoTvActive = true;
+        let autoTvSeconds = 25;
+        let tvTimer = null;
+
+        function formatMoney(v) {
+            return Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+        }
+
+        function getGaugeOption(percent) {
+            const diff = percent - 100;
+            const sign = diff >= 0 ? '+' : '';
+            const diffText = sign + diff.toFixed(1) + '%';
+            const diffColor = diff >= 0 ? '#00d26a' : '#ff3b3b';
+
+            return {
+                series: [{
+                    type: 'gauge',
+                    startAngle: 180,
+                    endAngle: 0,
+                    min: 0,
+                    max: 120,
+                    splitNumber: 12,
+                    radius: '100%',
+                    center: ['50%', '58%'],
+                    axisLine: {
+                        lineStyle: {
+                            width: 16,
+                            color: [
+                                [80 / 120, '#ff3b3b'],
+                                [100 / 120, '#ffc107'],
+                                [1, '#00d26a']
+                            ]
+                        }
+                    },
+                    pointer: {
+                        icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+                        length: '56%',
+                        width: 5.5,
+                        offsetCenter: [0, '-5%'],
+                        itemStyle: { 
+                            color: '#f5c518',
+                            shadowColor: 'rgba(0,0,0,0.6)',
+                            shadowBlur: 4
+                        }
+                    },
+                    axisTick: { length: 5, lineStyle: { color: 'auto', width: 1.2 } },
+                    splitLine: { length: 10, lineStyle: { color: 'auto', width: 2 } },
+                    axisLabel: {
+                        show: false
+                    },
+                    title: {
+                        show: true,
+                        offsetCenter: [0, '14%'],
+                        fontSize: 20,
+                        fontWeight: '800',
+                        color: '#ffffff',
+                        fontFamily: 'Montserrat'
+                    },
+                    detail: {
+                        show: true,
+                        fontSize: 12,
+                        offsetCenter: [0, '32%'],
+                        valueAnimation: true,
+                        formatter: function() { return diffText; },
+                        color: diffColor,
+                        fontWeight: '700',
+                        fontFamily: 'Montserrat'
+                    },
+                    data: [{
+                        value: percent,
+                        name: percent.toFixed(2) + '%'
+                    }]
+                }]
+            };
+        }
+
+        function renderCards() {
+            const container = document.getElementById('canais-container');
+            container.innerHTML = '';
+            
+            Object.values(chartInstances).forEach(c => c && c.dispose());
+            chartInstances = {};
+
+            UNIDADES.forEach((u, idx) => {
+                let currentPct = (currentPeriod === 'mes') ? u.percentMes : u.quarters[currentPeriod];
+                let isHit = currentPct >= 100;
+
+                const card = document.createElement('div');
+                card.className = `canal-card ${isHit ? 'meta-batida' : ''}`;
+                card.id = `card-u-${u.id}`;
+
+                let badgesHtml = ['T1', 'T2', 'T3', 'T4'].map(t => {
+                    let val = u.quarters[t];
+                    let cls = val >= 100 ? 'val-success' : (val >= 80 ? 'val-warning' : 'val-danger');
+                    let sel = currentPeriod === t ? 'selected' : '';
+                    return `
+                        <div class="quarter-pill ${sel}" onclick="setPeriodo('${t}')">
+                            <span class="label">${t}</span>
+                            <span class="val ${cls}">${val.toFixed(1)}%</span>
+                        </div>
+                    `;
+                }).join('');
+
+                card.innerHTML = `
+                    <div class="canal-card-header"><div class="canal-title">${u.name}</div><div class="badge-objetivo-alcancado"><i class="fa-solid fa-trophy"></i> ALCANÇADO</div></div>
+                    
+                    <div class="canal-chart" id="chart-u-${u.id}"></div>
+                    <div class="canal-info-bottom">
+                        <span>Realizado: <strong>${formatMoney(u.realMes)}</strong></span>
+                        <span>Meta: <strong>${formatMoney(u.metaMes)}</strong></span>
+                    </div>
+                    <div class="canal-quarter-badges">
+                        ${badgesHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+
+                // Iniciar ECharts
+                setTimeout(() => {
+                    const chartDom = document.getElementById(`chart-u-${u.id}`);
+                    if (chartDom) {
+                        const chart = echarts.init(chartDom);
+                        chart.setOption(getGaugeOption(currentPct));
+                        chartInstances[u.id] = chart;
+                    }
+                }, 50);
+            });
+        }
+
+        function setPeriodo(p) {
+            currentPeriod = p;
+            document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (p === 'mes') document.getElementById('btn-periodo-mes').classList.add('active');
+            else if (p === 'T1') document.getElementById('btn-periodo-t1').classList.add('active');
+            else if (p === 'T2') document.getElementById('btn-periodo-t2').classList.add('active');
+            else if (p === 'T3') document.getElementById('btn-periodo-t3').classList.add('active');
+            else if (p === 'T4') document.getElementById('btn-periodo-t4').classList.add('active');
+            renderCards();
+        }
+
+        function updateAllData() {
+            const m = parseInt(document.getElementById('filter-month').value);
+            // Variação suave fictícia para cada mês
+            UNIDADES.forEach(u => {
+                const shift = ((m * 3 + u.id * 7) % 15) - 6;
+                u.percentMes = Math.max(65, Math.min(118, 95 + shift + (u.id % 2 === 1 ? 8 : -4)));
+                u.realMes = Math.round(u.metaMes * (u.percentMes / 100));
+            });
+            renderCards();
+            updateClock();
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('pt-BR');
+            document.getElementById('date').innerText = now.toLocaleDateString('pt-BR');
+        }
+
+        function toggleAutoTV() {
+            autoTvActive = !autoTvActive;
+            const badge = document.getElementById('auto-tv-badge');
+            const txt = document.getElementById('auto-tv-text');
+            if (autoTvActive) {
+                badge.style.borderColor = '#00d26a';
+                badge.style.color = '#00d26a';
+                txt.innerText = `AUTO-TV: ATIVA (${autoTvSeconds}s)`;
+            } else {
+                badge.style.borderColor = '#ff2424';
+                badge.style.color = '#ff2424';
+                txt.innerText = 'AUTO-TV: PAUSADA';
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            Object.values(chartInstances).forEach(c => c && c.resize());
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCards();
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            // Auto-TV Rotator (Unidades -> Trimestre -> Mapa -> Paises)
+            setInterval(() => {
+                if (!autoTvActive) return;
+                autoTvSeconds--;
+                if (autoTvSeconds <= 0) {
+                    autoTvSeconds = 25;
+                    window.location.href = 'trimestre.html';
+                }
+                const txt = document.getElementById('auto-tv-text');
+                if (txt && autoTvActive) txt.innerText = `AUTO-TV: ATIVA (${autoTvSeconds}s)`;
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

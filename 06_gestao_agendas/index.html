@@ -1,0 +1,3730 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Gestão de Capacidade &amp; Agendas Livres | Rede Hospitalar &amp; Diagnósticos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        },
+                        capacity: {
+                            cyan: '#06b6d4',
+                            teal: '#0d9488',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e',
+                            indigo: '#6366f1'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #070c14;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+        .glass-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.25s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(6, 182, 212, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.4);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(6, 182, 212, 0.6);
+        }
+    
+        /* ADAPTATIVO MOBILE TAILWIND */
+        @media (max-width: 900px) {
+            body {
+                overflow-x: hidden !important;
+            }
+            header.glass-panel {
+                padding: 12px 14px !important;
+            }
+            main {
+                padding: 12px 8px !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+            .grid-cols-6, .grid-cols-5, .grid-cols-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 8px !important;
+            }
+            .grid-cols-3, .grid-cols-2 {
+                grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+                gap: 12px !important;
+            }
+            .header-actions-mobile {
+                width: 100% !important;
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+            .header-actions-mobile button {
+                flex: 1 1 calc(50% - 4px) !important;
+                justify-content: center !important;
+            }
+            .overflow-x-auto {
+                -webkit-overflow-scrolling: touch !important;
+            }
+            table {
+                min-width: 620px !important;
+            }
+            .text-xl {
+                font-size: 1.1rem !important;
+                line-height: 1.35 !important;
+            }
+            .text-2xl {
+                font-size: 1.35rem !important;
+            }
+            .text-3xl {
+                font-size: 1.6rem !important;
+            }
+            .h-\[320px\], .h-\[300px\], .h-\[350px\] {
+                height: 260px !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .grid-cols-6, .grid-cols-5, .grid-cols-4 {
+                grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+            }
+            .header-actions-mobile button {
+                flex: 1 1 100% !important;
+            }
+        }
+</style>
+
+<script>
+  window.FALLBACK_FILTROS = {
+  "dias_semana": [
+    "Segunda-feira",
+    "Ter\u00e7a-feira",
+    "Quarta-feira",
+    "Quinta-feira",
+    "Sexta-feira",
+    "S\u00e1bado"
+  ],
+  "especialidades": [
+    "Cardiologia",
+    "Cl\u00ednica M\u00e9dica",
+    "Densitometria \u00d3ssea",
+    "Dermatologia",
+    "Ecocardiograma Transtor\u00e1cico",
+    "Endocrinologia & Metabologia",
+    "Endoscopia & Colonoscopia",
+    "Gastroenterologia",
+    "Ginecologia & Obstetr\u00edcia",
+    "Mamografia Digital 3D",
+    "M\u00e9todos Gr\u00e1ficos (Holter/MAPA)",
+    "Neurologia",
+    "Oftalmologia",
+    "Ortopedia & Traumatologia",
+    "Otorrinolaringologia",
+    "Pediatria",
+    "Raios-X Digital",
+    "Resson\u00e2ncia Magn\u00e9tica",
+    "Tomografia Computadorizada",
+    "Ultrassonografia Geral & Doppler"
+  ],
+  "meses": [
+    {
+      "mes": 1,
+      "mes_nome": "Janeiro"
+    },
+    {
+      "mes": 2,
+      "mes_nome": "Fevereiro"
+    },
+    {
+      "mes": 3,
+      "mes_nome": "Mar\u00e7o"
+    },
+    {
+      "mes": 4,
+      "mes_nome": "Abril"
+    },
+    {
+      "mes": 5,
+      "mes_nome": "Maio"
+    },
+    {
+      "mes": 6,
+      "mes_nome": "Junho"
+    },
+    {
+      "mes": 7,
+      "mes_nome": "Julho"
+    },
+    {
+      "mes": 8,
+      "mes_nome": "Agosto"
+    },
+    {
+      "mes": 9,
+      "mes_nome": "Setembro"
+    },
+    {
+      "mes": 10,
+      "mes_nome": "Outubro"
+    },
+    {
+      "mes": 11,
+      "mes_nome": "Novembro"
+    }
+  ],
+  "profissionais": [
+    "Densit\u00f4metro DEXA 01",
+    "Dr. Carlos Eduardo Mendes",
+    "Dr. Fernando Prado",
+    "Dr. Gustavo Henrique Neves",
+    "Dr. Marcelo Fagundes",
+    "Dr. Roberto Takahashi",
+    "Dr. Rodrigo Alencar",
+    "Dra. Beatriz Silveira",
+    "Dra. Camila Duarte",
+    "Dra. Juliana Barreto",
+    "Dra. Luciana Peixoto",
+    "Dra. Mariana Vasconcelos",
+    "Dra. Renata Figueiredo",
+    "Dra. Vanessa Moura",
+    "Ecocardiograma - Sala 01",
+    "Eletrofisiologia - Posto 01",
+    "Mam\u00f3grafo Tomoss\u00edntese",
+    "RM 1.5 Tesla - Sala 02",
+    "RM 3.0 Tesla - Sala 01",
+    "Sala RX Digital 01",
+    "Sala de Procedimentos 01",
+    "TC 128 Canais - Sala 01",
+    "USG - Sala A",
+    "USG - Sala B"
+  ],
+  "tipos": [
+    "Consulta M\u00e9dica",
+    "Exame Diagn\u00f3stico"
+  ],
+  "turnos": [
+    "Integral",
+    "Manh\u00e3",
+    "Tarde"
+  ],
+  "unidades": [
+    "Unidade Jardins - Diagn\u00f3sticos & Especialidades",
+    "Unidade Morumbi - Centro Avan\u00e7ado",
+    "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+  ]
+}
+;
+  window.FALLBACK_DADOS = {
+  "agendas_dias_semana": [
+    {
+      "dia_num": 1,
+      "dia_semana": "Segunda-feira",
+      "lead_time": 7.9,
+      "livres": 945,
+      "ociosidade_pct": 9.3,
+      "ocupacao_pct": 88.4,
+      "ocupadas": 9852,
+      "ofertadas": 11017,
+      "receita_risco": 286310.0
+    },
+    {
+      "dia_num": 2,
+      "dia_semana": "Ter\u00e7a-feira",
+      "lead_time": 7.4,
+      "livres": 1508,
+      "ociosidade_pct": 13.5,
+      "ocupacao_pct": 84.3,
+      "ocupadas": 9758,
+      "ofertadas": 11488,
+      "receita_risco": 437270.0
+    },
+    {
+      "dia_num": 3,
+      "dia_semana": "Quarta-feira",
+      "lead_time": 7.7,
+      "livres": 1146,
+      "ociosidade_pct": 10.8,
+      "ocupacao_pct": 86.9,
+      "ocupadas": 9884,
+      "ofertadas": 11251,
+      "receita_risco": 344550.0
+    },
+    {
+      "dia_num": 4,
+      "dia_semana": "Quinta-feira",
+      "lead_time": 7.5,
+      "livres": 1774,
+      "ociosidade_pct": 16.5,
+      "ocupacao_pct": 81.4,
+      "ocupadas": 9155,
+      "ofertadas": 11137,
+      "receita_risco": 526760.0
+    },
+    {
+      "dia_num": 5,
+      "dia_semana": "Sexta-feira",
+      "lead_time": 7.3,
+      "livres": 2208,
+      "ociosidade_pct": 19.7,
+      "ocupacao_pct": 78.0,
+      "ocupadas": 8966,
+      "ofertadas": 11409,
+      "receita_risco": 666690.0
+    },
+    {
+      "dia_num": 6,
+      "dia_semana": "S\u00e1bado",
+      "lead_time": 5.1,
+      "livres": 3218,
+      "ociosidade_pct": 37.1,
+      "ocupacao_pct": 60.5,
+      "ocupadas": 5322,
+      "ofertadas": 8743,
+      "receita_risco": 957680.0
+    }
+  ],
+  "agendas_especialidade": [
+    {
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "lead_time": 3.4,
+      "livres": 1290,
+      "ocupacao_pct": 80.7,
+      "ocupadas": 6554,
+      "ofertadas": 7984,
+      "proj_d15": 76.1,
+      "proj_d30": 66.0,
+      "proj_d7": 81.4,
+      "receita_risco": 309600.0,
+      "tipo": "Exame Diagn\u00f3stico"
+    },
+    {
+      "especialidade": "Ortopedia & Traumatologia",
+      "lead_time": 4.1,
+      "livres": 906,
+      "ocupacao_pct": 77.3,
+      "ocupadas": 3717,
+      "ofertadas": 4716,
+      "proj_d15": 70.1,
+      "proj_d30": 59.1,
+      "proj_d7": 76.5,
+      "receita_risco": 235560.0,
+      "tipo": "Consulta M\u00e9dica"
+    },
+    {
+      "especialidade": "Raios-X Digital",
+      "lead_time": 1.8,
+      "livres": 767,
+      "ocupacao_pct": 81.2,
+      "ocupadas": 3900,
+      "ofertadas": 4746,
+      "proj_d15": 76.7,
+      "proj_d30": 66.4,
+      "proj_d7": 81.8,
+      "receita_risco": 92040.0,
+      "tipo": "Exame Diagn\u00f3stico"
+    },
+    {
+      "especialidade": "Cardiologia",
+      "lead_time": 6.8,
+      "livres": 662,
+      "ocupacao_pct": 82.5,
+      "ocupadas": 3863,
+      "ofertadas": 4604,
+      "proj_d15": 74.9,
+      "proj_d30": 63.3,
+      "proj_d7": 81.9,
+      "receita_risco": 185360.0,
+      "tipo": "Consulta M\u00e9dica"
+    },
+    {
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica",
+      "lead_time": 10.1,
+      "livres": 635,
+      "ocupacao_pct": 86.2,
+      "ocupadas": 5256,
+      "ofertadas": 6024,
+      "proj_d15": 81.4,
+      "proj_d30": 70.2,
+      "proj_d7": 86.9,
+      "receita_risco": 393520.0,
+      "tipo": "Exame Diagn\u00f3stico"
+    },
+    {
+      "especialidade": "Tomografia Computadorizada",
+      "lead_time": 4.5,
+      "livres": 614,
+      "ocupacao_pct": 79.3,
+      "ocupadas": 2822,
+      "ofertadas": 3509,
+      "proj_d15": 74.5,
+      "proj_d30": 64.7,
+      "proj_d7": 79.9,
+      "receita_risco": 319280.0,
+      "tipo": "Exame Diagn\u00f3stico"
+    },
+    {
+      "especialidade": "Cl\u00ednica M\u00e9dica",
+      "lead_time": 2.0,
+      "livres": 558,
+      "ocupacao_pct": 78.0,
+      "ocupadas": 2219,
+      "ofertadas": 2812,
+      "proj_d15": 70.6,
+      "proj_d30": 59.4,
+      "proj_d7": 77.2,
+      "receita_risco": 122760.0,
+      "tipo": "Consulta M\u00e9dica"
+    },
+    {
+      "especialidade": "Otorrinolaringologia",
+      "lead_time": 4.4,
+      "livres": 537,
+      "ocupacao_pct": 77.1,
+      "ocupadas": 2117,
+      "ofertadas": 2706,
+      "proj_d15": 69.2,
+      "proj_d30": 58.1,
+      "proj_d7": 76.1,
+      "receita_risco": 139620.0,
+      "tipo": "Consulta M\u00e9dica"
+    },
+    {
+      "especialidade": "Pediatria",
+      "lead_time": 2.8,
+      "livres": 484,
+      "ocupacao_pct": 78.5,
+      "ocupadas": 2128,
+      "ofertadas": 2659,
+      "proj_d15": 71.0,
+      "proj_d30": 60.2,
+      "proj_d7": 77.9,
+      "receita_risco": 121000.0,
+      "tipo": "Consulta M\u00e9dica"
+    },
+    {
+      "especialidade": "Densitometria \u00d3ssea",
+      "lead_time": 3.5,
+      "livres": 478,
+      "ocupacao_pct": 80.1,
+      "ocupadas": 2351,
+      "ofertadas": 2889,
+      "proj_d15": 76.0,
+      "proj_d30": 65.7,
+      "proj_d7": 81.3,
+      "receita_risco": 90820.0,
+      "tipo": "Exame Diagn\u00f3stico"
+    },
+    {
+      "especialidade": "Oftalmologia",
+      "lead_time": 6.3,
+      "livres": 471,
+      "ocupacao_pct": 78.8,
+      "ocupadas": 1998,
+      "ofertadas": 2499,
+      "proj_d15": 71.1,
+      "proj_d30": 60.0,
+      "proj_d7": 77.9,
+      "receita_risco": 127170.0,
+      "tipo": "Consulta M\u00e9dica"
+    },
+    {
+      "especialidade": "Mamografia Digital 3D",
+      "lead_time": 5.1,
+      "livres": 463,
+      "ocupacao_pct": 80.5,
+      "ocupadas": 2218,
+      "ofertadas": 2725,
+      "proj_d15": 76.2,
+      "proj_d30": 65.9,
+      "proj_d7": 81.3,
+      "receita_risco": 129640.0,
+      "tipo": "Exame Diagn\u00f3stico"
+    },
+    {
+      "especialidade": "Ecocardiograma Transtor\u00e1cico",
+      "lead_time": 6.2,
+      "livres": 455,
+      "ocupacao_pct": 78.1,
+      "ocupadas": 2002,
+      "ofertadas": 2519,
+      "proj_d15": 73.7,
+      "proj_d30": 63.5,
+      "proj_d7": 78.7,
+      "receita_risco": 159250.0,
+      "tipo": "Exame Diagn\u00f3stico"
+    },
+    {
+      "especialidade": "Ginecologia & Obstetr\u00edcia",
+      "lead_time": 9.3,
+      "livres": 418,
+      "ocupacao_pct": 77.1,
+      "ocupadas": 1741,
+      "ofertadas": 2206,
+      "proj_d15": 69.9,
+      "proj_d30": 59.2,
+      "proj_d7": 76.4,
+      "receita_risco": 121220.0,
+      "tipo": "Consulta M\u00e9dica"
+    },
+    {
+      "especialidade": "Gastroenterologia",
+      "lead_time": 7.8,
+      "livres": 415,
+      "ocupacao_pct": 74.8,
+      "ocupadas": 1458,
+      "ofertadas": 1913,
+      "proj_d15": 68.2,
+      "proj_d30": 57.6,
+      "proj_d7": 74.2,
+      "receita_risco": 120350.0,
+      "tipo": "Consulta M\u00e9dica"
+    },
+    {
+      "especialidade": "Endocrinologia & Metabologia",
+      "lead_time": 14.6,
+      "livres": 411,
+      "ocupacao_pct": 76.3,
+      "ocupadas": 1613,
+      "ofertadas": 2073,
+      "proj_d15": 69.0,
+      "proj_d30": 58.9,
+      "proj_d7": 75.5,
+      "receita_risco": 127410.0,
+      "tipo": "Consulta M\u00e9dica"
+    },
+    {
+      "especialidade": "M\u00e9todos Gr\u00e1ficos (Holter/MAPA)",
+      "lead_time": 5.3,
+      "livres": 411,
+      "ocupacao_pct": 78.2,
+      "ocupadas": 1903,
+      "ofertadas": 2391,
+      "proj_d15": 73.9,
+      "proj_d30": 63.9,
+      "proj_d7": 79.1,
+      "receita_risco": 73980.0,
+      "tipo": "Exame Diagn\u00f3stico"
+    },
+    {
+      "especialidade": "Dermatologia",
+      "lead_time": 14.0,
+      "livres": 322,
+      "ocupacao_pct": 82.9,
+      "ocupadas": 1916,
+      "ofertadas": 2280,
+      "proj_d15": 75.5,
+      "proj_d30": 63.5,
+      "proj_d7": 82.1,
+      "receita_risco": 103040.0,
+      "tipo": "Consulta M\u00e9dica"
+    },
+    {
+      "especialidade": "Neurologia",
+      "lead_time": 22.2,
+      "livres": 265,
+      "ocupacao_pct": 81.9,
+      "ocupadas": 1549,
+      "ofertadas": 1855,
+      "proj_d15": 74.0,
+      "proj_d30": 62.6,
+      "proj_d7": 80.7,
+      "receita_risco": 100700.0,
+      "tipo": "Consulta M\u00e9dica"
+    },
+    {
+      "especialidade": "Endoscopia & Colonoscopia",
+      "lead_time": 15.1,
+      "livres": 237,
+      "ocupacao_pct": 82.6,
+      "ocupadas": 1612,
+      "ofertadas": 1935,
+      "proj_d15": 78.5,
+      "proj_d30": 67.7,
+      "proj_d7": 83.9,
+      "receita_risco": 146940.0,
+      "tipo": "Exame Diagn\u00f3stico"
+    }
+  ],
+  "amostra_agendas": [
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Ecocardiograma Transtor\u00e1cico",
+      "id": 53938,
+      "lead_time": 3,
+      "livres": 5,
+      "ocupacao": 61.5,
+      "ocupadas": 8,
+      "ofertadas": 13,
+      "profissional": "Ecocardiograma - Sala 01",
+      "receita_risco": 1750.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "M\u00e9todos Gr\u00e1ficos (Holter/MAPA)",
+      "id": 53937,
+      "lead_time": 1,
+      "livres": 4,
+      "ocupacao": 58.3,
+      "ocupadas": 7,
+      "ofertadas": 12,
+      "profissional": "Eletrofisiologia - Posto 01",
+      "receita_risco": 720.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "id": 53936,
+      "lead_time": 7,
+      "livres": 6,
+      "ocupacao": 58.8,
+      "ocupadas": 10,
+      "ofertadas": 17,
+      "profissional": "USG - Sala A",
+      "receita_risco": 1440.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Endoscopia & Colonoscopia",
+      "id": 53935,
+      "lead_time": 15,
+      "livres": 3,
+      "ocupacao": 70.0,
+      "ocupadas": 7,
+      "ofertadas": 10,
+      "profissional": "Sala de Procedimentos 01",
+      "receita_risco": 1860.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "id": 53934,
+      "lead_time": 1,
+      "livres": 5,
+      "ocupacao": 64.3,
+      "ocupadas": 9,
+      "ofertadas": 14,
+      "profissional": "USG - Sala B",
+      "receita_risco": 1200.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica",
+      "id": 53933,
+      "lead_time": 7,
+      "livres": 4,
+      "ocupacao": 73.3,
+      "ocupadas": 11,
+      "ofertadas": 15,
+      "profissional": "RM 3.0 Tesla - Sala 01",
+      "receita_risco": 2720.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Raios-X Digital",
+      "id": 53932,
+      "lead_time": 1,
+      "livres": 7,
+      "ocupacao": 63.2,
+      "ocupadas": 12,
+      "ofertadas": 19,
+      "profissional": "Sala RX Digital 01",
+      "receita_risco": 840.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Densitometria \u00d3ssea",
+      "id": 53931,
+      "lead_time": 4,
+      "livres": 5,
+      "ocupacao": 58.3,
+      "ocupadas": 7,
+      "ofertadas": 12,
+      "profissional": "Densit\u00f4metro DEXA 01",
+      "receita_risco": 950.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Otorrinolaringologia",
+      "id": 53930,
+      "lead_time": 1,
+      "livres": 6,
+      "ocupacao": 57.1,
+      "ocupadas": 8,
+      "ofertadas": 14,
+      "profissional": "Dr. Gustavo Henrique Neves",
+      "receita_risco": 1560.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Cardiologia",
+      "id": 53929,
+      "lead_time": 9,
+      "livres": 6,
+      "ocupacao": 66.7,
+      "ocupadas": 12,
+      "ofertadas": 18,
+      "profissional": "Dr. Carlos Eduardo Mendes",
+      "receita_risco": 1680.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Cl\u00ednica M\u00e9dica",
+      "id": 53928,
+      "lead_time": 1,
+      "livres": 6,
+      "ocupacao": 57.1,
+      "ocupadas": 8,
+      "ofertadas": 14,
+      "profissional": "Dra. Juliana Barreto",
+      "receita_risco": 1320.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Oftalmologia",
+      "id": 53927,
+      "lead_time": 4,
+      "livres": 4,
+      "ocupacao": 60.0,
+      "ocupadas": 6,
+      "ofertadas": 10,
+      "profissional": "Dr. Roberto Takahashi",
+      "receita_risco": 1080.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Ginecologia & Obstetr\u00edcia",
+      "id": 53926,
+      "lead_time": 10,
+      "livres": 6,
+      "ocupacao": 53.8,
+      "ocupadas": 7,
+      "ofertadas": 13,
+      "profissional": "Dra. Mariana Vasconcelos",
+      "receita_risco": 1740.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Pediatria",
+      "id": 53925,
+      "lead_time": 1,
+      "livres": 4,
+      "ocupacao": 73.3,
+      "ocupadas": 11,
+      "ofertadas": 15,
+      "profissional": "Dra. Camila Duarte",
+      "receita_risco": 1000.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-28",
+      "dia_semana": "S\u00e1bado",
+      "especialidade": "Ortopedia & Traumatologia",
+      "id": 53924,
+      "lead_time": 1,
+      "livres": 5,
+      "ocupacao": 54.5,
+      "ocupadas": 6,
+      "ofertadas": 11,
+      "profissional": "Dr. Fernando Prado",
+      "receita_risco": 1300.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Endoscopia & Colonoscopia",
+      "id": 53923,
+      "lead_time": 19,
+      "livres": 2,
+      "ocupacao": 89.5,
+      "ocupadas": 17,
+      "ofertadas": 19,
+      "profissional": "Sala de Procedimentos 01",
+      "receita_risco": 1240.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Integral",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Raios-X Digital",
+      "id": 53922,
+      "lead_time": 1,
+      "livres": 4,
+      "ocupacao": 73.3,
+      "ocupadas": 11,
+      "ofertadas": 15,
+      "profissional": "Sala RX Digital 01",
+      "receita_risco": 480.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "id": 53921,
+      "lead_time": 5,
+      "livres": 2,
+      "ocupacao": 86.7,
+      "ocupadas": 13,
+      "ofertadas": 15,
+      "profissional": "USG - Sala B",
+      "receita_risco": 480.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Tomografia Computadorizada",
+      "id": 53920,
+      "lead_time": 5,
+      "livres": 2,
+      "ocupacao": 93.3,
+      "ocupadas": 28,
+      "ofertadas": 30,
+      "profissional": "TC 128 Canais - Sala 01",
+      "receita_risco": 1040.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Integral",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "M\u00e9todos Gr\u00e1ficos (Holter/MAPA)",
+      "id": 53919,
+      "lead_time": 4,
+      "livres": 3,
+      "ocupacao": 70.0,
+      "ocupadas": 7,
+      "ofertadas": 10,
+      "profissional": "Eletrofisiologia - Posto 01",
+      "receita_risco": 540.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica",
+      "id": 53918,
+      "lead_time": 11,
+      "livres": 1,
+      "ocupacao": 94.7,
+      "ocupadas": 18,
+      "ofertadas": 19,
+      "profissional": "RM 3.0 Tesla - Sala 01",
+      "receita_risco": 680.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "id": 53917,
+      "lead_time": 5,
+      "livres": 4,
+      "ocupacao": 80.0,
+      "ocupadas": 28,
+      "ofertadas": 35,
+      "profissional": "USG - Sala A",
+      "receita_risco": 960.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Integral",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Endocrinologia & Metabologia",
+      "id": 53916,
+      "lead_time": 16,
+      "livres": 2,
+      "ocupacao": 80.0,
+      "ocupadas": 8,
+      "ofertadas": 10,
+      "profissional": "Dra. Luciana Peixoto",
+      "receita_risco": 620.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Cardiologia",
+      "id": 53915,
+      "lead_time": 7,
+      "livres": 1,
+      "ocupacao": 90.9,
+      "ocupadas": 10,
+      "ofertadas": 11,
+      "profissional": "Dra. Vanessa Moura",
+      "receita_risco": 280.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Tarde",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Cardiologia",
+      "id": 53914,
+      "lead_time": 13,
+      "livres": 4,
+      "ocupacao": 80.0,
+      "ocupadas": 16,
+      "ofertadas": 20,
+      "profissional": "Dr. Carlos Eduardo Mendes",
+      "receita_risco": 1120.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Integral",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Ortopedia & Traumatologia",
+      "id": 53913,
+      "lead_time": 6,
+      "livres": 2,
+      "ocupacao": 90.9,
+      "ocupadas": 20,
+      "ofertadas": 22,
+      "profissional": "Dr. Marcelo Fagundes",
+      "receita_risco": 520.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Integral",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Ortopedia & Traumatologia",
+      "id": 53912,
+      "lead_time": 2,
+      "livres": 4,
+      "ocupacao": 73.3,
+      "ocupadas": 11,
+      "ofertadas": 15,
+      "profissional": "Dr. Fernando Prado",
+      "receita_risco": 1040.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Neurologia",
+      "id": 53911,
+      "lead_time": 23,
+      "livres": 2,
+      "ocupacao": 62.5,
+      "ocupadas": 5,
+      "ofertadas": 8,
+      "profissional": "Dr. Rodrigo Alencar",
+      "receita_risco": 760.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Tarde",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-27",
+      "dia_semana": "Sexta-feira",
+      "especialidade": "Cl\u00ednica M\u00e9dica",
+      "id": 53910,
+      "lead_time": 1,
+      "livres": 3,
+      "ocupacao": 75.0,
+      "ocupadas": 9,
+      "ofertadas": 12,
+      "profissional": "Dra. Juliana Barreto",
+      "receita_risco": 660.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Tarde",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Densitometria \u00d3ssea",
+      "id": 53909,
+      "lead_time": 2,
+      "livres": 4,
+      "ocupacao": 71.4,
+      "ocupadas": 15,
+      "ofertadas": 21,
+      "profissional": "Densit\u00f4metro DEXA 01",
+      "receita_risco": 760.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Integral",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Endoscopia & Colonoscopia",
+      "id": 53908,
+      "lead_time": 19,
+      "livres": 2,
+      "ocupacao": 88.2,
+      "ocupadas": 15,
+      "ofertadas": 17,
+      "profissional": "Sala de Procedimentos 01",
+      "receita_risco": 1240.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Integral",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "id": 53907,
+      "lead_time": 4,
+      "livres": 7,
+      "ocupacao": 69.6,
+      "ocupadas": 16,
+      "ofertadas": 23,
+      "profissional": "USG - Sala A",
+      "receita_risco": 1680.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Mamografia Digital 3D",
+      "id": 53906,
+      "lead_time": 4,
+      "livres": 4,
+      "ocupacao": 75.0,
+      "ocupadas": 12,
+      "ofertadas": 16,
+      "profissional": "Mam\u00f3grafo Tomoss\u00edntese",
+      "receita_risco": 1120.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Tomografia Computadorizada",
+      "id": 53905,
+      "lead_time": 6,
+      "livres": 5,
+      "ocupacao": 84.4,
+      "ocupadas": 27,
+      "ofertadas": 32,
+      "profissional": "TC 128 Canais - Sala 01",
+      "receita_risco": 2600.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Integral",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Ecocardiograma Transtor\u00e1cico",
+      "id": 53904,
+      "lead_time": 5,
+      "livres": 3,
+      "ocupacao": 70.0,
+      "ocupadas": 7,
+      "ofertadas": 10,
+      "profissional": "Ecocardiograma - Sala 01",
+      "receita_risco": 1050.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Tarde",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Otorrinolaringologia",
+      "id": 53903,
+      "lead_time": 6,
+      "livres": 2,
+      "ocupacao": 75.0,
+      "ocupadas": 6,
+      "ofertadas": 8,
+      "profissional": "Dr. Gustavo Henrique Neves",
+      "receita_risco": 520.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Cardiologia",
+      "id": 53902,
+      "lead_time": 4,
+      "livres": 1,
+      "ocupacao": 87.5,
+      "ocupadas": 7,
+      "ofertadas": 8,
+      "profissional": "Dra. Vanessa Moura",
+      "receita_risco": 280.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Tarde",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Oftalmologia",
+      "id": 53901,
+      "lead_time": 5,
+      "livres": 3,
+      "ocupacao": 78.6,
+      "ocupadas": 11,
+      "ofertadas": 14,
+      "profissional": "Dr. Roberto Takahashi",
+      "receita_risco": 810.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Tarde",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Ortopedia & Traumatologia",
+      "id": 53900,
+      "lead_time": 9,
+      "livres": 5,
+      "ocupacao": 72.7,
+      "ocupadas": 16,
+      "ofertadas": 22,
+      "profissional": "Dr. Marcelo Fagundes",
+      "receita_risco": 1300.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Integral",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Dermatologia",
+      "id": 53899,
+      "lead_time": 16,
+      "livres": 3,
+      "ocupacao": 86.4,
+      "ocupadas": 19,
+      "ofertadas": 22,
+      "profissional": "Dra. Beatriz Silveira",
+      "receita_risco": 960.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Integral",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-26",
+      "dia_semana": "Quinta-feira",
+      "especialidade": "Neurologia",
+      "id": 53898,
+      "lead_time": 26,
+      "livres": 1,
+      "ocupacao": 95.0,
+      "ocupadas": 19,
+      "ofertadas": 20,
+      "profissional": "Dr. Rodrigo Alencar",
+      "receita_risco": 380.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Integral",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "id": 53897,
+      "lead_time": 3,
+      "livres": 3,
+      "ocupacao": 81.2,
+      "ocupadas": 13,
+      "ofertadas": 16,
+      "profissional": "USG - Sala A",
+      "receita_risco": 720.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica",
+      "id": 53896,
+      "lead_time": 12,
+      "livres": 1,
+      "ocupacao": 96.4,
+      "ocupadas": 27,
+      "ofertadas": 28,
+      "profissional": "RM 1.5 Tesla - Sala 02",
+      "receita_risco": 560.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Integral",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Densitometria \u00d3ssea",
+      "id": 53895,
+      "lead_time": 1,
+      "livres": 1,
+      "ocupacao": 93.3,
+      "ocupadas": 14,
+      "ofertadas": 15,
+      "profissional": "Densit\u00f4metro DEXA 01",
+      "receita_risco": 190.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "M\u00e9todos Gr\u00e1ficos (Holter/MAPA)",
+      "id": 53894,
+      "lead_time": 10,
+      "livres": 1,
+      "ocupacao": 66.7,
+      "ocupadas": 8,
+      "ofertadas": 12,
+      "profissional": "Eletrofisiologia - Posto 01",
+      "receita_risco": 180.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Mamografia Digital 3D",
+      "id": 53893,
+      "lead_time": 4,
+      "livres": 1,
+      "ocupacao": 83.3,
+      "ocupadas": 10,
+      "ofertadas": 12,
+      "profissional": "Mam\u00f3grafo Tomoss\u00edntese",
+      "receita_risco": 280.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Ecocardiograma Transtor\u00e1cico",
+      "id": 53892,
+      "lead_time": 8,
+      "livres": 1,
+      "ocupacao": 66.7,
+      "ocupadas": 8,
+      "ofertadas": 12,
+      "profissional": "Ecocardiograma - Sala 01",
+      "receita_risco": 350.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Tarde",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Raios-X Digital",
+      "id": 53891,
+      "lead_time": 2,
+      "livres": 6,
+      "ocupacao": 77.8,
+      "ocupadas": 21,
+      "ofertadas": 27,
+      "profissional": "Sala RX Digital 01",
+      "receita_risco": 720.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Tarde",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Endoscopia & Colonoscopia",
+      "id": 53890,
+      "lead_time": 16,
+      "livres": 1,
+      "ocupacao": 92.3,
+      "ocupadas": 12,
+      "ofertadas": 13,
+      "profissional": "Sala de Procedimentos 01",
+      "receita_risco": 620.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Otorrinolaringologia",
+      "id": 53889,
+      "lead_time": 6,
+      "livres": 1,
+      "ocupacao": 95.2,
+      "ocupadas": 20,
+      "ofertadas": 21,
+      "profissional": "Dr. Gustavo Henrique Neves",
+      "receita_risco": 260.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Integral",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Endocrinologia & Metabologia",
+      "id": 53888,
+      "lead_time": 16,
+      "livres": 1,
+      "ocupacao": 88.9,
+      "ocupadas": 8,
+      "ofertadas": 9,
+      "profissional": "Dra. Luciana Peixoto",
+      "receita_risco": 310.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Ortopedia & Traumatologia",
+      "id": 53887,
+      "lead_time": 4,
+      "livres": 3,
+      "ocupacao": 72.7,
+      "ocupadas": 8,
+      "ofertadas": 11,
+      "profissional": "Dr. Marcelo Fagundes",
+      "receita_risco": 780.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Neurologia",
+      "id": 53886,
+      "lead_time": 29,
+      "livres": 1,
+      "ocupacao": 88.9,
+      "ocupadas": 8,
+      "ofertadas": 9,
+      "profissional": "Dr. Rodrigo Alencar",
+      "receita_risco": 380.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Dermatologia",
+      "id": 53885,
+      "lead_time": 16,
+      "livres": 1,
+      "ocupacao": 80.0,
+      "ocupadas": 8,
+      "ofertadas": 10,
+      "profissional": "Dra. Beatriz Silveira",
+      "receita_risco": 320.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "data": "2026-11-25",
+      "dia_semana": "Quarta-feira",
+      "especialidade": "Cl\u00ednica M\u00e9dica",
+      "id": 53884,
+      "lead_time": 5,
+      "livres": 1,
+      "ocupacao": 90.9,
+      "ocupadas": 10,
+      "ofertadas": 11,
+      "profissional": "Dra. Juliana Barreto",
+      "receita_risco": 220.0,
+      "tipo": "Consulta M\u00e9dica",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-24",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "Raios-X Digital",
+      "id": 53883,
+      "lead_time": 7,
+      "livres": 3,
+      "ocupacao": 87.0,
+      "ocupadas": 20,
+      "ofertadas": 23,
+      "profissional": "Sala RX Digital 01",
+      "receita_risco": 360.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Tarde",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-24",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "Densitometria \u00d3ssea",
+      "id": 53882,
+      "lead_time": 1,
+      "livres": 2,
+      "ocupacao": 91.7,
+      "ocupadas": 22,
+      "ofertadas": 24,
+      "profissional": "Densit\u00f4metro DEXA 01",
+      "receita_risco": 380.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Integral",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-24",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "M\u00e9todos Gr\u00e1ficos (Holter/MAPA)",
+      "id": 53881,
+      "lead_time": 4,
+      "livres": 3,
+      "ocupacao": 83.3,
+      "ocupadas": 15,
+      "ofertadas": 18,
+      "profissional": "Eletrofisiologia - Posto 01",
+      "receita_risco": 540.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Integral",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "data": "2026-11-24",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "Tomografia Computadorizada",
+      "id": 53880,
+      "lead_time": 7,
+      "livres": 2,
+      "ocupacao": 88.9,
+      "ocupadas": 32,
+      "ofertadas": 36,
+      "profissional": "TC 128 Canais - Sala 01",
+      "receita_risco": 1040.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Integral",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "data": "2026-11-24",
+      "dia_semana": "Ter\u00e7a-feira",
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica",
+      "id": 53879,
+      "lead_time": 7,
+      "livres": 1,
+      "ocupacao": 80.0,
+      "ocupadas": 8,
+      "ofertadas": 10,
+      "profissional": "RM 3.0 Tesla - Sala 01",
+      "receita_risco": 680.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "turno": "Manh\u00e3",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    }
+  ],
+  "capacidade_tipo": [
+    {
+      "lead_time": 6.2,
+      "livres": 5350,
+      "ocupacao_pct": 81.2,
+      "ocupadas": 28618,
+      "ofertadas": 34722,
+      "receita_ocupada": 9859650.0,
+      "receita_risco": 1715070.0,
+      "tipo": "Exame Diagn\u00f3stico"
+    },
+    {
+      "lead_time": 8.1,
+      "livres": 5449,
+      "ocupacao_pct": 78.9,
+      "ocupadas": 24319,
+      "ofertadas": 30323,
+      "receita_ocupada": 6787600.0,
+      "receita_risco": 1504190.0,
+      "tipo": "Consulta M\u00e9dica"
+    }
+  ],
+  "kpis": {
+    "lead_time_medio": 7.2,
+    "overbooking_total": 4577,
+    "proj_d15": 73.9,
+    "proj_d30": 63.2,
+    "proj_d7": 79.9,
+    "receita_ocupada": 16647250.0,
+    "receita_risco": 3219260.0,
+    "taxa_ociosidade_pct": 17.8,
+    "taxa_ocupacao_pct": 80.0,
+    "vagas_bloqueadas": 1309,
+    "vagas_livres": 10799,
+    "vagas_ocupadas": 52937,
+    "vagas_ofertadas": 65045
+  },
+  "painel_profissionais": [
+    {
+      "especialidade": "Raios-X Digital",
+      "lead_time": 1.6,
+      "livres": 274,
+      "ocupacao_pct": 80.5,
+      "ocupadas": 1390,
+      "ofertadas": 1696,
+      "overbooking": 94,
+      "profissional": "Sala RX Digital 01",
+      "proj_d7": 81.0,
+      "receita_ocupada": 166800.0,
+      "receita_risco": 32880.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Raios-X Digital",
+      "lead_time": 1.8,
+      "livres": 254,
+      "ocupacao_pct": 82.3,
+      "ocupadas": 1327,
+      "ofertadas": 1602,
+      "overbooking": 96,
+      "profissional": "Sala RX Digital 01",
+      "proj_d7": 82.7,
+      "receita_ocupada": 159240.0,
+      "receita_risco": 30480.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "lead_time": 3.5,
+      "livres": 253,
+      "ocupacao_pct": 81.0,
+      "ocupadas": 1310,
+      "ofertadas": 1587,
+      "overbooking": 97,
+      "profissional": "USG - Sala B",
+      "proj_d7": 82.1,
+      "receita_ocupada": 314400.0,
+      "receita_risco": 60720.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "lead_time": 3.1,
+      "livres": 246,
+      "ocupacao_pct": 78.3,
+      "ocupadas": 1075,
+      "ofertadas": 1344,
+      "overbooking": 76,
+      "profissional": "USG - Sala A",
+      "proj_d7": 78.8,
+      "receita_ocupada": 258000.0,
+      "receita_risco": 59040.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Raios-X Digital",
+      "lead_time": 1.9,
+      "livres": 239,
+      "ocupacao_pct": 80.9,
+      "ocupadas": 1183,
+      "ofertadas": 1448,
+      "overbooking": 85,
+      "profissional": "Sala RX Digital 01",
+      "proj_d7": 81.7,
+      "receita_ocupada": 141960.0,
+      "receita_risco": 28680.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Tomografia Computadorizada",
+      "lead_time": 4.5,
+      "livres": 227,
+      "ocupacao_pct": 78.7,
+      "ocupadas": 982,
+      "ofertadas": 1243,
+      "overbooking": 71,
+      "profissional": "TC 128 Canais - Sala 01",
+      "proj_d7": 79.0,
+      "receita_ocupada": 510640.0,
+      "receita_risco": 118040.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "lead_time": 3.0,
+      "livres": 217,
+      "ocupacao_pct": 82.7,
+      "ocupadas": 1284,
+      "ofertadas": 1528,
+      "overbooking": 99,
+      "profissional": "USG - Sala A",
+      "proj_d7": 83.9,
+      "receita_ocupada": 308160.0,
+      "receita_risco": 52080.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Cl\u00ednica M\u00e9dica",
+      "lead_time": 2.1,
+      "livres": 214,
+      "ocupacao_pct": 78.9,
+      "ocupadas": 897,
+      "ofertadas": 1122,
+      "overbooking": 84,
+      "profissional": "Dra. Juliana Barreto",
+      "proj_d7": 78.8,
+      "receita_ocupada": 197340.0,
+      "receita_risco": 47080.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Ortopedia & Traumatologia",
+      "lead_time": 4.4,
+      "livres": 209,
+      "ocupacao_pct": 76.3,
+      "ocupadas": 779,
+      "ofertadas": 1003,
+      "overbooking": 82,
+      "profissional": "Dr. Marcelo Fagundes",
+      "proj_d7": 75.7,
+      "receita_ocupada": 202540.0,
+      "receita_risco": 54340.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "lead_time": 2.9,
+      "livres": 200,
+      "ocupacao_pct": 79.2,
+      "ocupadas": 954,
+      "ofertadas": 1179,
+      "overbooking": 69,
+      "profissional": "USG - Sala A",
+      "proj_d7": 79.2,
+      "receita_ocupada": 228960.0,
+      "receita_risco": 48000.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Otorrinolaringologia",
+      "lead_time": 4.5,
+      "livres": 198,
+      "ocupacao_pct": 77.5,
+      "ocupadas": 786,
+      "ofertadas": 1003,
+      "overbooking": 75,
+      "profissional": "Dr. Gustavo Henrique Neves",
+      "proj_d7": 76.2,
+      "receita_ocupada": 204360.0,
+      "receita_risco": 51480.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Tomografia Computadorizada",
+      "lead_time": 4.4,
+      "livres": 197,
+      "ocupacao_pct": 79.4,
+      "ocupadas": 951,
+      "ofertadas": 1167,
+      "overbooking": 73,
+      "profissional": "TC 128 Canais - Sala 01",
+      "proj_d7": 80.2,
+      "receita_ocupada": 494520.0,
+      "receita_risco": 102440.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Densitometria \u00d3ssea",
+      "lead_time": 3.6,
+      "livres": 192,
+      "ocupacao_pct": 79.5,
+      "ocupadas": 847,
+      "ofertadas": 1055,
+      "overbooking": 68,
+      "profissional": "Densit\u00f4metro DEXA 01",
+      "proj_d7": 80.6,
+      "receita_ocupada": 160930.0,
+      "receita_risco": 36480.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Tomografia Computadorizada",
+      "lead_time": 4.8,
+      "livres": 190,
+      "ocupacao_pct": 79.8,
+      "ocupadas": 889,
+      "ofertadas": 1099,
+      "overbooking": 68,
+      "profissional": "TC 128 Canais - Sala 01",
+      "proj_d7": 80.7,
+      "receita_ocupada": 462280.0,
+      "receita_risco": 98800.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "lead_time": 3.8,
+      "livres": 189,
+      "ocupacao_pct": 78.6,
+      "ocupadas": 822,
+      "ofertadas": 1026,
+      "overbooking": 65,
+      "profissional": "USG - Sala B",
+      "proj_d7": 78.6,
+      "receita_ocupada": 197280.0,
+      "receita_risco": 45360.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Mamografia Digital 3D",
+      "lead_time": 5.4,
+      "livres": 186,
+      "ocupacao_pct": 80.1,
+      "ocupadas": 872,
+      "ofertadas": 1069,
+      "overbooking": 64,
+      "profissional": "Mam\u00f3grafo Tomoss\u00edntese",
+      "proj_d7": 80.6,
+      "receita_ocupada": 244160.0,
+      "receita_risco": 52080.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Otorrinolaringologia",
+      "lead_time": 4.3,
+      "livres": 185,
+      "ocupacao_pct": 78.2,
+      "ocupadas": 791,
+      "ofertadas": 995,
+      "overbooking": 76,
+      "profissional": "Dr. Gustavo Henrique Neves",
+      "proj_d7": 77.4,
+      "receita_ocupada": 205660.0,
+      "receita_risco": 48100.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Ultrassonografia Geral & Doppler",
+      "lead_time": 4.0,
+      "livres": 185,
+      "ocupacao_pct": 83.2,
+      "ocupadas": 1109,
+      "ofertadas": 1320,
+      "overbooking": 81,
+      "profissional": "USG - Sala B",
+      "proj_d7": 84.6,
+      "receita_ocupada": 266160.0,
+      "receita_risco": 44400.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Ecocardiograma Transtor\u00e1cico",
+      "lead_time": 5.8,
+      "livres": 183,
+      "ocupacao_pct": 76.7,
+      "ocupadas": 746,
+      "ofertadas": 955,
+      "overbooking": 55,
+      "profissional": "Ecocardiograma - Sala 01",
+      "proj_d7": 77.0,
+      "receita_ocupada": 261100.0,
+      "receita_risco": 64050.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Cl\u00ednica M\u00e9dica",
+      "lead_time": 2.0,
+      "livres": 179,
+      "ocupacao_pct": 77.8,
+      "ocupadas": 698,
+      "ofertadas": 894,
+      "overbooking": 63,
+      "profissional": "Dra. Juliana Barreto",
+      "proj_d7": 76.5,
+      "receita_ocupada": 153560.0,
+      "receita_risco": 39380.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Mamografia Digital 3D",
+      "lead_time": 5.2,
+      "livres": 174,
+      "ocupacao_pct": 78.5,
+      "ocupadas": 742,
+      "ofertadas": 935,
+      "overbooking": 57,
+      "profissional": "Mam\u00f3grafo Tomoss\u00edntese",
+      "proj_d7": 79.3,
+      "receita_ocupada": 207760.0,
+      "receita_risco": 48720.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Pediatria",
+      "lead_time": 2.5,
+      "livres": 172,
+      "ocupacao_pct": 77.4,
+      "ocupadas": 698,
+      "ofertadas": 885,
+      "overbooking": 68,
+      "profissional": "Dra. Camila Duarte",
+      "proj_d7": 76.9,
+      "receita_ocupada": 174500.0,
+      "receita_risco": 43000.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Pediatria",
+      "lead_time": 2.8,
+      "livres": 172,
+      "ocupacao_pct": 79.0,
+      "ocupadas": 834,
+      "ofertadas": 1026,
+      "overbooking": 81,
+      "profissional": "Dra. Camila Duarte",
+      "proj_d7": 78.7,
+      "receita_ocupada": 208500.0,
+      "receita_risco": 43000.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Oftalmologia",
+      "lead_time": 6.5,
+      "livres": 167,
+      "ocupacao_pct": 81.6,
+      "ocupadas": 792,
+      "ofertadas": 968,
+      "overbooking": 69,
+      "profissional": "Dr. Roberto Takahashi",
+      "proj_d7": 80.5,
+      "receita_ocupada": 213840.0,
+      "receita_risco": 45090.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Oftalmologia",
+      "lead_time": 6.1,
+      "livres": 166,
+      "ocupacao_pct": 77.2,
+      "ocupadas": 627,
+      "ofertadas": 801,
+      "overbooking": 61,
+      "profissional": "Dr. Roberto Takahashi",
+      "proj_d7": 77.0,
+      "receita_ocupada": 169290.0,
+      "receita_risco": 44820.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Cl\u00ednica M\u00e9dica",
+      "lead_time": 1.9,
+      "livres": 165,
+      "ocupacao_pct": 76.9,
+      "ocupadas": 624,
+      "ofertadas": 796,
+      "overbooking": 62,
+      "profissional": "Dra. Juliana Barreto",
+      "proj_d7": 75.9,
+      "receita_ocupada": 137280.0,
+      "receita_risco": 36300.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Ginecologia & Obstetr\u00edcia",
+      "lead_time": 9.7,
+      "livres": 158,
+      "ocupacao_pct": 78.6,
+      "ocupadas": 709,
+      "ofertadas": 887,
+      "overbooking": 66,
+      "profissional": "Dra. Mariana Vasconcelos",
+      "proj_d7": 78.0,
+      "receita_ocupada": 205610.0,
+      "receita_risco": 45820.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Ortopedia & Traumatologia",
+      "lead_time": 3.4,
+      "livres": 157,
+      "ocupacao_pct": 76.9,
+      "ocupadas": 619,
+      "ofertadas": 793,
+      "overbooking": 63,
+      "profissional": "Dr. Fernando Prado",
+      "proj_d7": 75.6,
+      "receita_ocupada": 160940.0,
+      "receita_risco": 40820.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Densitometria \u00d3ssea",
+      "lead_time": 3.3,
+      "livres": 154,
+      "ocupacao_pct": 81.3,
+      "ocupadas": 780,
+      "ofertadas": 946,
+      "overbooking": 58,
+      "profissional": "Densit\u00f4metro DEXA 01",
+      "proj_d7": 82.8,
+      "receita_ocupada": 148200.0,
+      "receita_risco": 29260.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Otorrinolaringologia",
+      "lead_time": 4.5,
+      "livres": 154,
+      "ocupacao_pct": 75.0,
+      "ocupadas": 540,
+      "ofertadas": 708,
+      "overbooking": 55,
+      "profissional": "Dr. Gustavo Henrique Neves",
+      "proj_d7": 74.2,
+      "receita_ocupada": 140400.0,
+      "receita_risco": 40040.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Ecocardiograma Transtor\u00e1cico",
+      "lead_time": 6.6,
+      "livres": 154,
+      "ocupacao_pct": 78.2,
+      "ocupadas": 666,
+      "ofertadas": 838,
+      "overbooking": 54,
+      "profissional": "Ecocardiograma - Sala 01",
+      "proj_d7": 79.1,
+      "receita_ocupada": 233100.0,
+      "receita_risco": 53900.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Gastroenterologia",
+      "lead_time": 8.3,
+      "livres": 152,
+      "ocupacao_pct": 76.7,
+      "ocupadas": 585,
+      "ofertadas": 755,
+      "overbooking": 59,
+      "profissional": "Dra. Renata Figueiredo",
+      "proj_d7": 75.9,
+      "receita_ocupada": 169650.0,
+      "receita_risco": 44080.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "M\u00e9todos Gr\u00e1ficos (Holter/MAPA)",
+      "lead_time": 5.3,
+      "livres": 152,
+      "ocupacao_pct": 74.6,
+      "ocupadas": 575,
+      "ofertadas": 753,
+      "overbooking": 46,
+      "profissional": "Eletrofisiologia - Posto 01",
+      "proj_d7": 75.3,
+      "receita_ocupada": 103500.0,
+      "receita_risco": 27360.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Gastroenterologia",
+      "lead_time": 7.6,
+      "livres": 151,
+      "ocupacao_pct": 73.4,
+      "ocupadas": 496,
+      "ofertadas": 661,
+      "overbooking": 50,
+      "profissional": "Dra. Renata Figueiredo",
+      "proj_d7": 72.6,
+      "receita_ocupada": 143840.0,
+      "receita_risco": 43790.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Ortopedia & Traumatologia",
+      "lead_time": 4.4,
+      "livres": 148,
+      "ocupacao_pct": 75.2,
+      "ocupadas": 569,
+      "ofertadas": 736,
+      "overbooking": 59,
+      "profissional": "Dr. Marcelo Fagundes",
+      "proj_d7": 75.2,
+      "receita_ocupada": 147940.0,
+      "receita_risco": 38480.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Endocrinologia & Metabologia",
+      "lead_time": 14.4,
+      "livres": 144,
+      "ocupacao_pct": 75.4,
+      "ocupadas": 554,
+      "ofertadas": 712,
+      "overbooking": 55,
+      "profissional": "Dra. Luciana Peixoto",
+      "proj_d7": 74.5,
+      "receita_ocupada": 171740.0,
+      "receita_risco": 44640.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Pediatria",
+      "lead_time": 3.0,
+      "livres": 140,
+      "ocupacao_pct": 79.1,
+      "ocupadas": 596,
+      "ofertadas": 748,
+      "overbooking": 60,
+      "profissional": "Dra. Camila Duarte",
+      "proj_d7": 78.0,
+      "receita_ocupada": 149000.0,
+      "receita_risco": 35000.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Oftalmologia",
+      "lead_time": 6.4,
+      "livres": 138,
+      "ocupacao_pct": 77.1,
+      "ocupadas": 579,
+      "ofertadas": 730,
+      "overbooking": 55,
+      "profissional": "Dr. Roberto Takahashi",
+      "proj_d7": 75.7,
+      "receita_ocupada": 156330.0,
+      "receita_risco": 37260.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Endocrinologia & Metabologia",
+      "lead_time": 14.3,
+      "livres": 138,
+      "ocupacao_pct": 75.4,
+      "ocupadas": 493,
+      "ofertadas": 647,
+      "overbooking": 49,
+      "profissional": "Dra. Luciana Peixoto",
+      "proj_d7": 74.1,
+      "receita_ocupada": 152830.0,
+      "receita_risco": 42780.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Ginecologia & Obstetr\u00edcia",
+      "lead_time": 9.8,
+      "livres": 138,
+      "ocupacao_pct": 78.6,
+      "ocupadas": 617,
+      "ofertadas": 771,
+      "overbooking": 63,
+      "profissional": "Dra. Mariana Vasconcelos",
+      "proj_d7": 77.7,
+      "receita_ocupada": 178930.0,
+      "receita_risco": 40020.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Ortopedia & Traumatologia",
+      "lead_time": 4.7,
+      "livres": 137,
+      "ocupacao_pct": 77.4,
+      "ocupadas": 550,
+      "ofertadas": 702,
+      "overbooking": 57,
+      "profissional": "Dr. Marcelo Fagundes",
+      "proj_d7": 76.2,
+      "receita_ocupada": 143000.0,
+      "receita_risco": 35620.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "M\u00e9todos Gr\u00e1ficos (Holter/MAPA)",
+      "lead_time": 5.5,
+      "livres": 133,
+      "ocupacao_pct": 81.5,
+      "ocupadas": 736,
+      "ofertadas": 889,
+      "overbooking": 55,
+      "profissional": "Eletrofisiologia - Posto 01",
+      "proj_d7": 82.4,
+      "receita_ocupada": 132480.0,
+      "receita_risco": 23940.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Densitometria \u00d3ssea",
+      "lead_time": 3.5,
+      "livres": 132,
+      "ocupacao_pct": 79.6,
+      "ocupadas": 724,
+      "ofertadas": 888,
+      "overbooking": 61,
+      "profissional": "Densit\u00f4metro DEXA 01",
+      "proj_d7": 80.6,
+      "receita_ocupada": 137560.0,
+      "receita_risco": 25080.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Ortopedia & Traumatologia",
+      "lead_time": 3.9,
+      "livres": 130,
+      "ocupacao_pct": 79.0,
+      "ocupadas": 602,
+      "ofertadas": 746,
+      "overbooking": 62,
+      "profissional": "Dr. Fernando Prado",
+      "proj_d7": 77.6,
+      "receita_ocupada": 156520.0,
+      "receita_risco": 33800.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Endocrinologia & Metabologia",
+      "lead_time": 15.1,
+      "livres": 129,
+      "ocupacao_pct": 78.1,
+      "ocupadas": 566,
+      "ofertadas": 714,
+      "overbooking": 61,
+      "profissional": "Dra. Luciana Peixoto",
+      "proj_d7": 77.9,
+      "receita_ocupada": 175460.0,
+      "receita_risco": 39990.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "M\u00e9todos Gr\u00e1ficos (Holter/MAPA)",
+      "lead_time": 5.2,
+      "livres": 126,
+      "ocupacao_pct": 78.4,
+      "ocupadas": 592,
+      "ofertadas": 749,
+      "overbooking": 49,
+      "profissional": "Eletrofisiologia - Posto 01",
+      "proj_d7": 79.6,
+      "receita_ocupada": 106560.0,
+      "receita_risco": 22680.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Ortopedia & Traumatologia",
+      "lead_time": 3.5,
+      "livres": 125,
+      "ocupacao_pct": 80.1,
+      "ocupadas": 598,
+      "ofertadas": 736,
+      "overbooking": 58,
+      "profissional": "Dr. Fernando Prado",
+      "proj_d7": 79.4,
+      "receita_ocupada": 155480.0,
+      "receita_risco": 32500.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Dermatologia",
+      "lead_time": 14.0,
+      "livres": 124,
+      "ocupacao_pct": 83.2,
+      "ocupadas": 758,
+      "ofertadas": 894,
+      "overbooking": 77,
+      "profissional": "Dra. Beatriz Silveira",
+      "proj_d7": 82.5,
+      "receita_ocupada": 242560.0,
+      "receita_risco": 39680.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Ginecologia & Obstetr\u00edcia",
+      "lead_time": 8.1,
+      "livres": 122,
+      "ocupacao_pct": 73.0,
+      "ocupadas": 415,
+      "ofertadas": 548,
+      "overbooking": 41,
+      "profissional": "Dra. Mariana Vasconcelos",
+      "proj_d7": 72.3,
+      "receita_ocupada": 120350.0,
+      "receita_risco": 35380.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Cardiologia",
+      "lead_time": 7.8,
+      "livres": 121,
+      "ocupacao_pct": 83.2,
+      "ocupadas": 757,
+      "ofertadas": 892,
+      "overbooking": 75,
+      "profissional": "Dr. Carlos Eduardo Mendes",
+      "proj_d7": 82.9,
+      "receita_ocupada": 211960.0,
+      "receita_risco": 33880.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Cardiologia",
+      "lead_time": 7.9,
+      "livres": 120,
+      "ocupacao_pct": 83.3,
+      "ocupadas": 672,
+      "ofertadas": 797,
+      "overbooking": 67,
+      "profissional": "Dr. Carlos Eduardo Mendes",
+      "proj_d7": 81.8,
+      "receita_ocupada": 188160.0,
+      "receita_risco": 33600.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Ecocardiograma Transtor\u00e1cico",
+      "lead_time": 6.1,
+      "livres": 118,
+      "ocupacao_pct": 79.9,
+      "ocupadas": 590,
+      "ofertadas": 726,
+      "overbooking": 50,
+      "profissional": "Ecocardiograma - Sala 01",
+      "proj_d7": 80.6,
+      "receita_ocupada": 206500.0,
+      "receita_risco": 41300.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica",
+      "lead_time": 11.0,
+      "livres": 117,
+      "ocupacao_pct": 82.6,
+      "ocupadas": 738,
+      "ofertadas": 876,
+      "overbooking": 58,
+      "profissional": "RM 3.0 Tesla - Sala 01",
+      "proj_d7": 82.9,
+      "receita_ocupada": 501840.0,
+      "receita_risco": 79560.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Cardiologia",
+      "lead_time": 5.9,
+      "livres": 115,
+      "ocupacao_pct": 82.3,
+      "ocupadas": 659,
+      "ofertadas": 790,
+      "overbooking": 70,
+      "profissional": "Dra. Vanessa Moura",
+      "proj_d7": 83.2,
+      "receita_ocupada": 184520.0,
+      "receita_risco": 32200.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica",
+      "lead_time": 12.5,
+      "livres": 113,
+      "ocupacao_pct": 86.8,
+      "ocupadas": 993,
+      "ofertadas": 1129,
+      "overbooking": 81,
+      "profissional": "RM 3.0 Tesla - Sala 01",
+      "proj_d7": 87.6,
+      "receita_ocupada": 675240.0,
+      "receita_risco": 76840.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Gastroenterologia",
+      "lead_time": 7.2,
+      "livres": 112,
+      "ocupacao_pct": 74.1,
+      "ocupadas": 377,
+      "ofertadas": 497,
+      "overbooking": 38,
+      "profissional": "Dra. Renata Figueiredo",
+      "proj_d7": 73.6,
+      "receita_ocupada": 109330.0,
+      "receita_risco": 32480.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica",
+      "lead_time": 8.3,
+      "livres": 111,
+      "ocupacao_pct": 85.6,
+      "ocupadas": 828,
+      "ofertadas": 956,
+      "overbooking": 66,
+      "profissional": "RM 1.5 Tesla - Sala 02",
+      "proj_d7": 87.3,
+      "receita_ocupada": 463680.0,
+      "receita_risco": 62160.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica",
+      "lead_time": 8.3,
+      "livres": 110,
+      "ocupacao_pct": 89.0,
+      "ocupadas": 1147,
+      "ofertadas": 1280,
+      "overbooking": 83,
+      "profissional": "RM 1.5 Tesla - Sala 02",
+      "proj_d7": 89.8,
+      "receita_ocupada": 642320.0,
+      "receita_risco": 61600.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Cardiologia",
+      "lead_time": 6.3,
+      "livres": 104,
+      "ocupacao_pct": 80.6,
+      "ocupadas": 545,
+      "ofertadas": 663,
+      "overbooking": 52,
+      "profissional": "Dra. Vanessa Moura",
+      "proj_d7": 79.5,
+      "receita_ocupada": 152600.0,
+      "receita_risco": 29120.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Cardiologia",
+      "lead_time": 7.7,
+      "livres": 103,
+      "ocupacao_pct": 83.4,
+      "ocupadas": 651,
+      "ofertadas": 767,
+      "overbooking": 62,
+      "profissional": "Dr. Carlos Eduardo Mendes",
+      "proj_d7": 82.3,
+      "receita_ocupada": 182280.0,
+      "receita_risco": 28840.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Mamografia Digital 3D",
+      "lead_time": 4.7,
+      "livres": 103,
+      "ocupacao_pct": 83.8,
+      "ocupadas": 604,
+      "ofertadas": 721,
+      "overbooking": 47,
+      "profissional": "Mam\u00f3grafo Tomoss\u00edntese",
+      "proj_d7": 85.0,
+      "receita_ocupada": 169120.0,
+      "receita_risco": 28840.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Neurologia",
+      "lead_time": 21.7,
+      "livres": 102,
+      "ocupacao_pct": 80.1,
+      "ocupadas": 542,
+      "ofertadas": 662,
+      "overbooking": 56,
+      "profissional": "Dr. Rodrigo Alencar",
+      "proj_d7": 78.9,
+      "receita_ocupada": 205960.0,
+      "receita_risco": 38760.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Dermatologia",
+      "lead_time": 14.1,
+      "livres": 99,
+      "ocupacao_pct": 82.1,
+      "ocupadas": 537,
+      "ofertadas": 649,
+      "overbooking": 55,
+      "profissional": "Dra. Beatriz Silveira",
+      "proj_d7": 81.5,
+      "receita_ocupada": 171840.0,
+      "receita_risco": 31680.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Dermatologia",
+      "lead_time": 13.8,
+      "livres": 99,
+      "ocupacao_pct": 83.2,
+      "ocupadas": 621,
+      "ofertadas": 737,
+      "overbooking": 62,
+      "profissional": "Dra. Beatriz Silveira",
+      "proj_d7": 82.3,
+      "receita_ocupada": 198720.0,
+      "receita_risco": 31680.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Cardiologia",
+      "lead_time": 5.6,
+      "livres": 99,
+      "ocupacao_pct": 82.1,
+      "ocupadas": 579,
+      "ofertadas": 695,
+      "overbooking": 56,
+      "profissional": "Dra. Vanessa Moura",
+      "proj_d7": 81.4,
+      "receita_ocupada": 162120.0,
+      "receita_risco": 27720.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica",
+      "lead_time": 7.7,
+      "livres": 98,
+      "ocupacao_pct": 86.2,
+      "ocupadas": 802,
+      "ofertadas": 927,
+      "overbooking": 63,
+      "profissional": "RM 1.5 Tesla - Sala 02",
+      "proj_d7": 86.4,
+      "receita_ocupada": 449120.0,
+      "receita_risco": 54880.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica",
+      "lead_time": 11.9,
+      "livres": 86,
+      "ocupacao_pct": 86.3,
+      "ocupadas": 748,
+      "ofertadas": 856,
+      "overbooking": 61,
+      "profissional": "RM 3.0 Tesla - Sala 01",
+      "proj_d7": 87.0,
+      "receita_ocupada": 508640.0,
+      "receita_risco": 58480.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Neurologia",
+      "lead_time": 22.5,
+      "livres": 85,
+      "ocupacao_pct": 82.0,
+      "ocupadas": 490,
+      "ofertadas": 587,
+      "overbooking": 50,
+      "profissional": "Dr. Rodrigo Alencar",
+      "proj_d7": 80.4,
+      "receita_ocupada": 186200.0,
+      "receita_risco": 32300.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    },
+    {
+      "especialidade": "Endoscopia & Colonoscopia",
+      "lead_time": 15.3,
+      "livres": 84,
+      "ocupacao_pct": 81.7,
+      "ocupadas": 541,
+      "ofertadas": 657,
+      "overbooking": 40,
+      "profissional": "Sala de Procedimentos 01",
+      "proj_d7": 82.8,
+      "receita_ocupada": 335420.0,
+      "receita_risco": 52080.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Jardins - Diagn\u00f3sticos & Especialidades"
+    },
+    {
+      "especialidade": "Endoscopia & Colonoscopia",
+      "lead_time": 15.3,
+      "livres": 82,
+      "ocupacao_pct": 83.4,
+      "ocupadas": 561,
+      "ofertadas": 666,
+      "overbooking": 40,
+      "profissional": "Sala de Procedimentos 01",
+      "proj_d7": 84.3,
+      "receita_ocupada": 347820.0,
+      "receita_risco": 50840.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Neurologia",
+      "lead_time": 22.4,
+      "livres": 78,
+      "ocupacao_pct": 83.8,
+      "ocupadas": 517,
+      "ofertadas": 606,
+      "overbooking": 51,
+      "profissional": "Dr. Rodrigo Alencar",
+      "proj_d7": 83.0,
+      "receita_ocupada": 196460.0,
+      "receita_risco": 29640.0,
+      "tipo": "Consulta M\u00e9dica",
+      "unidade": "Unidade Morumbi - Centro Avan\u00e7ado"
+    },
+    {
+      "especialidade": "Endoscopia & Colonoscopia",
+      "lead_time": 14.6,
+      "livres": 71,
+      "ocupacao_pct": 82.7,
+      "ocupadas": 510,
+      "ofertadas": 612,
+      "overbooking": 42,
+      "profissional": "Sala de Procedimentos 01",
+      "proj_d7": 84.8,
+      "receita_ocupada": 316200.0,
+      "receita_risco": 44020.0,
+      "tipo": "Exame Diagn\u00f3stico",
+      "unidade": "Unidade Paulista - Ambulat\u00f3rio & Check-up"
+    }
+  ],
+  "projecoes_ocupacao": [
+    {
+      "atual": 86.2,
+      "d15": 81.4,
+      "d30": 70.2,
+      "d7": 86.9,
+      "especialidade": "Resson\u00e2ncia Magn\u00e9tica"
+    },
+    {
+      "atual": 82.9,
+      "d15": 75.5,
+      "d30": 63.5,
+      "d7": 82.1,
+      "especialidade": "Dermatologia"
+    },
+    {
+      "atual": 82.6,
+      "d15": 78.5,
+      "d30": 67.7,
+      "d7": 83.9,
+      "especialidade": "Endoscopia & Colonoscopia"
+    },
+    {
+      "atual": 82.5,
+      "d15": 74.9,
+      "d30": 63.3,
+      "d7": 81.9,
+      "especialidade": "Cardiologia"
+    },
+    {
+      "atual": 81.9,
+      "d15": 74.0,
+      "d30": 62.6,
+      "d7": 80.7,
+      "especialidade": "Neurologia"
+    },
+    {
+      "atual": 81.2,
+      "d15": 76.7,
+      "d30": 66.4,
+      "d7": 81.8,
+      "especialidade": "Raios-X Digital"
+    },
+    {
+      "atual": 80.7,
+      "d15": 76.1,
+      "d30": 66.0,
+      "d7": 81.4,
+      "especialidade": "Ultrassonografia Geral & Doppler"
+    },
+    {
+      "atual": 80.5,
+      "d15": 76.2,
+      "d30": 65.9,
+      "d7": 81.3,
+      "especialidade": "Mamografia Digital 3D"
+    },
+    {
+      "atual": 80.1,
+      "d15": 76.0,
+      "d30": 65.7,
+      "d7": 81.3,
+      "especialidade": "Densitometria \u00d3ssea"
+    },
+    {
+      "atual": 79.3,
+      "d15": 74.5,
+      "d30": 64.7,
+      "d7": 79.9,
+      "especialidade": "Tomografia Computadorizada"
+    }
+  ]
+}
+;
+  
+  // Interceptador inteligente de fetch para funcionar perfeitamente tanto no GitHub Pages quanto no Flask
+  const _origFetch = window.fetch;
+  window.fetch = async function(url, options) {
+    try {
+      const res = await _origFetch(url, options);
+      if (res.ok) return res;
+      throw new Error('API indisponivel');
+    } catch (err) {
+      if (typeof url === 'string') {
+        if (url.includes('/api/filtros')) {
+          return new Response(JSON.stringify(window.FALLBACK_FILTROS), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        if (url.includes('/api/dados')) {
+          return new Response(JSON.stringify(window.FALLBACK_DADOS), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+      }
+      throw err;
+    }
+  };
+</script>
+
+</head>
+<body class="min-h-screen flex flex-col custom-scrollbar">
+
+    <!-- Top Navigation Bar -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-slate-800 px-6 py-3.5">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <!-- Brand & Hospital Info -->
+            <div class="flex items-center space-x-4">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-calendar-check text-white text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/70 border border-cyan-800/50 px-2.5 py-0.5 rounded-full">
+                            REDE HOSPITALAR &amp; DIAGNÓSTICOS
+                        </span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
+                            <i class="fa-solid fa-circle text-[8px] mr-1 text-emerald-400 animate-pulse"></i>Gestor de Unidade
+                        </span>
+                    </div>
+                    <h1 class="text-xl font-heading font-extrabold text-white tracking-tight flex items-center gap-2 mt-0.5">
+                        Gestão de Capacidade, Agendas Livres &amp; Projeção de Ocupação
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
+                <a href="../index.html" class="px-3.5 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/40 flex items-center gap-2 transition" title="Voltar ao Portfólio Principal">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Voltar ao Portfólio</span>
+                </a>
+                <button id="btn-fullscreen" onclick="toggleFullscreen()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-2 transition" title="Modo Tela Cheia (F11 ou tecla F)">
+                    <i class="fa-solid fa-expand" id="icon-fullscreen"></i>
+                    <span id="label-fullscreen">Tela Cheia</span>
+                </button>
+                <button onclick="carregarDados()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Atualizar</span>
+                </button>
+                <button onclick="exportarExcel()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white text-xs font-semibold shadow-lg shadow-teal-900/30 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>Exportar Relatório Executivo</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-6 space-y-6">
+
+        <!-- Executive Banner -->
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-gradient-to-r from-cyan-950/40 via-slate-900/60 to-teal-950/40 p-4 rounded-2xl border border-cyan-900/30">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-gauge-high text-cyan-400"></i>
+                    <h2 class="text-sm font-heading font-bold text-cyan-200 uppercase tracking-wider">
+                        Painel de Monitoramento da Grade: Consultas Médicas &amp; Exames Diagnósticos
+                    </h2>
+                </div>
+                <p class="text-xs text-slate-400">
+                    Acompanhamento de vagas ociosas, fila de espera da próxima vaga, taxa de ocupação por especialidade/equipamento e projeções futuras (D+7, D+15 e D+30).
+                </p>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-400 bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800">
+                <i class="fa-solid fa-calendar-day text-cyan-400"></i>
+                <span>Visão Executiva: <strong class="text-white" id="comp-label">Consolidado 2026</strong></span>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <section class="glass-panel p-4 rounded-2xl">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                
+                <!-- Filtro Tipo de Serviço -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-briefcase-medical text-cyan-400 mr-1"></i>Tipo de Serviço
+                    </label>
+                    <select id="filtro-tipo" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="TODOS">Consultas &amp; Exames</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Especialidade / Modalidade -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-stethoscope text-cyan-400 mr-1"></i>Especialidade / Exame
+                    </label>
+                    <select id="filtro-especialidade" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="TODOS">Todas as Especialidades</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Profissional / Recurso -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-user-doctor text-cyan-400 mr-1"></i>Médico / Equipamento
+                    </label>
+                    <select id="filtro-profissional" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="TODOS">Todos os Recursos</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Unidade -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-hospital text-cyan-400 mr-1"></i>Unidade Hospitalar
+                    </label>
+                    <select id="filtro-unidade" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="TODOS">Todas as Unidades</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Dia da Semana -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-regular fa-calendar-days text-cyan-400 mr-1"></i>Dia da Semana
+                    </label>
+                    <select id="filtro-dia" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="TODOS">Segunda a Sábado</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Turno -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-clock text-cyan-400 mr-1"></i>Turno da Grade
+                    </label>
+                    <select id="filtro-turno" onchange="aplicarFiltros()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="TODOS">Todos os Turnos</option>
+                    </select>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- KPI Cards Grid -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            
+            <!-- KPI 1: Agendas Livres (Vagas Disponíveis) -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Agendas Livres</span>
+                    <i class="fa-solid fa-door-open text-emerald-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-emerald-400" id="kpi-vagas-livres">0</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Ociosidade:</span>
+                    <strong class="text-emerald-300" id="kpi-ociosidade-pct">0.0%</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-400"></div>
+            </div>
+
+            <!-- KPI 2: Taxa de Ocupação da Grade -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Taxa de Ocupação</span>
+                    <i class="fa-solid fa-chart-pie text-cyan-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-cyan-400" id="kpi-ocupacao-pct">0.0%</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Meta de Eficiência:</span>
+                    <strong class="text-cyan-300">&gt; 85%</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
+            </div>
+
+            <!-- KPI 3: Vagas Ocupadas vs Ofertadas -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Vagas Ocupadas</span>
+                    <i class="fa-solid fa-calendar-check text-indigo-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-indigo-300" id="kpi-vagas-ocupadas">0</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Ofertadas na Grade:</span>
+                    <strong class="text-slate-200" id="kpi-vagas-ofertadas">0</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+            </div>
+
+            <!-- KPI 4: Lead Time Médio (Próxima Vaga) -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Fila / Próxima Vaga</span>
+                    <i class="fa-solid fa-hourglass-half text-amber-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-amber-400" id="kpi-lead-time">0 dias</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Tempo de Espera:</span>
+                    <strong class="text-amber-300">&le; 7 dias</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+            </div>
+
+            <!-- KPI 5: Projeção D+7 da Grade -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Projeção (D+7)</span>
+                    <i class="fa-solid fa-forward-fast text-teal-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-teal-300" id="kpi-proj-d7">0.0%</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>D+15: <strong class="text-slate-200" id="kpi-proj-d15">0%</strong></span>
+                    <span>D+30: <strong class="text-slate-200" id="kpi-proj-d30">0%</strong></span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-cyan-500"></div>
+            </div>
+
+            <!-- KPI 6: Receita em Risco (Ociosidade) -->
+            <div class="glass-card p-4 rounded-xl relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider">Receita Ociosa (Risco)</span>
+                    <i class="fa-solid fa-sack-xmark text-rose-400 text-sm"></i>
+                </div>
+                <div class="text-xl font-heading font-extrabold text-rose-400" id="kpi-receita-risco">R$ 0</div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>Overbooking Sugerido:</span>
+                    <strong class="text-rose-300" id="kpi-overbooking">0 vagas</strong>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-red-600"></div>
+            </div>
+
+        </section>
+
+        <!-- Charts Grid 1: Agendas Livres por Especialidade & Projeção Futura -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Gráfico 1: Ocupadas vs Agendas Livres por Especialidade/Exame -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-bar text-cyan-400"></i>
+                            Agendas Livres vs Vagas Ocupadas por Especialidade / Exame
+                        </h3>
+                        <p class="text-xs text-slate-400">Distribuição da capacidade instalada e volume de vagas disponíveis</p>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded bg-cyan-950/70 border border-cyan-800 text-cyan-300 font-mono">
+                        Vagas Livres
+                    </span>
+                </div>
+                <div class="relative flex-grow min-h-[300px]">
+                    <canvas id="chart-agendas-especialidade"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 2: Projeção de Ocupação de Agendas (Atual vs D+7 vs D+15 vs D+30) -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-trend-up text-teal-400"></i>
+                            Projeção de Ocupação de Agendas por Horizonte Futuro (%)
+                        </h3>
+                        <p class="text-xs text-slate-400">Comparativo de velocidade de preenchimento da grade (Atual, D+7, D+15 e D+30)</p>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded bg-teal-950/70 border border-teal-800 text-teal-300 font-mono">
+                        Projeções
+                    </span>
+                </div>
+                <div class="relative flex-grow min-h-[300px]">
+                    <canvas id="chart-projecao-ocupacao"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Charts Grid 2: Dias da Semana & Tipo de Serviço -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Gráfico 3: Agendas Livres e Ocupação por Dia da Semana -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col lg:col-span-2">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-week text-cyan-400"></i>
+                            Agendas Livres e Ocupação por Dia da Semana (Segunda a Sábado)
+                        </h3>
+                        <p class="text-xs text-slate-400">Mapeamento dos dias de alta saturação vs dias com alta ociosidade na unidade</p>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">Semanal</span>
+                </div>
+                <div class="relative flex-grow min-h-[250px]">
+                    <canvas id="chart-dias-semana"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 4: Consultas Médicas vs Exames Diagnósticos -->
+            <div class="glass-panel p-5 rounded-2xl flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h3 class="text-sm font-heading font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-circle-nodes text-emerald-400"></i>
+                            Mix: Consultas vs Exames
+                        </h3>
+                        <p class="text-xs text-slate-400">Capacidade ofertada e ocupação</p>
+                    </div>
+                </div>
+                <div class="relative flex-grow min-h-[250px]">
+                    <canvas id="chart-capacidade-tipo"></canvas>
+                </div>
+                <div class="mt-2 pt-2 border-t border-slate-800/80 text-[11px] text-slate-400 flex justify-between" id="tipo-summary">
+                    <span>Consultas: <strong class="text-cyan-400" id="res-cons-vagas">0</strong></span>
+                    <span>Exames: <strong class="text-emerald-400" id="res-exam-vagas">0</strong></span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Panel Table: Monitoramento de Agendas Livres por Médico & Equipamento -->
+        <section class="glass-panel p-5 rounded-2xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
+                <div>
+                    <h3 class="text-base font-heading font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-user-doctor text-cyan-400"></i>
+                        Painel de Monitoramento de Agendas Livres por Médico &amp; Equipamento
+                    </h3>
+                    <p class="text-xs text-slate-400">
+                        Visão de governança para o Gestor de Unidade: vagas livres, taxa de ocupação, projeção D+7, lead time da próxima vaga e receita em risco.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="filtro-pesquisa-painel" onkeyup="filtrarPainelProfissionais()" placeholder="Buscar médico, equipamento ou exame..." class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-cyan-500 focus:outline-none w-64">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto max-h-[420px] custom-scrollbar">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="sticky top-0 bg-slate-900 z-10">
+                        <tr class="border-b border-slate-700/80 text-slate-400 uppercase tracking-wider font-semibold">
+                            <th class="py-3 px-4">Médico / Equipamento</th>
+                            <th class="py-3 px-3">Especialidade / Exame</th>
+                            <th class="py-3 px-3 text-center">Tipo</th>
+                            <th class="py-3 px-3 text-right">Vagas Ofertadas</th>
+                            <th class="py-3 px-3 text-right">Ocupadas</th>
+                            <th class="py-3 px-3 text-center">Agendas Livres</th>
+                            <th class="py-3 px-3 text-center">Taxa Ocupação</th>
+                            <th class="py-3 px-3 text-center">Projeção (D+7)</th>
+                            <th class="py-3 px-3 text-center">Próxima Vaga (dias)</th>
+                            <th class="py-3 px-3 text-right">Receita em Risco (Ociosa)</th>
+                            <th class="py-3 px-4 text-center">Overbooking</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-painel-profissionais" class="divide-y divide-slate-800 text-slate-200">
+                        <tr>
+                            <td colspan="11" class="text-center py-6 text-slate-500">Carregando dados da grade...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Operational Table: Amostra de Agendas Recentes -->
+        <section class="glass-panel p-5 rounded-2xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
+                <div>
+                    <h3 class="text-base font-heading font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-teal-400"></i>
+                        Amostra Detalhada de Agendas da Grade (Últimos Registros)
+                    </h3>
+                    <p class="text-xs text-slate-400">Rastreabilidade individual de grades por data, turno, unidade e vagas livres</p>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto max-h-[350px] custom-scrollbar">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="sticky top-0 bg-slate-900 z-10">
+                        <tr class="border-b border-slate-700/80 text-slate-400 uppercase tracking-wider font-semibold">
+                            <th class="py-2.5 px-3">ID</th>
+                            <th class="py-2.5 px-3">Data</th>
+                            <th class="py-2.5 px-3">Dia Semana</th>
+                            <th class="py-2.5 px-3">Turno</th>
+                            <th class="py-2.5 px-3">Unidade</th>
+                            <th class="py-2.5 px-3">Tipo</th>
+                            <th class="py-2.5 px-3">Especialidade / Recurso</th>
+                            <th class="py-2.5 px-2 text-right">Ofertadas</th>
+                            <th class="py-2.5 px-2 text-right">Ocupadas</th>
+                            <th class="py-2.5 px-2 text-center">Livres</th>
+                            <th class="py-2.5 px-3 text-center">Ocupação (%)</th>
+                            <th class="py-2.5 px-3 text-center">Próxima Vaga</th>
+                            <th class="py-2.5 px-3 text-right">Receita em Risco</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-amostra-body" class="divide-y divide-slate-800 text-slate-200">
+                        <tr>
+                            <td colspan="13" class="text-center py-6 text-slate-500">Carregando agendas...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-slate-800 mt-12 py-5 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-xs text-slate-400 gap-3">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-code text-cyan-400"></i>
+                <span>Rede Hospitalar &amp; Diagnósticos — Cockpit de Capacidade &amp; Agendas</span>
+            </div>
+            <div>
+                <span>Especialista Responsável: <strong class="text-slate-200">Antonio Carlos de Mello</strong> | Portfólio de Business Intelligence</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // Global Chart Instances
+        let chartEspecialidade = null;
+        let chartProjecao = null;
+        let chartDias = null;
+        let chartCapTipo = null;
+        let dadosPainelCache = [];
+
+        // Formatting Helpers
+        function formatMoney(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                maximumFractionDigits: 2
+            }).format(value || 0);
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('pt-BR').format(value || 0);
+        }
+
+        // Initialize Filter Options
+        async function carregarFiltros() {
+            try {
+                const res = await fetch('/api/filtros');
+                const data = await res.json();
+
+                const selTipo = document.getElementById('filtro-tipo');
+                data.tipos.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t;
+                    opt.textContent = t;
+                    selTipo.appendChild(opt);
+                });
+
+                const selEsp = document.getElementById('filtro-especialidade');
+                data.especialidades.forEach(e => {
+                    const opt = document.createElement('option');
+                    opt.value = e;
+                    opt.textContent = e;
+                    selEsp.appendChild(opt);
+                });
+
+                const selProf = document.getElementById('filtro-profissional');
+                data.profissionais.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p;
+                    opt.textContent = p;
+                    selProf.appendChild(opt);
+                });
+
+                const selUnid = document.getElementById('filtro-unidade');
+                data.unidades.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u;
+                    opt.textContent = u;
+                    selUnid.appendChild(opt);
+                });
+
+                const selDia = document.getElementById('filtro-dia');
+                data.dias_semana.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    selDia.appendChild(opt);
+                });
+
+                const selTurno = document.getElementById('filtro-turno');
+                data.turnos.forEach(tu => {
+                    const opt = document.createElement('option');
+                    opt.value = tu;
+                    opt.textContent = tu;
+                    selTurno.appendChild(opt);
+                });
+
+            } catch (err) {
+                console.error("Erro ao carregar filtros:", err);
+            }
+        }
+
+        function getQueryParams() {
+            const tipo = document.getElementById('filtro-tipo').value;
+            const esp = document.getElementById('filtro-especialidade').value;
+            const prof = document.getElementById('filtro-profissional').value;
+            const unid = document.getElementById('filtro-unidade').value;
+            const dia = document.getElementById('filtro-dia').value;
+            const turno = document.getElementById('filtro-turno').value;
+
+            const params = new URLSearchParams();
+            if (tipo !== "TODOS") params.append("tipo", tipo);
+            if (esp !== "TODOS") params.append("especialidade", esp);
+            if (prof !== "TODOS") params.append("profissional", prof);
+            if (unid !== "TODOS") params.append("unidade", unid);
+            if (dia !== "TODOS") params.append("dia_semana", dia);
+            if (turno !== "TODOS") params.append("turno", turno);
+
+            return params.toString();
+        }
+
+        function aplicarFiltros() {
+            carregarDados();
+        }
+
+        async function carregarDados() {
+            const qs = getQueryParams();
+            const url = `/api/dados${qs ? '?' + qs : ''}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+
+                renderKPIs(data.kpis);
+                renderChartEspecialidade(data.agendas_especialidade);
+                renderChartProjecao(data.projecoes_ocupacao);
+                renderChartDias(data.agendas_dias_semana);
+                renderChartCapTipo(data.capacidade_tipo);
+
+                dadosPainelCache = data.painel_profissionais || [];
+                renderPainelProfissionais(dadosPainelCache);
+                renderAmostraAgendas(data.amostra_agendas || []);
+
+            } catch (err) {
+                console.error("Erro ao carregar dados de capacidade:", err);
+            }
+        }
+
+        function renderKPIs(kpis) {
+            document.getElementById('kpi-vagas-livres').textContent = formatNumber(kpis.vagas_livres);
+            document.getElementById('kpi-ociosidade-pct').textContent = `${kpis.taxa_ociosidade_pct.toFixed(1)}%`;
+            document.getElementById('kpi-ocupacao-pct').textContent = `${kpis.taxa_ocupacao_pct.toFixed(1)}%`;
+            document.getElementById('kpi-vagas-ocupadas').textContent = formatNumber(kpis.vagas_ocupadas);
+            document.getElementById('kpi-vagas-ofertadas').textContent = formatNumber(kpis.vagas_ofertadas);
+            document.getElementById('kpi-lead-time').textContent = `${kpis.lead_time_medio.toFixed(1)} dias`;
+            document.getElementById('kpi-proj-d7').textContent = `${kpis.proj_d7.toFixed(1)}%`;
+            document.getElementById('kpi-proj-d15').textContent = `${kpis.proj_d15.toFixed(1)}%`;
+            document.getElementById('kpi-proj-d30').textContent = `${kpis.proj_d30.toFixed(1)}%`;
+            document.getElementById('kpi-receita-risco').textContent = formatMoney(kpis.receita_risco);
+            document.getElementById('kpi-overbooking').textContent = `${formatNumber(kpis.overbooking_total)} vagas`;
+        }
+
+        // 1. Gráfico Ocupadas vs Agendas Livres por Especialidade
+        function renderChartEspecialidade(espList) {
+            const ctx = document.getElementById('chart-agendas-especialidade').getContext('2d');
+            
+            const top10 = espList.slice(0, 10);
+            const labels = top10.map(e => e.especialidade);
+            const livres = top10.map(e => e.livres);
+            const ocupadas = top10.map(e => e.ocupadas);
+
+            if (chartEspecialidade) chartEspecialidade.destroy();
+
+            chartEspecialidade = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Agendas Livres (Vagas)',
+                            data: livres,
+                            backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Vagas Ocupadas',
+                            data: ocupadas,
+                            backgroundColor: 'rgba(6, 182, 212, 0.75)',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 10 } }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { color: '#cbd5e1', font: { size: 10 }, boxWidth: 10 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: ${context.raw} vagas`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Gráfico Projeção de Ocupação de Agendas
+        function renderChartProjecao(projList) {
+            const ctx = document.getElementById('chart-projecao-ocupacao').getContext('2d');
+            
+            const labels = projList.map(p => p.especialidade);
+            const atual = projList.map(p => p.atual);
+            const d7 = projList.map(p => p.d7);
+            const d15 = projList.map(p => p.d15);
+            const d30 = projList.map(p => p.d30);
+
+            if (chartProjecao) chartProjecao.destroy();
+
+            chartProjecao = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Ocupação Atual (%)',
+                            data: atual,
+                            backgroundColor: 'rgba(6, 182, 212, 0.85)',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Projeção D+7 (%)',
+                            data: d7,
+                            backgroundColor: 'rgba(13, 148, 136, 0.85)',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Projeção D+15 (%)',
+                            data: d15,
+                            backgroundColor: 'rgba(99, 102, 241, 0.85)',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Projeção D+30 (%)',
+                            data: d30,
+                            backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 9 } }
+                        },
+                        y: {
+                            max: 100,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', callback: val => val + '%' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { color: '#cbd5e1', font: { size: 10 }, boxWidth: 10 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Gráfico Dias da Semana
+        function renderChartDias(diasList) {
+            const ctx = document.getElementById('chart-dias-semana').getContext('2d');
+            
+            const labels = diasList.map(d => d.dia_semana);
+            const livres = diasList.map(d => d.livres);
+            const ocupacao = diasList.map(d => d.ocupacao_pct);
+
+            if (chartDias) chartDias.destroy();
+
+            chartDias = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Agendas Livres (Vagas)',
+                            data: livres,
+                            backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            borderRadius: 5,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Taxa Ocupação (%)',
+                            data: ocupacao,
+                            type: 'line',
+                            borderColor: '#06b6d4',
+                            backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                            pointBackgroundColor: '#06b6d4',
+                            pointRadius: 4,
+                            borderWidth: 2,
+                            tension: 0.3,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { size: 10 } }
+                        },
+                        y: {
+                            position: 'left',
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y1: {
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            max: 100,
+                            ticks: { color: '#06b6d4', callback: val => val + '%' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1', font: { size: 10 }, boxWidth: 10 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 4. Gráfico Mix Tipo de Serviço
+        function renderChartCapTipo(tipoList) {
+            const ctx = document.getElementById('chart-capacidade-tipo').getContext('2d');
+            
+            const labels = tipoList.map(t => t.tipo);
+            const ofertadas = tipoList.map(t => t.ofertadas);
+            const ocupadas = tipoList.map(t => t.ocupadas);
+
+            const cons = tipoList.find(t => t.tipo === "Consulta Médica");
+            const exam = tipoList.find(t => t.tipo === "Exame Diagnóstico");
+            if (cons) document.getElementById('res-cons-vagas').textContent = `${formatNumber(cons.ocupadas)} / ${formatNumber(cons.ofertadas)}`;
+            if (exam) document.getElementById('res-exam-vagas').textContent = `${formatNumber(exam.ocupadas)} / ${formatNumber(exam.ofertadas)}`;
+
+            if (chartCapTipo) chartCapTipo.destroy();
+
+            chartCapTipo = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: ofertadas,
+                        backgroundColor: [
+                            'rgba(6, 182, 212, 0.85)',
+                            'rgba(16, 185, 129, 0.85)'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#0f172a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#cbd5e1', font: { size: 11 }, boxWidth: 12 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: ${formatNumber(context.raw)} vagas ofertadas`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        // 5. Render Tabela Painel Profissionais e Equipamentos
+        function renderPainelProfissionais(profList) {
+            const tbody = document.getElementById('tabela-painel-profissionais');
+            tbody.innerHTML = '';
+
+            if (!profList || profList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-6 text-slate-500">Nenhum recurso encontrado para os filtros selecionados.</td></tr>';
+                return;
+            }
+
+            profList.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+
+                // Badges de ocupação e vagas livres
+                let ocupBadge = 'text-emerald-400 bg-emerald-950/70 border border-emerald-800';
+                if (p.ocupacao_pct < 75) ocupBadge = 'text-amber-400 bg-amber-950/70 border border-amber-800';
+                else if (p.ocupacao_pct > 92) ocupBadge = 'text-cyan-400 bg-cyan-950/70 border border-cyan-800';
+
+                let livresBadge = p.livres > 15 
+                    ? `<span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800">${p.livres} livres</span>`
+                    : `<span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700">${p.livres} livres</span>`;
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid ${p.tipo === 'Consulta Médica' ? 'fa-user-doctor text-cyan-400' : 'fa-microscope text-emerald-400'} text-xs"></i>
+                        ${p.profissional}
+                    </td>
+                    <td class="py-3 px-3 text-slate-300">${p.especialidade}</td>
+                    <td class="py-3 px-3 text-center">
+                        <span class="px-2 py-0.5 rounded text-[10px] ${p.tipo === 'Consulta Médica' ? 'bg-cyan-950/70 text-cyan-400 border border-cyan-800' : 'bg-emerald-950/70 text-emerald-400 border border-emerald-800'}">
+                            ${p.tipo === 'Consulta Médica' ? 'Consulta' : 'Exame'}
+                        </span>
+                    </td>
+                    <td class="py-3 px-3 text-right font-mono text-slate-400">${formatNumber(p.ofertadas)}</td>
+                    <td class="py-3 px-3 text-right font-mono font-semibold text-slate-100">${formatNumber(p.ocupadas)}</td>
+                    <td class="py-3 px-3 text-center">${livresBadge}</td>
+                    <td class="py-3 px-3 text-center font-mono">
+                        <span class="px-2 py-0.5 rounded text-xs font-semibold ${ocupBadge}">
+                            ${p.ocupacao_pct.toFixed(1)}%
+                        </span>
+                    </td>
+                    <td class="py-3 px-3 text-center font-mono text-slate-300">${p.proj_d7.toFixed(1)}%</td>
+                    <td class="py-3 px-3 text-center font-mono text-amber-400 font-bold">${p.lead_time}d</td>
+                    <td class="py-3 px-3 text-right font-mono text-rose-400">${formatMoney(p.receita_risco)}</td>
+                    <td class="py-3 px-4 text-center font-mono text-slate-400">+${p.overbooking}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filtrarPainelProfissionais() {
+            const termo = document.getElementById('filtro-pesquisa-painel').value.toLowerCase();
+            if (!termo) {
+                renderPainelProfissionais(dadosPainelCache);
+                return;
+            }
+
+            const filtrados = dadosPainelCache.filter(p => {
+                return (
+                    p.profissional.toLowerCase().includes(termo) ||
+                    p.especialidade.toLowerCase().includes(termo) ||
+                    p.unidade.toLowerCase().includes(termo) ||
+                    p.tipo.toLowerCase().includes(termo)
+                );
+            });
+            renderPainelProfissionais(filtrados);
+        }
+
+        // 6. Render Amostra Operacional de Agendas
+        function renderAmostraAgendas(amostra) {
+            const tbody = document.getElementById('tabela-amostra-body');
+            tbody.innerHTML = '';
+
+            if (!amostra || amostra.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="13" class="text-center py-6 text-slate-500">Nenhuma agenda encontrada.</td></tr>';
+                return;
+            }
+
+            amostra.forEach(a => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 font-mono text-cyan-400 font-semibold">#${a.id}</td>
+                    <td class="py-2.5 px-3 font-mono text-slate-400">${a.data}</td>
+                    <td class="py-2.5 px-3 text-slate-300">${a.dia_semana}</td>
+                    <td class="py-2.5 px-3 text-slate-400 text-[11px]">${a.turno}</td>
+                    <td class="py-2.5 px-3 text-slate-300 text-[11px]">${a.unidade.split(' - ')[0]}</td>
+                    <td class="py-2.5 px-3 text-[11px] text-slate-300">${a.tipo === 'Consulta Médica' ? 'Consulta' : 'Exame'}</td>
+                    <td class="py-2.5 px-3 font-medium text-slate-200">${a.especialidade}</td>
+                    <td class="py-2.5 px-2 text-right font-mono text-slate-400">${a.ofertadas}</td>
+                    <td class="py-2.5 px-2 text-right font-mono text-slate-100">${a.ocupadas}</td>
+                    <td class="py-2.5 px-2 text-center font-mono font-bold text-emerald-400">${a.livres}</td>
+                    <td class="py-2.5 px-3 text-center font-mono">${a.ocupacao.toFixed(1)}%</td>
+                    <td class="py-2.5 px-3 text-center font-mono text-amber-300">${a.lead_time}d</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-rose-400">${formatMoney(a.receita_risco)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function exportarExcel() {
+            const qs = getQueryParams();
+            const url = `/api/exportar/excel${qs ? '?' + qs : ''}`;
+            window.location.href = url;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                const docEl = document.documentElement;
+                if (docEl.requestFullscreen) docEl.requestFullscreen();
+                else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+                else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        }
+
+        function updateFullscreenUI() {
+            const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+            const icon = document.getElementById('icon-fullscreen');
+            const label = document.getElementById('label-fullscreen');
+            const btn = document.getElementById('btn-fullscreen');
+            if (!btn) return;
+            if (isFS) {
+                if (icon) icon.className = 'fa-solid fa-compress';
+                if (label) label.textContent = 'Sair Tela Cheia';
+                btn.classList.add('bg-cyan-700', 'text-white');
+            } else {
+                if (icon) icon.className = 'fa-solid fa-expand';
+                if (label) label.textContent = 'Tela Cheia';
+                btn.classList.remove('bg-cyan-700', 'text-white');
+            }
+        }
+
+        document.addEventListener('fullscreenchange', updateFullscreenUI);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+        document.addEventListener('msfullscreenchange', updateFullscreenUI);
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'f' || e.key === 'F') && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+                toggleFullscreen();
+            }
+        });
+
+        // Initialize on Load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await carregarFiltros();
+            await carregarDados();
+        });
+    </script>
+</body>
+</html>

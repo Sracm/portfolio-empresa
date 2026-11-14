@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Acompanhamento de Efetividade da Automação | n8n & IA Command Center</title>
+
+  <!-- Google Fonts: Montserrat & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- FontAwesome 6 Pro/Free -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Chart.js 4 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg-space: #06080d;
+      --bg-canvas: #090d16;
+      --bg-card: rgba(15, 21, 34, 0.85);
+      --bg-card-hover: rgba(22, 30, 48, 0.95);
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-glow: rgba(0, 210, 255, 0.3);
+      --n8n-coral: #ea4b71;
+      --n8n-coral-glow: rgba(234, 75, 113, 0.5);
+      --n8n-orange: #ff6d5a;
+      --cyan: #00d2ff;
+      --cyan-glow: rgba(0, 210, 255, 0.6);
+      --green: #00e676;
+      --green-glow: rgba(0, 230, 118, 0.5);
+      --gold: #cb9727;
+      --gold-light: #f5d372;
+      --purple: #a855f7;
+      --purple-glow: rgba(168, 85, 247, 0.5);
+      --text-white: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-space);
+      color: var(--text-white);
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(234, 75, 113, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 20%, rgba(0, 210, 255, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 85%, rgba(168, 85, 247, 0.06) 0%, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    /* ════ TOPBAR HUD ════ */
+    .top-hud {
+      background: rgba(10, 14, 23, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .hud-brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-icon-n8n {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #ea4b71 0%, #ff6d5a 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+      box-shadow: 0 0 25px var(--n8n-coral-glow);
+      position: relative;
+    }
+
+    .brand-icon-n8n::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #ea4b71, #00d2ff);
+      z-index: -1;
+      opacity: 0.6;
+      filter: blur(4px);
+    }
+
+    .hud-title-box h1 {
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hud-title-box p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .pill-health {
+      background: rgba(0, 230, 118, 0.12);
+      border: 1px solid rgba(0, 230, 118, 0.4);
+      color: var(--green);
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 4px 11px;
+      border-radius: 30px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      letter-spacing: 0.6px;
+      box-shadow: 0 0 12px rgba(0, 230, 118, 0.2);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--green);
+      animation: pulse-ring 1.8s infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.8);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(0, 230, 118, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(0, 230, 118, 0);
+      }
+    }
+
+    .hud-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .btn-action-primary {
+      background: linear-gradient(135deg, #ea4b71 0%, #ff6d5a 100%);
+      color: #fff;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 25px var(--n8n-coral-glow);
+      transition: all 0.25s ease;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-action-primary:hover {
+      box-shadow: 0 0 35px rgba(234, 75, 113, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .btn-action-primary:active {
+      transform: scale(0.97);
+    }
+
+    .btn-back-portfolio {
+      background: rgba(30, 41, 59, 0.7);
+      color: var(--gold-light);
+      border: 1px solid rgba(203, 151, 39, 0.5);
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 0.80rem;
+      font-weight: 800;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-back-portfolio:hover {
+      background: var(--gold);
+      color: #000;
+      box-shadow: 0 0 20px rgba(203, 151, 39, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* ════ LAYOUT CONTAINER ════ */
+    .dashboard-layout {
+      max-width: 1720px;
+      margin: 0 auto;
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    /* ════ 1. TELEMETRIA & IMPACT GAUGES ════ */
+    .telemetry-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .telemetry-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .telemetry-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent-color, var(--cyan));
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px var(--accent-glow, rgba(0, 210, 255, 0.2));
+    }
+
+    .telemetry-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-color, var(--cyan)), transparent);
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .card-meta span {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+
+    .card-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-color, var(--cyan));
+      font-size: 1.1rem;
+    }
+
+    .stat-huge {
+      font-size: 2.2rem;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .stat-comparison {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-badge-gain {
+      color: var(--green);
+      font-weight: 800;
+      background: rgba(0, 230, 118, 0.12);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* ════ 2. WORKFLOW CANVAS N8N (VISUAL FLOW VIBRANTE) ════ */
+    .flow-viewport-card {
+      background: var(--bg-canvas);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+    }
+
+    .flow-top-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .flow-title-group h2 {
+      font-size: 1.18rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .flow-title-group p {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .wf-preset-chips {
+      display: flex;
+      gap: 8px;
+      background: rgba(15, 21, 34, 0.8);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .preset-chip {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preset-chip.active {
+      background: linear-gradient(135deg, rgba(234, 75, 113, 0.25) 0%, rgba(255, 109, 90, 0.25) 100%);
+      color: #fff;
+      border: 1px solid var(--n8n-coral);
+      box-shadow: 0 0 15px rgba(234, 75, 113, 0.3);
+    }
+
+    /* THE GRAPH CANVAS */
+    .graph-stage {
+      background:
+        radial-gradient(circle at 50% 50%, rgba(20, 27, 45, 0.7) 0%, rgba(8, 12, 19, 0.95) 100%),
+        radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+      background-size: 100% 100%, 24px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 40px 30px;
+      position: relative;
+      overflow-x: auto;
+      min-height: 480px;
+    }
+
+    /* SVG Connecting Cables */
+    .svg-cables-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .cable-path {
+      stroke: rgba(255, 255, 255, 0.14);
+      stroke-width: 3;
+      fill: none;
+      stroke-dasharray: 6 6;
+      transition: all 0.3s;
+    }
+
+    .cable-path.active {
+      stroke: var(--cyan);
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px var(--cyan));
+      stroke-dasharray: 10 4;
+      animation: cable-flow 0.8s linear infinite;
+    }
+
+    @keyframes cable-flow {
+      from {
+        stroke-dashoffset: 28;
+      }
+
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Pipeline 2-Branch Layout Grid */
+    .workflow-grid-layout {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 190px 210px 220px 210px;
+      grid-template-rows: auto auto;
+      column-gap: 80px;
+      row-gap: 50px;
+      align-items: center;
+      min-width: 1100px;
+      padding: 10px 20px;
+    }
+
+    /* High-Tech Node Element */
+    .tech-node {
+      background: rgba(18, 25, 41, 0.95);
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(8px);
+    }
+
+    .tech-node:hover,
+    .tech-node.focused {
+      transform: translateY(-5px);
+      border-color: var(--node-color, var(--cyan));
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 0 0 30px var(--node-glow, rgba(0, 210, 255, 0.4));
+    }
+
+    .tech-node.pulsing {
+      border-color: var(--green) !important;
+      box-shadow: 0 0 40px rgba(0, 230, 118, 0.9) !important;
+      animation: pulse-node-active 0.6s infinite alternate;
+    }
+
+    @keyframes pulse-node-active {
+      from {
+        transform: scale(1);
+      }
+
+      to {
+        transform: scale(1.05);
+      }
+    }
+
+    .node-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .node-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--node-bg, rgba(0, 210, 255, 0.15));
+      color: var(--node-color, var(--cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 0 15px var(--node-glow, transparent);
+    }
+
+    .node-badge-type {
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .node-name {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+
+    .node-sub {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+
+    .node-metrics-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.64rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .node-status-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .node-latency-pill {
+      color: var(--gold-light);
+      font-weight: 700;
+    }
+
+    /* Node Ports */
+    .port-in,
+    .port-out {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #94a3b8;
+      border: 2px solid var(--bg-space);
+      z-index: 3;
+    }
+
+    .port-in {
+      left: -6px;
+    }
+
+    .port-out {
+      right: -6px;
+      background: var(--node-color, var(--cyan));
+      box-shadow: 0 0 8px var(--node-color);
+    }
+
+    /* Node Inspector Drawer */
+    .inspector-panel {
+      margin-top: 20px;
+      background: rgba(10, 15, 25, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .inspector-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+    }
+
+    .inspector-id-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .insp-node-name {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--gold-light);
+    }
+
+    .insp-node-tech {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .inspector-stats-row {
+      display: flex;
+      gap: 20px;
+    }
+
+    .insp-stat-item {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .insp-stat-item strong {
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .json-code-box {
+      background: #04060a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: #38bdf8;
+      max-height: 120px;
+      overflow-y: auto;
+      white-space: pre;
+    }
+
+    /* ════ 3. ANÁLISE COMPARATIVA DE EFICIÊNCIA (ANTES VS DEPOIS) ════ */
+    .impact-analytics-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 24px;
+    }
+
+    .analytic-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-headline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .card-headline h3 {
+      font-size: 1.02rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chart-box-main {
+      flex: 1;
+      min-height: 280px;
+      position: relative;
+    }
+
+    /* Duelo Antes vs Depois */
+    .duel-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .duel-item {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr 0.9fr;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.78rem;
+    }
+
+    .duel-item.header {
+      background: transparent;
+      border: none;
+      padding: 4px 16px;
+      font-weight: 800;
+      color: var(--text-dim);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .duel-name {
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .duel-manual {
+      color: #f87171;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    .duel-n8n {
+      color: var(--green);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .duel-multiplier {
+      background: linear-gradient(135deg, rgba(203, 151, 39, 0.2), rgba(245, 211, 114, 0.1));
+      color: var(--gold-light);
+      border: 1px solid rgba(203, 151, 39, 0.5);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 900;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    /* ════ 4. LOGS STREAMING COMMAND TERMINAL ════ */
+    .command-terminal {
+      background: #030508;
+      border: 1px solid rgba(0, 210, 255, 0.2);
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(0, 0, 0, 0.8);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .terminal-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .terminal-title {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .terminal-lights {
+      display: flex;
+      gap: 6px;
+    }
+
+    .t-light {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .t-light.red {
+      background: #ff5f56;
+    }
+
+    .t-light.yellow {
+      background: #ffbd2e;
+    }
+
+    .t-light.green {
+      background: #27c93f;
+    }
+
+    .terminal-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 220px;
+      overflow-y: auto;
+      font-size: 0.74rem;
+    }
+
+    .feed-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.2s;
+    }
+
+    .feed-row:hover {
+      background: rgba(0, 210, 255, 0.06);
+    }
+
+    .feed-ts {
+      color: var(--text-dim);
+    }
+
+    .feed-tag {
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 0.64rem;
+    }
+
+    .feed-tag.ok {
+      background: rgba(0, 230, 118, 0.15);
+      color: var(--green);
+      border: 1px solid rgba(0, 230, 118, 0.3);
+    }
+
+    .feed-tag.ai {
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--purple);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .feed-tag.run {
+      background: rgba(0, 210, 255, 0.15);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 210, 255, 0.3);
+    }
+
+    .feed-msg {
+      color: #cbd5e1;
+      flex: 1;
+    }
+
+    .feed-dur {
+      color: var(--gold-light);
+      font-weight: 700;
+    }
+
+    @media (max-width: 1200px) {
+      .impact-analytics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .workflow-grid-layout {
+        min-width: 900px;
+      }
+
+      .top-hud {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+      }
+
+      .hud-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ════ TOPBAR HUD ════ -->
+  <header class="top-hud">
+    <div class="hud-brand">
+      <div class="brand-icon-n8n">
+        <i class="fa-solid fa-network-wired"></i>
+      </div>
+      <div class="hud-title-box">
+        <h1>
+          ORQUESTRADOR CORPORATIVO n8n & IA
+          <span class="pill-health"><span class="pulse-dot"></span> 100% OPERACIONAL</span>
+        </h1>
+        <p>Dashboard de Acompanhamento de Efetividade da Automação, Redução de FTE & ROI em Tempo Real</p>
+      </div>
+    </div>
+
+    <div class="hud-controls">
+      <button class="btn-action-primary" id="btnLiveRun" onclick="iniciarExecucaoVisual()">
+        <i class="fa-solid fa-play"></i> Disparar Automação em Tempo Real
+      </button>
+      <a href="../index.html" class="btn-back-portfolio" title="Retornar à tela inicial do portfólio">
+        <i class="fa-solid fa-arrow-left"></i> Voltar ao Portfólio
+      </a>
+    </div>
+  </header>
+
+  <!-- ════ DASHBOARD PRINCIPAL ════ -->
+  <main class="dashboard-layout">
+
+    <!-- ════ 1. TELEMETRIA & IMPACT GAUGES ════ -->
+    <section class="telemetry-row">
+      <!-- Card 1: Saúde do Cluster -->
+      <div class="telemetry-card" style="--accent-color: var(--green); --accent-glow: var(--green-glow);">
+        <div class="card-meta">
+          <span>Cluster Availability</span>
+          <div class="card-icon"><i class="fa-solid fa-server"></i></div>
+        </div>
+        <div class="stat-huge">99.85%</div>
+        <div class="stat-comparison">
+          <span class="stat-badge-gain">▲ 14.850 execuções</span> 0 minutos de downtime
+        </div>
+      </div>
+
+      <!-- Card 2: Horas Poupadas -->
+      <div class="telemetry-card" style="--accent-color: var(--gold); --accent-glow: rgba(203, 151, 39, 0.4);">
+        <div class="card-meta">
+          <span>Horas de Trabalho Poupadas</span>
+          <div class="card-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        </div>
+        <div class="stat-huge">384 h/mês</div>
+        <div class="stat-comparison">
+          <span class="stat-badge-gain">▲ 2.4 FTE</span> Analistas redirecionados para valor
+        </div>
+      </div>
+
+      <!-- Card 3: Velocidade -->
+      <div class="telemetry-card" style="--accent-color: var(--cyan); --accent-glow: var(--cyan-glow);">
+        <div class="card-meta">
+          <span>Tempo Médio por Ciclo</span>
+          <div class="card-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+        </div>
+        <div class="stat-huge">2.4 seg</div>
+        <div class="stat-comparison">
+          Vs <strong>45 min manuais</strong> (<span class="stat-badge-gain">+1.125x</span> mais ágil)
+        </div>
+      </div>
+
+      <!-- Card 4: Economia Financeira -->
+      <div class="telemetry-card" style="--accent-color: var(--purple); --accent-glow: var(--purple-glow);">
+        <div class="card-meta">
+          <span>Economia Operacional Líquida</span>
+          <div class="card-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+        </div>
+        <div class="stat-huge">R$ 26.540</div>
+        <div class="stat-comparison">
+          Poupados em horas extras e retrabalho contábil
+        </div>
+      </div>
+
+      <!-- Card 5: Assertividade -->
+      <div class="telemetry-card" style="--accent-color: var(--n8n-coral); --accent-glow: var(--n8n-coral-glow);">
+        <div class="card-meta">
+          <span>Assertividade de Dados</span>
+          <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        </div>
+        <div class="stat-huge">99.98%</div>
+        <div class="stat-comparison">
+          Erro humano reduzido de <strong>8.4%</strong> para <strong>0.02%</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════ 2. WORKFLOW CANVAS N8N VIBRANTE (COM RAMIFICAÇÃO) ════ -->
+    <section class="flow-viewport-card">
+      <div class="flow-top-controls">
+        <div class="flow-title-group">
+          <h2>
+            <span style="color:var(--n8n-coral);"><i class="fa-solid fa-bezier-curve"></i></span>
+            Arquitetura Dinâmica do Workflow n8n & IA (Dual-Branch Pipeline)
+          </h2>
+          <p>Fluxo automatizado com bifurcação analítica: extração contábil + triagem de IA + persistência e despacho
+            executivo</p>
+        </div>
+
+        <div class="wf-preset-chips">
+          <button class="preset-chip active" onclick="trocarModo('dre')">📊 DRE & Contábil</button>
+          <button class="preset-chip" onclick="trocarModo('glosas')">⚖️ Auditoria Glosas IA</button>
+          <button class="preset-chip" onclick="trocarModo('alertas')">🚨 Alertas TV & Vendas</button>
+        </div>
+      </div>
+
+      <!-- The Stage with Nodes & Cables -->
+      <div class="graph-stage">
+        <!-- SVG Connecting Wires -->
+        <svg class="svg-cables-layer" id="svgWires">
+          <!-- Wire 1: Node 1 -> Node 2 -->
+          <path id="wire-1-2" class="cable-path active" d="M 210,135 C 250,135 250,135 290,135"></path>
+          <!-- Wire 2A: Node 2 -> Node 3A (Branch Superior: ETL & Persistência) -->
+          <path id="wire-2-3a" class="cable-path active" d="M 500,135 C 540,135 540,80 580,80"></path>
+          <!-- Wire 2B: Node 2 -> Node 3B (Branch Inferior: IA & Alertas) -->
+          <path id="wire-2-3b" class="cable-path active" d="M 500,135 C 540,135 540,290 580,290"></path>
+          <!-- Wire 3A -> Node 4A (SQLite DW) -->
+          <path id="wire-3a-4a" class="cable-path active" d="M 800,80 C 840,80 840,80 880,80"></path>
+          <!-- Wire 3B -> Node 4B (WhatsApp Dispatcher) -->
+          <path id="wire-3b-4b" class="cable-path active" d="M 800,290 C 840,290 840,290 880,290"></path>
+        </svg>
+
+        <!-- Node Layout -->
+        <div class="workflow-grid-layout">
+
+          <!-- COL 1: Trigger -->
+          <div style="grid-column: 1; grid-row: 1 / span 2; align-self: center;">
+            <div class="tech-node focused" id="node-1" onclick="focarNo(1)"
+              style="--node-color:#ea4b71; --node-bg:rgba(234,75,113,0.18); --node-glow:rgba(234,75,113,0.5);">
+              <div class="node-top-bar">
+                <div class="node-icon-box"><i class="fa-solid fa-clock"></i></div>
+                <span class="node-badge-type">Trigger</span>
+              </div>
+              <div class="node-name">Cron Schedule</div>
+              <div class="node-sub">Disparo Diário 07:00 AM</div>
+              <div class="node-metrics-bar">
+                <span class="node-status-badge"><i class="fa-solid fa-circle-check"></i> ATIVO</span>
+                <span class="node-latency-pill">2 ms</span>
+              </div>
+              <div class="port-out"></div>
+            </div>
+          </div>
+
+          <!-- COL 2: ERP API -->
+          <div style="grid-column: 2; grid-row: 1 / span 2; align-self: center;">
+            <div class="tech-node" id="node-2" onclick="focarNo(2)"
+              style="--node-color:#f59e0b; --node-bg:rgba(245,158,11,0.18); --node-glow:rgba(245,158,11,0.5);">
+              <div class="port-in"></div>
+              <div class="node-top-bar">
+                <div class="node-icon-box"><i class="fa-solid fa-database"></i></div>
+                <span class="node-badge-type">ERP Integration</span>
+              </div>
+              <div class="node-name">Sankhya ERP API</div>
+              <div class="node-sub">Extração 828 Fatos Contábeis</div>
+              <div class="node-metrics-bar">
+                <span class="node-status-badge"><i class="fa-solid fa-circle-check"></i> 200 OK</span>
+                <span class="node-latency-pill">380 ms</span>
+              </div>
+              <div class="port-out"></div>
+            </div>
+          </div>
+
+          <!-- COL 3, ROW 1: Code Normalizer (Branch Superior) -->
+          <div style="grid-column: 3; grid-row: 1;">
+            <div class="tech-node" id="node-3a" onclick="focarNo('3a')"
+              style="--node-color:#00d2ff; --node-bg:rgba(0,210,255,0.18); --node-glow:rgba(0,210,255,0.5);">
+              <div class="port-in"></div>
+              <div class="node-top-bar">
+                <div class="node-icon-box"><i class="fa-brands fa-js"></i></div>
+                <span class="node-badge-type">Transformer</span>
+              </div>
+              <div class="node-name">JS Normalizer</div>
+              <div class="node-sub">Cálculo de Margens & Validações</div>
+              <div class="node-metrics-bar">
+                <span class="node-status-badge"><i class="fa-solid fa-circle-check"></i> 828 itens</span>
+                <span class="node-latency-pill">42 ms</span>
+              </div>
+              <div class="port-out"></div>
+            </div>
+          </div>
+
+          <!-- COL 3, ROW 2: LLM Engine (Branch Inferior) -->
+          <div style="grid-column: 3; grid-row: 2;">
+            <div class="tech-node" id="node-3b" onclick="focarNo('3b')"
+              style="--node-color:#a855f7; --node-bg:rgba(168,85,247,0.18); --node-glow:rgba(168,85,247,0.5);">
+              <div class="port-in"></div>
+              <div class="node-top-bar">
+                <div class="node-icon-box"><i class="fa-solid fa-brain"></i></div>
+                <span class="node-badge-type">GenAI Engine</span>
+              </div>
+              <div class="node-name">OpenRouter (GPT-4o)</div>
+              <div class="node-sub">Diagnóstico & Parecer CFO</div>
+              <div class="node-metrics-bar">
+                <span class="node-status-badge"><i class="fa-solid fa-circle-check"></i> 684 tokens</span>
+                <span class="node-latency-pill">1.18 s</span>
+              </div>
+              <div class="port-out"></div>
+            </div>
+          </div>
+
+          <!-- COL 4, ROW 1: SQLite DW (Branch Superior) -->
+          <div style="grid-column: 4; grid-row: 1;">
+            <div class="tech-node" id="node-4a" onclick="focarNo('4a')"
+              style="--node-color:#10b981; --node-bg:rgba(16,185,129,0.18); --node-glow:rgba(16,185,129,0.5);">
+              <div class="port-in"></div>
+              <div class="node-top-bar">
+                <div class="node-icon-box"><i class="fa-solid fa-server"></i></div>
+                <span class="node-badge-type">Data Warehouse</span>
+              </div>
+              <div class="node-name">SQLite fato_dre</div>
+              <div class="node-sub">Upsert Atômico & Indexação</div>
+              <div class="node-metrics-bar">
+                <span class="node-status-badge"><i class="fa-solid fa-circle-check"></i> Gravado</span>
+                <span class="node-latency-pill">18 ms</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- COL 4, ROW 2: WhatsApp Bot (Branch Inferior) -->
+          <div style="grid-column: 4; grid-row: 2;">
+            <div class="tech-node" id="node-4b" onclick="focarNo('4b')"
+              style="--node-color:#25d366; --node-bg:rgba(37,211,102,0.18); --node-glow:rgba(37,211,102,0.5);">
+              <div class="port-in"></div>
+              <div class="node-top-bar">
+                <div class="node-icon-box"><i class="fa-brands fa-whatsapp"></i></div>
+                <span class="node-badge-type">Dispatcher</span>
+              </div>
+              <div class="node-name">WhatsApp Executivo</div>
+              <div class="node-sub">Push de Alertas para C-Level</div>
+              <div class="node-metrics-bar">
+                <span class="node-status-badge"><i class="fa-solid fa-circle-check"></i> Entregue</span>
+                <span class="node-latency-pill">410 ms</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Node Live Inspector -->
+      <div class="inspector-panel" id="inspPanel">
+        <div class="inspector-header">
+          <div class="inspector-id-block">
+            <div class="node-icon-box" id="inspIcon" style="background:rgba(234,75,113,0.2); color:#ea4b71;"><i
+                class="fa-solid fa-clock"></i></div>
+            <div>
+              <div class="insp-node-name" id="inspTitle">Nó 1: Cron Schedule Trigger</div>
+              <div class="insp-node-tech" id="inspDesc">Gatilho temporal automático configurado para executar
+                diariamente às 07:00 com failover redundante.</div>
+            </div>
+          </div>
+
+          <div class="inspector-stats-row">
+            <div class="insp-stat-item">Latência: <strong id="inspLatency">2 ms</strong></div>
+            <div class="insp-stat-item">Status: <strong style="color:var(--green);" id="inspStatus">200 OK
+                (Healthy)</strong></div>
+            <div class="insp-stat-item">Execuções Mês: <strong id="inspExecs">720 runs</strong></div>
+          </div>
+        </div>
+
+        <div>
+          <div
+            style="font-size:0.66rem; color:var(--text-dim); margin-bottom:4px; font-weight:800; letter-spacing:0.5px;">
+            PAYLOAD JSON DE ENTRADA / SAÍDA TRATADO:</div>
+          <div class="json-code-box" id="inspJson">
+            {
+            "trigger": "cron_daily_0700",
+            "pipeline": "WF_DRE_ANALYTICS_V4",
+            "branch_strategy": "parallel_fork",
+            "status": "HEALTHY",
+            "next_scheduled_run": "2026-11-06T07:00:00Z"
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════ 3. ANÁLISE COMPARATIVA DE EFICIÊNCIA (ANTES VS DEPOIS) ════ -->
+    
+    <!-- ========================================== -->
+    <!-- ESTEIRAS REAIS EM PRODUCAO NO n8n -->
+    <!-- ========================================== -->
+    <section class="flow-viewport-card" style="margin-top: 1.5rem; border: 1px solid rgba(255, 109, 90, 0.35); background: linear-gradient(180deg, rgba(20, 14, 24, 0.95), rgba(13, 10, 16, 0.98));">
+      <div class="viewport-header" style="flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 1rem;">
+        <div>
+          <span style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-cyan); font-weight: 700; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-camera"></i> Casos Reais em Produção Corporativa
+          </span>
+          <h2 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin-top: 0.3rem; display: flex; align-items: center; gap: 10px;">
+            Workflows Oficiais n8n & Arquitetura de Agentes
+            <span style="font-size: 0.65rem; background: rgba(0, 242, 254, 0.15); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 3px 8px; border-radius: 12px; font-weight: 700;">PRODUÇÃO ATIVA</span>
+          </h2>
+          <p style="font-size: 0.82rem; color: #94a3b8; margin-top: 0.2rem;">
+            Capturas de tela das esteiras em execução corporativa: orquestração multi-agente com LangChain/OpenRouter e pipeline ETL de documentos PDF/CSV.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button id="btnTabWf1" class="btn-action-primary" onclick="switchWorkflowTab(1)" style="font-size: 0.75rem; padding: 7px 14px; background: linear-gradient(135deg, #ff6d5a, #ea4b71); box-shadow: 0 0 15px rgba(234, 75, 113, 0.4);">
+            <i class="fa-solid fa-robot"></i> 1. Agente de IA & OpenRouter (DRE)
+          </button>
+          <button id="btnTabWf2" class="btn-action-primary" onclick="switchWorkflowTab(2)" style="font-size: 0.75rem; padding: 7px 14px; background: #1c1826; border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; box-shadow: none;">
+            <i class="fa-solid fa-file-pdf"></i> 2. Leitura & Extração PDF / CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- WORKFLOW 1: AGENTE DE IA & OPENROUTER (DRE) -->
+      <div id="wfTabContent1" style="display: block; padding: 1.5rem 0;">
+        <div style="display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; align-items: start;">
+          <div style="background: #090a0f; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+            <img id="imgWf1" src="../static/portfolio_screenshots/n8n_agente_ia_dre.jpg" alt="Agente de IA n8n DRE" style="width: 100%; height: auto; display: block; cursor: zoom-in; transition: transform 0.3s ease;" onclick="openWfModal(this.src, 'Agente de IA Autônomo com n8n & OpenRouter (Automação DRE)')">
+            <div style="position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 6px 14px; font-size: 0.75rem; color: #fff; display: flex; align-items: center; gap: 6px; cursor: pointer;" onclick="openWfModal('../static/portfolio_screenshots/n8n_agente_ia_dre.jpg', 'Agente de IA Autônomo com n8n & OpenRouter (Automação DRE)')">
+              <i class="fa-solid fa-magnifying-glass-plus" style="color: var(--accent-cyan);"></i> Clique para Ampliar em HD
+            </div>
+            <div style="position: absolute; top: 12px; left: 12px; background: rgba(234, 75, 113, 0.9); border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; font-weight: 800; color: #fff; letter-spacing: 0.05em;">
+              FLUXO REAL: Pessoal / Automacao dre
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 1.2rem;">
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--gold-primary); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-microchip"></i> Arquitetura do Agente
+              </h4>
+              <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 0.8rem;">
+                Sistema multi-agente construído sobre a engine LangChain no n8n. O nó central atua como Maestro autônomo, tomando decisões com base em contexto e delegando tarefas analíticas.
+              </p>
+              
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.74rem;">
+                <div style="background: #111420; border-left: 3px solid #ff6d5a; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #ff6d5a;">Trigger:</strong> Mensagem recebida no chat
+                </div>
+                <div style="background: #111420; border-left: 3px solid #00f2fe; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #00f2fe;">LLM Core:</strong> Modelo OpenRouter (Dynamic routing)
+                </div>
+                <div style="background: #111420; border-left: 3px solid #ffd700; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #ffd700;">Memória:</strong> PostgreSQL Chat Memory (Contexto longo)
+                </div>
+                <div style="background: #111420; border-left: 3px solid #a855f7; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #a855f7;">Sub-agentes:</strong> Agente Vagner + Agente Pinhata
+                </div>
+                <div style="background: #111420; border-left: 3px solid #22c55e; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #22c55e;">Multimodal:</strong> Google Gemini Vision / Image Gen
+                </div>
+                <div style="background: #111420; border-left: 3px solid #38bdf8; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #38bdf8;">Protocolo MCP:</strong> Cliente MCP conectado a ferramentas
+                </div>
+              </div>
+            </div>
+
+            <div style="background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 10px; padding: 1rem;">
+              <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Tempo de Resposta Médio</div>
+              <div style="font-size: 1.4rem; font-weight: 800; color: var(--accent-cyan); margin: 0.2rem 0;">1.8s <span style="font-size: 0.75rem; color: #22c55e;">(vs 35 min manual)</span></div>
+              <div style="font-size: 0.74rem; color: #cbd5e1;">Consultas financeiras e geração de insights em linguagem natural instantâneos.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WORKFLOW 2: LEITURA E EXTRACAO DE PDF / CSV -->
+      <div id="wfTabContent2" style="display: none; padding: 1.5rem 0;">
+        <div style="display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; align-items: start;">
+          <div style="background: #090a0f; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+            <img id="imgWf2" src="../static/portfolio_screenshots/n8n_fluxo_leitura_pdf.png" alt="Leitura de PDF n8n" style="width: 100%; height: auto; display: block; cursor: zoom-in; transition: transform 0.3s ease;" onclick="openWfModal(this.src, 'Esteira ETL de Documentos: Leitura de PDF & CSV via Webhook')">
+            <div style="position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 6px 14px; font-size: 0.75rem; color: #fff; display: flex; align-items: center; gap: 6px; cursor: pointer;" onclick="openWfModal('../static/portfolio_screenshots/n8n_fluxo_leitura_pdf.png', 'Esteira ETL de Documentos: Leitura de PDF & CSV via Webhook')">
+              <i class="fa-solid fa-magnifying-glass-plus" style="color: var(--accent-cyan);"></i> Clique para Ampliar em HD
+            </div>
+            <div style="position: absolute; top: 12px; left: 12px; background: rgba(34, 197, 94, 0.9); border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; font-weight: 800; color: #fff; letter-spacing: 0.05em;">
+              FLUXO REAL: Pessoal / Leia o PDF [ATIVO]
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 1.2rem;">
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--gold-primary); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-filter"></i> Pipeline de Extração ETL
+              </h4>
+              <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 0.8rem;">
+                Pipeline síncrono para ingestão de notas fiscais, faturas e relatórios armarinhos. Elimina 100% da digitação manual com retorno JSON validado ao webhook chamador.
+              </p>
+              
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.74rem;">
+                <div style="background: #111420; border-left: 3px solid #ff6d5a; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #ff6d5a;">Webhook PDF:</strong> Endpoint de entrada com validação de payload
+                </div>
+                <div style="background: #111420; border-left: 3px solid #22c55e; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #22c55e;">Roteamento IF (Se):</strong> Bifurcação entre extensão CSV ou PDF
+                </div>
+                <div style="background: #111420; border-left: 3px solid #00f2fe; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #00f2fe;">Branch 1 (CSV):</strong> Extração direta de texto delimitado
+                </div>
+                <div style="background: #111420; border-left: 3px solid #ffd700; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #ffd700;">Branch 2 (PDF):</strong> Parser OCR/Text de Armarinhos
+                </div>
+                <div style="background: #111420; border-left: 3px solid #f59e0b; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #f59e0b;">Nós JS (Código 1/Código):</strong> Limpeza de Regex e cálculo de impostos
+                </div>
+                <div style="background: #111420; border-left: 3px solid #ec4899; padding: 6px 10px; border-radius: 4px; color: #e2e8f0;">
+                  <strong style="color: #ec4899;">Responder Webhook:</strong> Envio imediato da resposta estruturada
+                </div>
+              </div>
+            </div>
+
+            <div style="background: rgba(34, 197, 94, 0.05); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 10px; padding: 1rem;">
+              <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Taxa de Precisão dos Dados</div>
+              <div style="font-size: 1.4rem; font-weight: 800; color: #22c55e; margin: 0.2rem 0;">99.85% <span style="font-size: 0.75rem; color: var(--accent-cyan);">Zero Erro Humano</span></div>
+              <div style="font-size: 0.74rem; color: #cbd5e1;">Mais de 4.200 páginas e faturas processadas com reconciliação contábil automática.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL LIGHTBOX PARA WORKFLOWS -->
+    <div id="modalWfLightbox" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.92); z-index: 99999; backdrop-filter: blur(10px); align-items: center; justify-content: center; flex-direction: column; padding: 2rem; box-sizing: border-box;" onclick="closeWfModal()">
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 95%; max-width: 1400px; margin-bottom: 1rem;" onclick="event.stopPropagation()">
+        <div>
+          <span style="font-size: 0.7rem; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase;">Workflow n8n Oficial em Produção</span>
+          <h3 id="modalWfTitle" style="color: #fff; font-size: 1.2rem; font-weight: 800; margin-top: 0.2rem;">Título</h3>
+        </div>
+        <button onclick="closeWfModal()" style="background: #201a2c; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 18px; border-radius: 8px; font-weight: 700; cursor: pointer;">
+          <i class="fa-solid fa-xmark"></i> Fechar
+        </button>
+      </div>
+      <div style="width: 95%; max-width: 1400px; max-height: 82vh; overflow: auto; background: #07080c; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation()">
+        <img id="modalWfImage" src="" alt="Workflow Ampliado" style="width: 100%; height: auto; display: block;">
+      </div>
+    </div>
+
+    <section class="impact-analytics-grid">
+      <!-- Chart: Curva de Redução de FTE -->
+      <div class="analytic-card">
+        <div class="card-headline">
+          <h3><i class="fa-solid fa-chart-line" style="color:var(--gold);"></i> Curva Cumulativa de Horas Economizadas
+            no Mês</h3>
+          <span style="font-size:0.74rem; color:var(--text-muted);">Mensuração direta em horas-homem (FTE)</span>
+        </div>
+        <div class="chart-box-main">
+          <canvas id="chartFTE"></canvas>
+        </div>
+      </div>
+
+      <!-- Duelo: Processo Manual vs n8n -->
+      <div class="analytic-card">
+        <div class="card-headline">
+          <h3><i class="fa-solid fa-stopwatch-20" style="color:var(--cyan);"></i> Benchmark: Rotina Manual vs n8n</h3>
+          <span style="font-size:0.72rem; color:var(--green); font-weight:800;">Homologação 100% Ativa</span>
+        </div>
+
+        <div class="duel-container">
+          <div class="duel-item header">
+            <div>Processo</div>
+            <div>Manual</div>
+            <div>n8n + IA</div>
+            <div>Ganho</div>
+          </div>
+
+          <div class="duel-item">
+            <div class="duel-name"><i class="fa-solid fa-file-invoice-dollar" style="color:#ea4b71;"></i> Fechamento DRE
+            </div>
+            <div class="duel-manual">45 min</div>
+            <div class="duel-n8n"><i class="fa-solid fa-bolt"></i> 2.4s</div>
+            <div class="duel-multiplier">+1.125x</div>
+          </div>
+
+          <div class="duel-item">
+            <div class="duel-name"><i class="fa-solid fa-hospital-user" style="color:#00d2ff;"></i> Auditoria Glosas
+            </div>
+            <div class="duel-manual">3h 20m</div>
+            <div class="duel-n8n"><i class="fa-solid fa-bolt"></i> 18.5s</div>
+            <div class="duel-multiplier">+650x</div>
+          </div>
+
+          <div class="duel-item">
+            <div class="duel-name"><i class="fa-solid fa-tv" style="color:#f59e0b;"></i> Carga WebTV Vendas</div>
+            <div class="duel-manual">15 min</div>
+            <div class="duel-n8n"><i class="fa-solid fa-bolt"></i> 0.8s</div>
+            <div class="duel-multiplier">+1.100x</div>
+          </div>
+
+          <div class="duel-item">
+            <div class="duel-name"><i class="fa-solid fa-scale-balanced" style="color:#10b981;"></i> Conciliação OFX
+            </div>
+            <div class="duel-manual">1h 10m</div>
+            <div class="duel-n8n"><i class="fa-solid fa-bolt"></i> 4.1s</div>
+            <div class="duel-multiplier">+1.020x</div>
+          </div>
+
+          <div class="duel-item">
+            <div class="duel-name"><i class="fa-solid fa-bell" style="color:#a855f7;"></i> Alertas Executivos</div>
+            <div class="duel-manual">20 min</div>
+            <div class="duel-n8n"><i class="fa-solid fa-bolt"></i> Instantâneo</div>
+            <div class="duel-multiplier">Tempo Real</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════ 4. LOGS STREAMING COMMAND TERMINAL ════ -->
+    <section class="command-terminal">
+      <div class="terminal-top">
+        <div class="terminal-title">
+          <div class="terminal-lights">
+            <span class="t-light red"></span>
+            <span class="t-light yellow"></span>
+            <span class="t-light green"></span>
+          </div>
+          <span>LIVE CLUSTER EXECUTION STREAM &bull; WORKER-01 [PROD]</span>
+        </div>
+        <div style="font-size:0.72rem; color:var(--text-dim);">
+          BUFFER: <strong>14.850 events</strong> &bull; STATUS: <strong style="color:var(--green);">STREAMING</strong>
+        </div>
+      </div>
+
+      <div class="terminal-feed" id="terminalFeed">
+        <div class="feed-row">
+          <span class="feed-ts">[23:58:12]</span>
+          <span class="feed-tag ok">SUCCESS</span>
+          <span class="feed-msg">Workflow <strong>WF_DRE_ANALYTICS_V4</strong>: 828 registros consolidados na base
+            SQLite fato_dre.</span>
+          <span class="feed-dur">2.14s</span>
+        </div>
+        <div class="feed-row">
+          <span class="feed-ts">[23:55:00]</span>
+          <span class="feed-tag ai">GENAI</span>
+          <span class="feed-msg">OpenRouter LLM gerou diagnóstico executivo: superávit de R$ 394k em EBITDA e margem de
+            18.1%.</span>
+          <span class="feed-dur">1.18s</span>
+        </div>
+        <div class="feed-row">
+          <span class="feed-ts">[23:50:30]</span>
+          <span class="feed-tag run">DISPATCH</span>
+          <span class="feed-msg">WhatsApp Business API entregou alerta executivo com 100% de leitura para
+            C-Level.</span>
+          <span class="feed-dur">410ms</span>
+        </div>
+        <div class="feed-row">
+          <span class="feed-ts">[23:45:00]</span>
+          <span class="feed-tag ok">HEALTHCHECK</span>
+          <span class="feed-msg">Cluster n8n validou integridade de 6 nós e integridade de conexões REST/SQL.</span>
+          <span class="feed-dur">38ms</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ════ SCRIPTS INTERATIVOS ════ -->
+  <script>
+    const NODE_DATA = {
+      1: {
+        title: "Nó 1: Cron Schedule Trigger",
+        desc: "Gatilho temporal automático configurado para executar diariamente às 07:00 com failover redundante.",
+        icon: "fa-clock",
+        color: "#ea4b71",
+        latency: "2 ms",
+        status: "200 OK (Healthy)",
+        execs: "720 runs",
+        json: {
+          "trigger": "cron_daily_0700",
+          "pipeline": "WF_DRE_ANALYTICS_V4",
+          "branch_strategy": "parallel_fork",
+          "status": "HEALTHY",
+          "next_scheduled_run": "2026-11-06T07:00:00Z"
+        }
+      },
+      2: {
+        title: "Nó 2: Extração Sankhya ERP via SQL API",
+        desc: "Executa queries otimizadas no banco relacional corporativo extraindo receitas, deduções, OPEX e CMV.",
+        icon: "fa-database",
+        color: "#f59e0b",
+        latency: "380 ms",
+        status: "200 OK (Healthy)",
+        execs: "14.850 runs",
+        json: {
+          "source_erp": "Sankhya Native API",
+          "records_extracted": 828,
+          "gross_revenue": "R$ 123.010.013",
+          "integrity_hash": "e8d7a1b9c44",
+          "execution_time_ms": 380
+        }
+      },
+      "3a": {
+        title: "Nó 3A: Javascript Normalizer & Regras Contábeis",
+        desc: "Aplica regras de compliance fiscal, calcula margens percentuais, sanitiza campos nulos e formata datas IFRS.",
+        icon: "fa-js",
+        color: "#00d2ff",
+        latency: "42 ms",
+        status: "200 OK (Healthy)",
+        execs: "14.850 runs",
+        json: {
+          "module": "Code (JS Engine V8)",
+          "rows_processed": 828,
+          "derived_fields": ["margem_bruta_pct", "ebitda_pct"],
+          "schema_valid": true
+        }
+      },
+      "3b": {
+        title: "Nó 3B: Inteligência Artificial / OpenRouter (GPT-4o)",
+        desc: "Analisa semanticamente a DRE, detecta variações de OPEX e gera o resumo executivo para o CFO.",
+        icon: "fa-brain",
+        color: "#a855f7",
+        latency: "1.18 s",
+        status: "200 OK (Healthy)",
+        execs: "4.210 runs",
+        json: {
+          "provider": "OpenRouter AI Gateway",
+          "model": "openai/gpt-4o-mini",
+          "tokens_used": 684,
+          "insight": "Lucro Líquido +4.4% acima da meta orçada com alavancagem em OPEX.",
+          "sentiment": "POSITIVO"
+        }
+      },
+      "4a": {
+        title: "Nó 4A: Persistência em Data Warehouse SQLite",
+        desc: "Upsert atômico e transacional na base 'fato_dre', alimentando os dashboards analíticos em milissegundos.",
+        icon: "fa-server",
+        color: "#10b981",
+        latency: "18 ms",
+        status: "200 OK (Healthy)",
+        execs: "14.850 runs",
+        json: {
+          "database": "dre_analytics.sqlite",
+          "table": "fato_dre",
+          "rows_upserted": 828,
+          "vacuum_status": "OPTIMIZED"
+        }
+      },
+      "4b": {
+        title: "Nó 4B: WhatsApp Executivo Dispatcher",
+        desc: "Dispara o relatório gerencial formatado para o número corporativo da Diretoria com confirmação de entrega.",
+        icon: "fa-whatsapp",
+        color: "#25d366",
+        latency: "410 ms",
+        status: "200 OK (Delivered)",
+        execs: "1.420 msgs",
+        json: {
+          "service": "WhatsApp Cloud API",
+          "recipients": ["Diretoria Executiva", "CFO Corporativo"],
+          "template": "dre_resumo_matinal",
+          "read_receipt": true
+        }
+      }
+    };
+
+    function focarNo(id) {
+      document.querySelectorAll('.tech-node').forEach(n => n.classList.remove('focused'));
+      const target = document.getElementById(`node-${id}`);
+      if (target) target.classList.add('focused');
+
+      const data = NODE_DATA[id];
+      if (!data) return;
+
+      document.getElementById('inspTitle').innerText = data.title;
+      document.getElementById('inspDesc').innerText = data.desc;
+      document.getElementById('inspLatency').innerText = data.latency;
+      document.getElementById('inspStatus').innerText = data.status;
+      document.getElementById('inspExecs').innerText = data.execs;
+      document.getElementById('inspJson').innerText = JSON.stringify(data.json, null, 2);
+
+      const iconBox = document.getElementById('inspIcon');
+      iconBox.style.color = data.color;
+      iconBox.style.background = `${data.color}25`;
+      iconBox.innerHTML = `<i class="fa-solid ${data.icon}"></i>`;
+    }
+
+    function trocarModo(modo) {
+      document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const feed = document.getElementById('terminalFeed');
+      const now = new Date().toLocaleTimeString();
+      const row = document.createElement('div');
+      row.className = 'feed-row';
+      row.innerHTML = `
+        <span class="feed-ts">[${now}]</span>
+        <span class="feed-tag run">WORKFLOW</span>
+        <span class="feed-msg">Pipeline ativo alterado para: <strong>${modo.toUpperCase()}</strong>. Topologia recarregada no cluster.</span>
+        <span class="feed-dur">12ms</span>
+      `;
+      feed.insertBefore(row, feed.firstChild);
+    }
+
+    /* Simulação Visual de Pacotes Fluindo */
+    let emExecucao = false;
+    async function iniciarExecucaoVisual() {
+      if (emExecucao) return;
+      emExecucao = true;
+
+      const btn = document.getElementById('btnLiveRun');
+      const txtOriginal = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Executando Pipeline n8n...';
+      btn.style.opacity = '0.85';
+
+      const feed = document.getElementById('terminalFeed');
+      const seq = [
+        { id: 1, name: "Cron Schedule", delay: 400 },
+        { id: 2, name: "Sankhya ERP API", delay: 500 },
+        { id: "3a", name: "JS Normalizer", delay: 450, fork: "3b" },
+        { id: "4a", name: "SQLite DW", delay: 450, fork: "4b" }
+      ];
+
+      for (let s of seq) {
+        focarNo(s.id);
+        const nodeEl = document.getElementById(`node-${s.id}`);
+        if (nodeEl) nodeEl.classList.add('pulsing');
+
+        if (s.fork) {
+          const forkEl = document.getElementById(`node-${s.fork}`);
+          if (forkEl) forkEl.classList.add('pulsing');
+        }
+
+        const now = new Date().toLocaleTimeString();
+        const row = document.createElement('div');
+        row.className = 'feed-row';
+        row.innerHTML = `
+          <span class="feed-ts">[${now}]</span>
+          <span class="feed-tag run">RUNNING</span>
+          <span class="feed-msg">Executando nó: <strong>${s.name}</strong>${s.fork ? ' & fork paralelo' : ''}...</span>
+          <span class="feed-dur">OK</span>
+        `;
+        feed.insertBefore(row, feed.firstChild);
+
+        await new Promise(r => setTimeout(r, s.delay));
+        if (nodeEl) nodeEl.classList.remove('pulsing');
+        if (s.fork) {
+          const forkEl = document.getElementById(`node-${s.fork}`);
+          if (forkEl) forkEl.classList.remove('pulsing');
+        }
+      }
+
+      // Conclusão
+      const now = new Date().toLocaleTimeString();
+      const endRow = document.createElement('div');
+      endRow.className = 'feed-row';
+      endRow.innerHTML = `
+        <span class="feed-ts">[${now}]</span>
+        <span class="feed-tag ok">SUCCESS</span>
+        <span class="feed-msg"><strong>EXECUÇÃO COMPLETA n8n FINALIZADA:</strong> 828 registros gravados e WhatsApp entregue em 2.14s!</span>
+        <span class="feed-dur">TOTAL: 2.14s</span>
+      `;
+      feed.insertBefore(endRow, feed.firstChild);
+
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Execução Concluída!';
+      btn.style.background = 'linear-gradient(135deg, #00e676 0%, #00b0ff 100%)';
+
+      setTimeout(() => {
+        btn.innerHTML = txtOriginal;
+        btn.style.background = '';
+        btn.style.opacity = '1';
+        emExecucao = false;
+      }, 3000);
+    }
+
+    /* Gráfico Chart.js: Curva Cumulativa FTE */
+    document.addEventListener('DOMContentLoaded', () => {
+      const ctx = document.getElementById('chartFTE').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+          datasets: [
+            {
+              label: 'Horas Economizadas pela Automação n8n',
+              data: [96, 192, 288, 384],
+              borderColor: '#00d2ff',
+              backgroundColor: 'rgba(0, 210, 255, 0.12)',
+              borderWidth: 3.5,
+              fill: true,
+              tension: 0.35,
+              pointBackgroundColor: '#00e676',
+              pointBorderColor: '#fff',
+              pointRadius: 6,
+              pointHoverRadius: 8
+            },
+            {
+              label: 'Carga Horária Manual Teórica (Sem n8n)',
+              data: [105, 210, 315, 420],
+              borderColor: 'rgba(234, 75, 113, 0.5)',
+              borderDash: [6, 6],
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#cbd5e1',
+                font: { family: 'Montserrat', size: 11, weight: 600 }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(9, 13, 22, 0.95)',
+              borderColor: 'rgba(0, 210, 255, 0.4)',
+              borderWidth: 1,
+              titleColor: '#00d2ff',
+              bodyFont: { family: 'Montserrat' }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8', font: { family: 'Montserrat' } }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { family: 'Montserrat' },
+                callback: v => `${v} h`
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+
+  <script>
+    function switchWorkflowTab(tabNumber) {
+      const tab1 = document.getElementById('wfTabContent1');
+      const tab2 = document.getElementById('wfTabContent2');
+      const btn1 = document.getElementById('btnTabWf1');
+      const btn2 = document.getElementById('btnTabWf2');
+      if (tabNumber === 1) {
+        tab1.style.display = 'block';
+        tab2.style.display = 'none';
+        btn1.style.background = 'linear-gradient(135deg, #ff6d5a, #ea4b71)';
+        btn1.style.color = '#fff';
+        btn1.style.boxShadow = '0 0 15px rgba(234, 75, 113, 0.4)';
+        btn2.style.background = '#1c1826';
+        btn2.style.color = '#94a3b8';
+        btn2.style.boxShadow = 'none';
+      } else {
+        tab1.style.display = 'none';
+        tab2.style.display = 'block';
+        btn2.style.background = 'linear-gradient(135deg, #22c55e, #059669)';
+        btn2.style.color = '#fff';
+        btn2.style.boxShadow = '0 0 15px rgba(34, 197, 94, 0.4)';
+        btn1.style.background = '#1c1826';
+        btn1.style.color = '#94a3b8';
+        btn1.style.boxShadow = 'none';
+      }
+    }
+
+    function openWfModal(src, title) {
+      document.getElementById('modalWfImage').src = src;
+      document.getElementById('modalWfTitle').textContent = title;
+      const modal = document.getElementById('modalWfLightbox');
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeWfModal() {
+      const modal = document.getElementById('modalWfLightbox');
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+  </script>
+</body>
+
+
+</html>

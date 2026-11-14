@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Power BI - Gestão de Transporte Urbano & Frota | Microsoft Power BI Pro</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --pbi-yellow: #F2C811;
+            --pbi-yellow-dark: #D4A700;
+            --pbi-black: #111111;
+            --pbi-bar: #1f1f1f;
+            --pbi-rail: #141414;
+            --pbi-canvas: #0e121a;
+            --pbi-border: rgba(255, 255, 255, 0.1);
+            --mq-gold: #cb9727;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--pbi-black);
+            color: #ffffff;
+            font-family: 'Segoe UI', 'Montserrat', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* ── Top Power BI Service Header ── */
+        .pbi-topbar {
+            height: 48px;
+            background: var(--pbi-bar);
+            border-bottom: 1px solid var(--pbi-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .pbi-logo-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #ffffff;
+            letter-spacing: -0.2px;
+        }
+        .pbi-logo-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 2.5px;
+            height: 20px;
+        }
+        .pbi-logo-bars span {
+            width: 4px;
+            background: var(--pbi-yellow);
+            border-radius: 1px;
+        }
+        .pbi-logo-bars span:nth-child(1) { height: 8px; }
+        .pbi-logo-bars span:nth-child(2) { height: 14px; }
+        .pbi-logo-bars span:nth-child(3) { height: 20px; }
+        
+        .pbi-divider {
+            width: 1px;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .report-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .badge-status {
+            background: rgba(242, 200, 17, 0.15);
+            border: 1px solid rgba(242, 200, 17, 0.4);
+            color: var(--pbi-yellow);
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .badge-safe {
+            background: rgba(0, 210, 106, 0.15);
+            border: 1px solid rgba(0, 210, 106, 0.4);
+            color: #00d26a;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pbi-btn {
+            background: #2b2b2b;
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+            text-decoration: none;
+            font-family: 'Segoe UI', 'Montserrat', sans-serif;
+        }
+        .pbi-btn:hover {
+            background: #383838;
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+        .pbi-btn-primary {
+            background: linear-gradient(135deg, #F2C811 0%, #D4A700 100%);
+            color: #000000;
+            font-weight: 700;
+            border: none;
+        }
+        .pbi-btn-primary:hover {
+            box-shadow: 0 0 10px rgba(242, 200, 17, 0.5);
+            color: #000;
+        }
+        .pbi-btn-web {
+            background: #182333;
+            color: #00e5ff;
+            border-color: rgba(0, 229, 255, 0.35);
+        }
+        .pbi-btn-web:hover {
+            background: rgba(0, 229, 255, 0.15);
+            color: #00e5ff;
+        }
+
+        /* ── Main App Layout ── */
+        .app-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Left Service Rail */
+        .pbi-rail {
+            width: 48px;
+            background: var(--pbi-rail);
+            border-right: 1px solid var(--pbi-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+        .rail-icon {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8c9ba5;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .rail-icon:hover, .rail-icon.active {
+            background: #2a2a2a;
+            color: var(--pbi-yellow);
+        }
+
+        /* Main Workspace Canvas */
+        .canvas-workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--pbi-canvas);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Report Canvas Area */
+        .report-viewport {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            padding: 14px;
+            position: relative;
+            background: radial-gradient(circle at center, #151b28 0%, #080b11 95%);
+        }
+
+        .report-sheet-container {
+            max-width: 100%;
+            max-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: transform 0.2s ease-out;
+            cursor: default;
+        }
+
+        .report-img {
+            max-width: 100%;
+            max-height: calc(100vh - 75px);
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.2s;
+        }
+
+        /* Floating Viewport Controls */
+        .canvas-floating-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 24px;
+            background: rgba(20, 20, 20, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+            z-index: 50;
+        }
+        .control-btn {
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 0.8rem;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+        .zoom-level {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--pbi-yellow);
+            min-width: 42px;
+            text-align: center;
+        }
+
+        /* ── Bottom Page Tabs Bar ── */
+        .pbi-bottom-bar {
+            height: 38px;
+            background: #181818;
+            border-top: 1px solid var(--pbi-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        .pbi-tabs-list {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 100%;
+        }
+        .pbi-tab {
+            height: 100%;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #94a3b8;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+        }
+        .pbi-tab:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .pbi-tab.active {
+            color: var(--pbi-yellow);
+            border-bottom-color: var(--pbi-yellow);
+            background: rgba(242, 200, 17, 0.06);
+            font-weight: 700;
+        }
+        .bottom-meta {
+            font-size: 0.72rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* ── DAX & Modelagem Drawer ── */
+        .dax-drawer {
+            position: fixed;
+            top: 48px;
+            right: -420px;
+            width: 400px;
+            height: calc(100vh - 48px);
+            background: #141720;
+            border-left: 2px solid rgba(242, 200, 17, 0.4);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .dax-drawer.open {
+            right: 0;
+        }
+        .dax-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .dax-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--pbi-yellow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .close-dax {
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+        .close-dax:hover { color: #ffffff; }
+        
+        .dax-item {
+            background: #0d1017;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .dax-name {
+            font-weight: 700;
+            color: #00e5ff;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .dax-code {
+            background: #06080d;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8px 10px;
+            border-radius: 4px;
+            color: #ffd600;
+            font-family: 'Consolas', monospace;
+            font-size: 0.72rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            margin-bottom: 6px;
+        }
+        .dax-desc {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            line-height: 1.35;
+        }
+
+        @media (max-width: 768px) {
+            .pbi-rail { display: none; }
+            .dax-drawer { width: 100vw; right: -100vw; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <header class="pbi-topbar">
+        <div class="topbar-left">
+            <div class="pbi-logo-box">
+                <div class="pbi-logo-bars">
+                    <span></span><span></span><span></span>
+                </div>
+                <span>Power BI</span>
+            </div>
+            <div class="pbi-divider"></div>
+            <div class="report-title">
+                Power BI - Gestão de Transporte Urbano & Frota
+                <span class="badge-status">Relatório Pro</span>
+                <span class="badge-safe"><i class="fa-solid fa-shield-halved"></i> 100% Preservado</span>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <a href="https://app.powerbi.com/view?r=eyJrIjoiMGM2MDVkMmEtNmExYi00NzQxLTk5YzEtNzJlNjQ5YmM3MTc5IiwidCI6IjcwM2ZiM2ZjLTI3ZTAtNDEyYS1hZjAxLWZkNWMzY2Q5OWU1MyJ9" target="_blank" rel="noopener" class="pbi-btn" style="background:#F2C811; color:#000; font-weight:700;" title="Abrir Relatório Oficial no Power BI Service Cloud da Microsoft">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Power BI Cloud
+            </a>
+            <button class="pbi-btn" id="btn-toggle-embed" onclick="toggleEmbedMode()" style="background:#1e293b; color:#38bdf8; border-color:rgba(56,189,248,0.4);" title="Alternar entre Visualizador HD e Nuvem Power BI Online">
+                <i class="fa-solid fa-cloud"></i> <span id="lbl-toggle-embed">Ver Nuvem Online</span>
+            </button>
+            <button class="pbi-btn" onclick="toggleDaxDrawer()" title="Ver Medidas DAX e Modelagem Star Schema">
+                <i class="fa-solid fa-code"></i> Modelagem DAX
+            </button>
+            <button class="pbi-btn pbi-btn-primary" onclick="toggleFullScreen()">
+                <i class="fa-solid fa-expand"></i> Tela Cheia
+            </button>
+            <a href="../index.html" class="pbi-btn" style="background:#252830; color:#f5d372; border:1px solid rgba(203,151,39,0.5); font-weight:700;" title="Voltar ao Portfólio Principal">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao Portfólio
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN APP -->
+    <div class="app-body">
+        <!-- Service Rail -->
+        <nav class="pbi-rail">
+            <div class="rail-icon active" title="Página Inicial"><i class="fa-solid fa-chart-simple"></i></div>
+            <div class="rail-icon" title="Favoritos"><i class="fa-solid fa-star"></i></div>
+            <div class="rail-icon" title="Compartilhado"><i class="fa-solid fa-users"></i></div>
+            <div class="rail-icon" title="Modelagem"><i class="fa-solid fa-diagram-project"></i></div>
+            <div class="rail-icon" style="margin-top:auto;" title="Configurações"><i class="fa-solid fa-gear"></i></div>
+        </nav>
+
+        <!-- Canvas Area -->
+        <main class="canvas-workspace">
+            <div class="report-viewport" id="viewport">
+                <div class="report-sheet-container" id="sheet-container" style="display:flex;">
+                    <img src="../static/portfolio_screenshots/pbi_07_captured.png" alt="Power BI - Gestão de Transporte Urbano & Frota" class="report-img" id="report-img">
+                </div>
+                <div id="cloud-iframe-container" style="display:none; width:100%; height:100%; position:absolute; top:0; left:0; background:#000;">
+                    <iframe id="cloud-iframe" title="Dashboard PORTIFOLIO07" src="https://app.powerbi.com/view?r=eyJrIjoiMGM2MDVkMmEtNmExYi00NzQxLTk5YzEtNzJlNjQ5YmM3MTc5IiwidCI6IjcwM2ZiM2ZjLTI3ZTAtNDEyYS1hZjAxLWZkNWMzY2Q5OWU1MyJ9" style="width:100%; height:100%; border:none;" allowFullScreen="true"></iframe>
+                </div>
+            </div>
+
+            <!-- Floating Controls -->
+            <div class="canvas-floating-controls">
+                <button class="control-btn" onclick="zoomIn()" title="Aproximar"><i class="fa-solid fa-plus"></i></button>
+                <span class="zoom-level" id="zoom-text">100%</span>
+                <button class="control-btn" onclick="zoomOut()" title="Afastar"><i class="fa-solid fa-minus"></i></button>
+                <div style="width:1px; height:14px; background:rgba(255,255,255,0.2);"></div>
+                <button class="control-btn" onclick="resetZoom()" title="Ajustar à Tela"><i class="fa-solid fa-compress"></i></button>
+            </div>
+
+            
+        </main>
+    </div>
+
+    <!-- DAX DRAWER -->
+    <aside class="dax-drawer" id="dax-drawer">
+        <div class="dax-header">
+            <div class="dax-title">
+                <i class="fa-solid fa-database"></i> Modelagem & Medidas DAX
+            </div>
+            <div class="close-dax" onclick="toggleDaxDrawer()">&times;</div>
+        </div>
+
+        <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:14px; line-height:1.4;">
+            Arquitetura em <b>Star Schema</b> com separação estrita entre tabelas Fato e Dimensão, relacionamentos 1:N unidirecionais e cálculo dinâmico via DAX:
+        </div>
+
+        <div class="dax-item"><span class="dax-name">IPK (Índice de Passageiros por Km) =</span><pre class="dax-code">IPK = 
+DIVIDE(
+    [Total Passageiros Transportados],
+    [Total Km Rodados],
+    0
+)</pre><span class="dax-desc">Indicador-chave de produtividade operacional do sistema de transporte coletivo.</span></div><div class="dax-item"><span class="dax-name">Consumo Médio de Diesel (Km/L) =</span><pre class="dax-code">Consumo Diesel Km_L = 
+DIVIDE(
+    [Total Km Rodados],
+    [Litros Diesel Abastecidos],
+    0
+)</pre><span class="dax-desc">Eficiência energética de combustível por linha, modelo de chassi e garagem.</span></div><div class="dax-item"><span class="dax-name">Custo Operacional por Passageiro =</span><pre class="dax-code">Custo por Passageiro = 
+DIVIDE(
+    [Custo Operacional Total],
+    [Total Passageiros Transportados],
+    0
+)</pre><span class="dax-desc">Métrica C-Level de custo unitário de prestação de serviço de mobilidade.</span></div><div class="dax-item"><span class="dax-name">Disponibilidade Operacional de Frota =</span><pre class="dax-code">Disponibilidade Frota = 
+DIVIDE(
+    [Onibus em Operacao],
+    [Total Frota Cadastrada],
+    0
+)</pre><span class="dax-desc">Percentual de veículos aptos para escala sem retenção para manutenção corretiva.</span></div>
+    </aside>
+
+    <script>
+        
+        let isCloudMode = false;
+        function toggleEmbedMode() {
+            isCloudMode = !isCloudMode;
+            const sheet = document.getElementById('sheet-container');
+            const iframeBox = document.getElementById('cloud-iframe-container');
+            const controls = document.querySelector('.canvas-floating-controls');
+            const lbl = document.getElementById('lbl-toggle-embed');
+            const btn = document.getElementById('btn-toggle-embed');
+            
+            if (isCloudMode) {
+                if (sheet) sheet.style.display = 'none';
+                if (iframeBox) iframeBox.style.display = 'block';
+                if (controls) controls.style.display = 'none';
+                if (lbl) lbl.innerText = 'Ver Versão HD Preservada';
+                if (btn) btn.style.background = '#059669';
+            } else {
+                if (sheet) sheet.style.display = 'flex';
+                if (iframeBox) iframeBox.style.display = 'none';
+                if (controls) controls.style.display = 'flex';
+                if (lbl) lbl.innerText = 'Ver Nuvem Online';
+                if (btn) btn.style.background = '#1e293b';
+            }
+        }
+    
+        let currentZoom = 1.0;
+
+        function updateZoom() {
+            const img = document.getElementById('report-img');
+            img.style.transform = `scale(${currentZoom})`;
+            document.getElementById('zoom-text').innerText = Math.round(currentZoom * 100) + '%';
+        }
+
+        function zoomIn() {
+            if (currentZoom < 2.0) {
+                currentZoom += 0.15;
+                updateZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > 0.6) {
+                currentZoom -= 0.15;
+                updateZoom();
+            }
+        }
+
+        function resetZoom() {
+            currentZoom = 1.0;
+            updateZoom();
+        }
+
+        function toggleFullScreen() {
+            const el = document.documentElement;
+            if (!document.fullscreenElement) {
+                if (el.requestFullscreen) el.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function toggleDaxDrawer() {
+            document.getElementById('dax-drawer').classList.toggle('open');
+        }
+
+        // Tab selection
+        document.querySelectorAll('.pbi-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.pbi-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel TV - Países & Exportação Global (Material de Construção)</title>
+
+    <!-- Google Fonts: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/echarts.min.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --card-dark: #121826;
+            --gold: #cb9727;
+            --gold-light: #f5d372;
+            --green-neon: #00d26a;
+            --red-neon: #ff2424;
+            --yellow-neon: #ffd600;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(18, 24, 38, 0.95);
+            border-bottom: 2px solid rgba(203, 151, 39, 0.3);
+            padding: 8px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .nav-tabs-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .tab-btn {
+            background: #182030;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tab-btn:hover,
+        .tab-btn.active {
+            background: linear-gradient(135deg, #cb9727 0%, #a6781b 100%);
+            color: #000;
+            border-color: #cb9727;
+            box-shadow: 0 0 10px rgba(203, 151, 39, 0.4);
+        }
+
+        .tab-btn.btn-voltar {
+            background: #252830;
+            color: #f5d372;
+            border-color: rgba(203, 151, 39, 0.5);
+        }
+
+        .tab-btn.btn-voltar:hover {
+            background: #cb9727;
+            color: #000;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 960px) {
+            body {
+                overflow: hidden;
+            }
+
+            .dashboard-container {
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .paises-container {
+                flex: 1;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                padding: 6px 16px 8px;
+                box-sizing: border-box;
+                overflow: hidden;
+                max-width: 1800px;
+                width: 100%;
+                margin: 0 auto;
+            }
+
+            .kpi-row-paises {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+                flex-shrink: 0;
+            }
+
+            .charts-row-paises {
+                display: grid;
+                grid-template-columns: 1.35fr 1fr;
+                gap: 8px;
+                flex: 1.15;
+                min-height: 0;
+                overflow: hidden;
+            }
+
+            .chart-box {
+                background: var(--card-dark);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 8px;
+                padding: 8px 12px;
+                height: 100%;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
+                overflow: hidden;
+            }
+
+            .chart-content {
+                flex: 1;
+                width: 100%;
+                height: 100%;
+                min-height: 0;
+            }
+
+            .table-paises-box {
+                background: var(--card-dark);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 8px;
+                padding: 6px 12px 8px;
+                flex: 1;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
+                overflow: hidden;
+            }
+
+            .table-scroll-container {
+                flex: 1;
+                min-height: 0;
+                overflow-y: auto;
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 959px) {
+            .paises-container {
+                padding: 12px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .kpi-row-paises {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .charts-row-paises {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .chart-box {
+                background: var(--card-dark);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 8px;
+                padding: 12px;
+                height: 280px;
+            }
+
+            .table-paises-box {
+                background: var(--card-dark);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 8px;
+                padding: 12px;
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .kpi-row-paises {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .kpi-card-mini {
+            background: var(--card-dark);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 6px 10px;
+            display: flex;
+            flex-direction: column;
+            border-left: 3px solid var(--gold);
+        }
+
+        .kpi-label {
+            font-size: 0.63rem;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .kpi-val {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-top: 1px;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-sub {
+            font-size: 0.62rem;
+            color: #00d26a;
+            font-weight: 700;
+        }
+
+        .chart-box-title {
+            font-size: 0.76rem;
+            font-weight: 800;
+            color: #f5d372;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.70rem;
+        }
+
+        .table-custom th {
+            text-align: left;
+            color: #94a3b8;
+            padding: 4px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-transform: uppercase;
+            font-size: 0.63rem;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            background: #121826;
+            z-index: 5;
+        }
+
+        .table-custom td {
+            padding: 3px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            white-space: nowrap;
+        }
+
+        .table-custom tr:hover {
+            background: rgba(203, 151, 39, 0.12);
+        }
+
+        .badge-pct {
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+        }
+
+        .badge-pct.pos {
+            background: rgba(0, 210, 106, 0.15);
+            color: #00d26a;
+        }
+
+        .badge-pct.warn {
+            background: rgba(255, 214, 0, 0.15);
+            color: #ffd600;
+        }
+
+        .badge-pct.neg {
+            background: rgba(255, 36, 36, 0.15);
+            color: #ff2424;
+        }
+
+        .auto-tv-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(0, 210, 106, 0.15);
+            border: 1px solid #00d26a;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #00d26a;
+            font-weight: 700;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00d26a;
+            box-shadow: 0 0 8px #00d26a;
+            animation: pulse-dot 1.5s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-top">
+                <div class="nav-tabs-container">
+                    <a href="unidades.html" class="tab-btn"><i class="fa-solid fa-gauge-high"></i> Unidade de
+                        Negócios</a>
+                    <a href="trimestre.html" class="tab-btn"><i class="fa-solid fa-chart-pie"></i> Trimestral (Glosas &
+                        RCM)</a>
+                    <a href="mapa_brasil.html" class="tab-btn" style="color:#ffd700;"><i
+                            class="fa-solid fa-map-location-dot"></i> Mapa Brasil</a>
+                    <a href="paises.html" class="tab-btn active"><i class="fa-solid fa-earth-americas"></i> Países &
+                        Global</a>
+                    <a href="../index.html" class="tab-btn btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar ao
+                        Portfólio</a>
+                </div>
+                <div class="header-actions-right" style="display:flex; align-items:center; gap:8px;">
+                    <div class="auto-tv-indicator" id="auto-tv-badge" onclick="toggleAutoTV()" style="cursor:pointer;"
+                        title="Clique para pausar/retomar alternância automática">
+                        <div class="pulse-dot"></div>
+                        <span id="auto-tv-text">AUTO-TV: ATIVA (25s)</span>
+                    </div>
+                    <button class="btn-action" onclick="toggleFullScreen()"><i class="fa-solid fa-expand"></i> Tela
+                        Cheia</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="paises-container">
+            <!-- KPIs Globais -->
+            <div class="kpi-row-paises">
+                <div class="kpi-card-mini">
+                    <span class="kpi-label">Exportação Global Total</span>
+                    <span class="kpi-val">US$ 8.450.000</span>
+                    <span class="kpi-sub">+4.3% acima da meta</span>
+                </div>
+                <div class="kpi-card-mini">
+                    <span class="kpi-label">Meta Global (YTD)</span>
+                    <span class="kpi-val">US$ 8.100.000</span>
+                    <span class="kpi-sub" style="color:#94a3b8;">104.3% Atingimento</span>
+                </div>
+                <div class="kpi-card-mini">
+                    <span class="kpi-label">Containers Embarcados</span>
+                    <span class="kpi-val">342 TEUs</span>
+                    <span class="kpi-sub">+28 vs ano anterior</span>
+                </div>
+                <div class="kpi-card-mini">
+                    <span class="kpi-label">Volume de Materiais</span>
+                    <span class="kpi-val">48.200 Ton</span>
+                    <span class="kpi-sub">Cimento, Aço e Tubos</span>
+                </div>
+                <div class="kpi-card-mini">
+                    <span class="kpi-label">Países Ativos</span>
+                    <span class="kpi-val">12 Mercados</span>
+                    <span class="kpi-sub" style="color:#f5d372;">3 Continentes</span>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="charts-row-paises">
+                <div class="chart-box">
+                    <div class="chart-box-title">
+                        <span>Faturamento por País de Destino (Top Mercados)</span>
+                        <i class="fa-solid fa-globe" style="color:#cb9727;"></i>
+                    </div>
+                    <div id="chart-paises-bar" class="chart-content"></div>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-box-title">
+                        <span>Share por Categoria de Material</span>
+                        <i class="fa-solid fa-pie-chart" style="color:#cb9727;"></i>
+                    </div>
+                    <div id="chart-categorias-pie" class="chart-content"></div>
+                </div>
+            </div>
+
+            <!-- Tabela Detalhada de Países -->
+            <div class="table-paises-box">
+                <div class="chart-box-title">
+                    <span>Auditoria de Embarques Internacionais</span>
+                    <i class="fa-solid fa-ship" style="color:#cb9727;"></i>
+                </div>
+                <div class="table-scroll-container">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>País de Destino</th>
+                                <th>Região Global</th>
+                                <th>Volume (Ton)</th>
+                                <th>Realizado (US$)</th>
+                                <th>Meta (US$)</th>
+                                <th>Atingimento</th>
+                                <th>Status Operacional</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paises-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // DATASET DE MATERIAL DE CONSTRUÇÃO INTERNACIONAL (100% FICTÍCIO)
+        const PAISES_DATA = [
+            { country: 'Chile', region: 'América do Sul', tons: 11400, real: 2150000, meta: 2000000, pct: 107.5, status: 'Embarque Concluído' },
+            { country: 'Argentina', region: 'América do Sul', tons: 9800, real: 1780000, meta: 1700000, pct: 104.7, status: 'Embarque Concluído' },
+            { country: 'Estados Unidos', region: 'América do Norte', tons: 7200, real: 1450000, meta: 1400000, pct: 103.6, status: 'Liberado Alfândega' },
+            { country: 'Paraguai', region: 'América do Sul', tons: 5900, real: 920000, meta: 950000, pct: 96.8, status: 'Em Trânsito' },
+            { country: 'Uruguai', region: 'América do Sul', tons: 4500, real: 710000, meta: 680000, pct: 104.4, status: 'Embarque Concluído' },
+            { country: 'México', region: 'América do Norte', tons: 3800, real: 580000, meta: 550000, pct: 105.5, status: 'Em Trânsito' },
+            { country: 'Colômbia', region: 'América do Sul', tons: 2600, real: 390000, meta: 410000, pct: 95.1, status: 'Programado' },
+            { country: 'Portugal', region: 'Europa', tons: 1900, real: 290000, meta: 260000, pct: 111.5, status: 'Embarque Concluído' },
+            { country: 'Peru', region: 'América do Sul', tons: 1100, real: 180000, meta: 150000, pct: 120.0, status: 'Embarque Concluído' }
+        ];
+
+        const CATEGORIAS_DATA = [
+            { name: 'Cimento & Argamassas', value: 3200000 },
+            { name: 'Aço Estrutural CA-50', value: 2450000 },
+            { name: 'Cerâmicas & Porcelanato', value: 1350000 },
+            { name: 'Tubos & Conexões PVC', value: 950000 },
+            { name: 'Tintas & Impermeabilizantes', value: 500000 }
+        ];
+
+        let autoTvActive = true;
+        let autoTvSeconds = 25;
+
+        function formatUSD(v) {
+            return '$ ' + Number(v).toLocaleString('en-US');
+        }
+
+        function initCharts() {
+            // 1. Gráfico de Barras Países
+            const barDom = document.getElementById('chart-paises-bar');
+            const barChart = echarts.init(barDom);
+
+            const countries = PAISES_DATA.map(p => p.country).reverse();
+            const values = PAISES_DATA.map(p => p.real / 1000).reverse();
+
+            barChart.setOption({
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    backgroundColor: 'rgba(18, 24, 38, 0.95)',
+                    borderColor: '#cb9727',
+                    textStyle: { color: '#ffffff', fontFamily: 'Montserrat' },
+                    formatter: function (params) {
+                        const item = params[0];
+                        return `<strong>${item.name}</strong><br/>Faturamento: <strong>US$ ${(item.value * 1000).toLocaleString('en-US')}</strong>`;
+                    }
+                },
+                grid: { top: 10, bottom: 25, left: 110, right: 30 },
+                xAxis: {
+                    type: 'value',
+                    axisLabel: { color: '#94a3b8', formatter: '${value}k' },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: countries,
+                    axisLabel: { color: '#ffffff', fontWeight: '700', fontSize: 11 }
+                },
+                series: [{
+                    type: 'bar',
+                    data: values,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [
+                            { offset: 0, color: '#f5d372' },
+                            { offset: 1, color: '#cb9727' }
+                        ]),
+                        borderRadius: [0, 4, 4, 0]
+                    },
+                    barWidth: 10
+                }]
+            });
+
+            // 2. Gráfico de Pizza Categorias
+            const pieDom = document.getElementById('chart-categorias-pie');
+            const pieChart = echarts.init(pieDom);
+
+            pieChart.setOption({
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(18, 24, 38, 0.95)',
+                    borderColor: '#cb9727',
+                    textStyle: { color: '#ffffff', fontFamily: 'Montserrat' },
+                    formatter: '{b}: US$ {c} ({d}%)'
+                },
+                legend: {
+                    bottom: 2,
+                    itemWidth: 10,
+                    itemHeight: 8,
+                    textStyle: { color: '#94a3b8', fontSize: 9 }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['38%', '68%'],
+                    center: ['50%', '42%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 6,
+                        borderColor: '#121826',
+                        borderWidth: 2
+                    },
+                    label: { show: false },
+                    data: CATEGORIAS_DATA,
+                    color: ['#cb9727', '#00d26a', '#3b82f6', '#ec4899', '#f97316']
+                }]
+            });
+
+            window.addEventListener('resize', () => {
+                barChart.resize();
+                pieChart.resize();
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('paises-table-body');
+            tbody.innerHTML = PAISES_DATA.map(p => {
+                const cls = p.pct >= 100 ? 'pos' : (p.pct >= 80 ? 'warn' : 'neg');
+                return `
+                    <tr>
+                        <td><strong>${p.country}</strong></td>
+                        <td>${p.region}</td>
+                        <td>${p.tons.toLocaleString('pt-BR')} Ton</td>
+                        <td><strong>${formatUSD(p.real)}</strong></td>
+                        <td>${formatUSD(p.meta)}</td>
+                        <td><span class="badge-pct ${cls}">${p.pct.toFixed(1)}%</span></td>
+                        <td><span style="color:#f5d372; font-weight:600;"><i class="fa-solid fa-circle-check" style="color:#00d26a;"></i> ${p.status}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function toggleAutoTV() {
+            autoTvActive = !autoTvActive;
+            const badge = document.getElementById('auto-tv-badge');
+            const txt = document.getElementById('auto-tv-text');
+            if (autoTvActive) {
+                badge.style.borderColor = '#00d26a';
+                badge.style.color = '#00d26a';
+                txt.innerText = `AUTO-TV: ATIVA (${autoTvSeconds}s)`;
+            } else {
+                badge.style.borderColor = '#ff2424';
+                badge.style.color = '#ff2424';
+                txt.innerText = 'AUTO-TV: PAUSADA';
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => { });
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            renderTable();
+
+            // Auto-TV (Paises -> Volta para Unidades de Negocios)
+            setInterval(() => {
+                if (!autoTvActive) return;
+                autoTvSeconds--;
+                if (autoTvSeconds <= 0) {
+                    autoTvSeconds = 25;
+                    window.location.href = 'index.html';
+                }
+                const txt = document.getElementById('auto-tv-text');
+                if (txt && autoTvActive) txt.innerText = `AUTO-TV: ATIVA (${autoTvSeconds}s)`;
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>
